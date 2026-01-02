@@ -4,6 +4,7 @@ import { RouterProvider } from "react-router-dom";
 import { router } from "./routes";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
+// test pull request
 createRoot(document.getElementById("root")!).render(
   <ErrorBoundary>
     <RouterProvider router={router} />
