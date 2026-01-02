@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@/tests/utils/test-utils";
-import { Input } from "@/components/atoms";
+import { Input } from "@/components/atomic/atoms";
 
 describe("Input Component", () => {
   it("renders input element", () => {

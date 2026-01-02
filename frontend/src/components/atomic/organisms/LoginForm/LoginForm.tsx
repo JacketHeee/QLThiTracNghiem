@@ -1,5 +1,5 @@
-import { Button } from "@/components/atoms";
-import { FormField } from "@/components/molecules";
+import { Button } from "@/components/atomic/atoms";
+import { FormField } from "@/components/atomic/molecules";
 
 export default function LoginForm() {
   return (

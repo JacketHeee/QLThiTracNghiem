@@ -1,7 +1,6 @@
-import { AuthTemplate, LoginForm } from "@/components";
+import { AuthTemplate, LoginForm } from "@/components/atomic";
 
 export default function LoginPage() {
-  throw new Error("💥 Route Error - Caught by ErrorPage!");
   return (
     <AuthTemplate>
       <LoginForm />

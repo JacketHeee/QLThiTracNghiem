@@ -1,3 +1,4 @@
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useState } from "react";
 
 // Component test cho ErrorBoundary wrapper
@@ -110,18 +111,22 @@ export default function ErrorBoundaryTestPage() {
 
           <div className="space-y-4">
             {/* Test 0: ErrorBoundary Wrapper */}
-            <div className="border border-blue-300 bg-blue-50 rounded-lg p-4">
-              <h3 className="font-semibold text-blue-900 mb-2">
-                0. ErrorBoundary Component (Wrapper)
-              </h3>
-              <p className="text-sm text-blue-700 mb-3">
-                ✅ Caught by{" "}
-                <code className="bg-blue-100 px-1 rounded">ErrorBoundary</code>{" "}
-                wrapper (shows ErrorBoundary UI inside this card)
-              </p>
+            <ErrorBoundary>
+              <div className="border border-blue-300 bg-blue-50 rounded-lg p-4">
+                <h3 className="font-semibold text-blue-900 mb-2">
+                  0. ErrorBoundary Component (Wrapper)
+                </h3>
+                <p className="text-sm text-blue-700 mb-3">
+                  ✅ Caught by{" "}
+                  <code className="bg-blue-100 px-1 rounded">
+                    ErrorBoundary
+                  </code>{" "}
+                  wrapper (shows ErrorBoundary UI inside this card)
+                </p>
 
-              <BoundaryWrapperTest />
-            </div>
+                <BoundaryWrapperTest />
+              </div>
+            </ErrorBoundary>
 
             {/* Test 1: Route Error */}
             <div className="border border-neutral-200 rounded-lg p-4">

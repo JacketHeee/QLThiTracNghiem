@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@/tests/utils/test-utils";
-import { Button } from "@/components/atoms";
+import { Button } from "@/components/atomic/atoms";
 
 describe("Button Component", () => {
   it("renders button with text", () => {
