@@ -1,0 +1,27 @@
+{
+    "name": "core/backend-api",
+    "description": "Backend API quản lý thi trắc nghiệm",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Backend team"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "vlucas/phpdotenv": "^5.6",
+        "firebase/php-jwt": "^6.10",
+        "ramsey/uuid": "^4.9"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "platform": {
+            "php": "8.2.0"
+        }
+    }
+}
