@@ -1,0 +1,6 @@
+# MODULE THƯ VIỆN 
+/vendor/
+*.swp
+
+# BIẾN MÔI TRƯỜNG
+.env
