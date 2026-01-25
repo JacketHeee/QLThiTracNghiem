@@ -1,0 +1,13 @@
+{
+  "hello": "Xin chào",
+  "login": {
+    "title": "Đăng nhập",
+    "submit": "Đăng nhập"
+  },
+  "navigation": {
+    "home": "Trang chủ",
+    "login": "Đăng nhập",
+    "errorPage": "Trang test lỗi",
+    "lang": "Ngôn ngữ (Nhấn để thấy thay đổi)"
+  }
+}

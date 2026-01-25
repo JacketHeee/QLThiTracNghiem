@@ -1,0 +1,13 @@
+{
+  "hello": "Hello",
+  "login": {
+    "title": "Login",
+    "submit": "Sign in"
+  },
+  "navigation": {
+    "home": "Home",
+    "login": "Login",
+    "errorPage": "error page",
+    "lang": "Language (Click to change)"
+  }
+}
