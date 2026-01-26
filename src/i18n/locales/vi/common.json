@@ -1,8 +1,35 @@
 {
   "hello": "Xin chào",
   "login": {
-    "title": "Đăng nhập",
-    "submit": "Đăng nhập"
+    "welcome": "Chào mừng bạn trở lại!",
+    "subtitle": "Vui lòng đăng nhập để bắt đầu phiên làm việc.",
+    "email": "Email",
+    "emailPlaceholder": "Nhập email của bạn",
+    "password": "Mật khẩu",
+    "passwordPlaceholder": "********",
+    "rememberMe": "Duy trì đăng nhập",
+    "forgotPassword": "Quên mật khẩu",
+    "submit": "ĐĂNG NHẬP",
+    "noAccount": "Chưa có tài khoản?",
+    "registerNow": "Đăng ký ngay.",
+    "or": "hoặc",
+    "googleLogin": "Đăng nhập với Google"
+  },
+  "register": {
+    "welcome": "Khởi đầu quản lý hiệu quả.",
+    "subtitle": "Giúp việc điều hành kỳ thi trở nên đơn giản và tối ưu hơn!",
+    "username": "Tên đăng nhập",
+    "usernamePlaceholder": "Nhập tên đăng nhập",
+    "email": "Email",
+    "emailPlaceholder": "Nhập email của bạn",
+    "password": "Mật khẩu",
+    "passwordPlaceholder": "********",
+    "agreeTerms": "Đồng ý với Chính sách & Điều khoản.",
+    "submit": "ĐĂNG KÝ",
+    "hasAccount": "Bạn đã có tài khoản?",
+    "loginNow": "Đăng nhập ngay.",
+    "or": "hoặc",
+    "googleLogin": "Đăng nhập với Google"
   },
   "navigation": {
     "home": "Trang chủ",
