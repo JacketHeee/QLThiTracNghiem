@@ -2,6 +2,7 @@ import { Button } from "@/components/atomic/atoms";
 import { FormField } from "@/components/atomic/molecules";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import googleIcon from "@/assets/icons/google-icon.svg";
 
 export default function RegisterForm() {
   const { t } = useTranslation();
@@ -83,11 +84,7 @@ export default function RegisterForm() {
       </div>
 
       <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-600 transition-all hover:bg-gray-50">
-        <img
-          src="https://www.svgrepo.com/show/355037/google.svg"
-          className="h-4 w-4"
-          alt="Google"
-        />
+        <img src={googleIcon} className="h-5 w-5" alt="Google" />
         {t("register.googleLogin")}
       </button>
     </div>
