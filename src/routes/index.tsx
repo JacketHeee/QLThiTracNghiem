@@ -1,5 +1,6 @@
 import App from "@/App";
 import LoginPage from "@/pages/auth/LoginPage";
+import RegisterPage from "@/pages/auth/RegisterPage";
 import HomePage from "@/pages/home/HomePage";
 import NotFoundPage from "@/pages/not-found/NotFoundPage";
 import ErrorPage from "@/pages/error/ErrorPage";
@@ -18,6 +19,11 @@ export const router = createBrowserRouter([
   {
     path: "/login",
     element: <LoginPage />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/register",
+    element: <RegisterPage />,
     errorElement: <ErrorPage />,
   },
   {
