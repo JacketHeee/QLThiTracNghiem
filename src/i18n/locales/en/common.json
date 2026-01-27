@@ -1,8 +1,35 @@
 {
   "hello": "Hello",
   "login": {
-    "title": "Login",
-    "submit": "Sign in"
+    "welcome": "Welcome back!",
+    "subtitle": "Please login to start your session.",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email",
+    "password": "Password",
+    "passwordPlaceholder": "********",
+    "rememberMe": "Keep me logged in",
+    "forgotPassword": "Forgot password",
+    "submit": "LOGIN",
+    "noAccount": "Don't have an account?",
+    "registerNow": "Register now.",
+    "or": "or",
+    "googleLogin": "Login with Google"
+  },
+  "register": {
+    "welcome": "Start managing effectively.",
+    "subtitle": "Makes exam management simpler and more optimal!",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email",
+    "password": "Password",
+    "passwordPlaceholder": "********",
+    "agreeTerms": "Agree to the Terms & Conditions.",
+    "submit": "REGISTER",
+    "hasAccount": "Already have an account?",
+    "loginNow": "Login now.",
+    "or": "or",
+    "googleLogin": "Login with Google"
   },
   "navigation": {
     "home": "Home",

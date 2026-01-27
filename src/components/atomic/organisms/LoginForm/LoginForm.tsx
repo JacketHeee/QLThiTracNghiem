@@ -1,12 +1,88 @@
 import { Button } from "@/components/atomic/atoms";
 import { FormField } from "@/components/atomic/molecules";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import googleIcon from "@/assets/icons/google-icon.svg";
 
 export default function LoginForm() {
+  const { t } = useTranslation();
+
   return (
-    <form className="flex flex-col gap-4">
-      <FormField label="Email" name="email" />
-      <FormField label="Password" name="password" type="password" />
-      <Button type="submit">Login</Button>
-    </form>
+    <div className="flex flex-col">
+      <div className="mb-8 flex flex-col items-center">
+        <div className="mb-4 flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 font-bold text-white">
+            M
+          </div>
+          <span className="text-2xl font-bold text-gray-700">MaHiChAn</span>
+        </div>
+        <h2 className="text-mahichan-primary text-xl font-bold">
+          {t("login.welcome")}
+        </h2>
+        <p className="text-mahichan-secondary text-sm">{t("login.subtitle")}</p>
+      </div>
+
+      <form className="text-mahichan-primary flex flex-col gap-5">
+        <FormField
+          label={t("login.email")}
+          name="email"
+          placeholder={t("login.emailPlaceholder")}
+        />
+
+        <FormField
+          label={t("login.password")}
+          name="password"
+          type="password"
+          placeholder={t("login.passwordPlaceholder")}
+        />
+
+        <div className="flex items-center justify-between text-sm">
+          <label className="text-mahichan-secondary flex cursor-pointer items-center gap-2">
+            <input
+              type="checkbox"
+              className="h-4 w-4 rounded border-gray-300"
+            />
+            {t("login.rememberMe")}
+          </label>
+          <a href="#" className="font-medium text-indigo-500 hover:underline">
+            {t("login.forgotPassword")}
+          </a>
+        </div>
+
+        <Button
+          type="submit"
+          className="w-full rounded-xl bg-indigo-500 py-3 font-bold text-white transition-all hover:bg-indigo-600"
+        >
+          {t("login.submit")}
+        </Button>
+      </form>
+
+      <div className="mt-6 text-center text-sm text-gray-500">
+        {t("login.noAccount")}{" "}
+        <Link
+          to="/register"
+          className="font-bold text-indigo-500 hover:underline"
+        >
+          {t("login.registerNow")}
+        </Link>
+      </div>
+
+      <div className="relative my-8 w-full">
+        <div className="absolute inset-0 flex items-center" aria-hidden="true">
+          <div className="w-full border-t border-gray-200"></div>
+        </div>
+
+        <div className="relative flex justify-center text-sm">
+          <span className="bg-white px-4 font-medium text-gray-400">
+            {t("login.or")}
+          </span>
+        </div>
+      </div>
+
+      <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 py-3 font-medium text-gray-600 transition-all hover:bg-gray-50">
+        <img src={googleIcon} className="h-5 w-5" alt="Google" />
+        {t("login.googleLogin")}
+      </button>
+    </div>
   );
 }
