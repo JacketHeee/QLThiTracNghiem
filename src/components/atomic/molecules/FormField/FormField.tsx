@@ -83,7 +83,7 @@ export default function FormField({
     <div className="flex w-full flex-col gap-1.5">
       {/* Label: Sử dụng text-muted cho nhẹ nhàng, chuyên nghiệp */}
       <label
-        className="mb-0.5 text-[13px] font-medium text-muted"
+        className="text-muted mb-0.5 text-[13px] font-medium"
         htmlFor={name}
       >
         {label}
@@ -104,7 +104,7 @@ export default function FormField({
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             // Icon mặc định màu muted, khi hover đổi sang primary
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted transition-colors hover:text-primary"
+            className="text-muted absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:text-primary"
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>

@@ -13,17 +13,17 @@ export default function RegisterForm() {
       <div className="mb-4 flex flex-col items-center">
         <div className="mb-2 flex items-center gap-2">
           <img src={logoIcon} alt="Logo" className="h-10 w-10 object-contain" />
-          <span className="text-2xl font-bold text-main">MaHiChAn</span>
+          <span className="text-main text-2xl font-bold">MaHiChAn</span>
         </div>
-        <h2 className="text-center text-xl font-bold text-main">
+        <h2 className="text-main text-center text-xl font-bold">
           {t("register.welcome")}
         </h2>
-        <p className="mt-1 text-center text-sm text-muted">
+        <p className="text-muted mt-1 text-center text-sm">
           {t("register.subtitle")}
         </p>
       </div>
 
-      <form className="flex flex-col gap-3 text-main">
+      <form className="text-main flex flex-col gap-3">
         <FormField
           label={t("register.username")}
           name="username"
@@ -48,7 +48,7 @@ export default function RegisterForm() {
               type="checkbox"
               className="h-4 w-4 rounded border-neutral-200 accent-primary"
             />
-            <span className="text-[13px] text-muted">
+            <span className="text-muted text-[13px]">
               {t("register.agreeTerms")}
             </span>
           </label>
@@ -62,7 +62,7 @@ export default function RegisterForm() {
         </Button>
       </form>
 
-      <div className="mt-4 text-center text-sm text-muted">
+      <div className="text-muted mt-4 text-center text-sm">
         {t("register.hasAccount")}{" "}
         <Link to="/login" className="font-bold text-primary hover:underline">
           {t("register.loginNow")}
@@ -74,13 +74,13 @@ export default function RegisterForm() {
           <div className="w-full border-t border-neutral-200"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="bg-white px-4 text-xs font-medium text-muted">
+          <span className="text-muted bg-white px-4 text-xs font-medium">
             {t("register.or")}
           </span>
         </div>
       </div>
 
-      <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 py-2.5 text-sm font-medium text-main transition-all hover:bg-neutral-50">
+      <button className="text-main flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 py-2.5 text-sm font-medium transition-all hover:bg-neutral-50">
         <img src={googleIcon} className="h-5 w-5" alt="Google" />
         {t("register.googleLogin")}
       </button>
