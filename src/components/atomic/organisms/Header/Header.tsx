@@ -1,5 +1,6 @@
 import searchIcon from "@/assets/icons/search-icon.svg";
 import avtIcon from "@/assets/icons/avt-icon.svg";
+import ThemeToggle from "../../molecules/ToggleTheme/ToggleTheme";
 
 export const Header = () => {
   return (
@@ -14,6 +15,7 @@ export const Header = () => {
       </div>
 
       <div className="flex items-center gap-4">
+        <ThemeToggle />
         <button className="h-10 w-10 overflow-hidden rounded-full border border-gray-200 p-0.5">
           <img
             src={avtIcon}
