@@ -11,18 +11,16 @@ export default function LoginForm() {
     <div className="flex flex-col">
       <div className="mb-8 flex flex-col items-center">
         <div className="mb-4 flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 font-bold text-white">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary font-bold text-white">
             M
           </div>
-          <span className="text-2xl font-bold text-gray-700">MaHiChAn</span>
+          <span className="text-2xl font-bold text-main">MaHiChAn</span>
         </div>
-        <h2 className="text-mahichan-primary text-xl font-bold">
-          {t("login.welcome")}
-        </h2>
-        <p className="text-mahichan-secondary text-sm">{t("login.subtitle")}</p>
+        <h2 className="text-xl font-bold text-main">{t("login.welcome")}</h2>
+        <p className="text-sm text-muted">{t("login.subtitle")}</p>
       </div>
 
-      <form className="text-mahichan-primary flex flex-col gap-5">
+      <form className="flex flex-col gap-5 text-main">
         <FormField
           label={t("login.email")}
           name="email"
@@ -37,49 +35,46 @@ export default function LoginForm() {
         />
 
         <div className="flex items-center justify-between text-sm">
-          <label className="text-mahichan-secondary flex cursor-pointer items-center gap-2">
+          <label className="flex cursor-pointer items-center gap-2 text-main">
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-gray-300"
+              className="h-4 w-4 rounded border-neutral-200 accent-primary"
             />
             {t("login.rememberMe")}
           </label>
-          <a href="#" className="font-medium text-indigo-500 hover:underline">
+          <a href="#" className="font-medium text-primary hover:underline">
             {t("login.forgotPassword")}
           </a>
         </div>
 
         <Button
           type="submit"
-          className="w-full rounded-xl bg-indigo-500 py-3 font-bold text-white transition-all hover:bg-indigo-600"
+          className="w-full rounded-xl bg-primary py-3 font-bold text-white transition-all hover:opacity-90"
         >
           {t("login.submit")}
         </Button>
       </form>
 
-      <div className="mt-6 text-center text-sm text-gray-500">
+      <div className="mt-6 text-center text-sm text-muted">
         {t("login.noAccount")}{" "}
-        <Link
-          to="/register"
-          className="font-bold text-indigo-500 hover:underline"
-        >
+        <Link to="/register" className="font-bold text-primary hover:underline">
           {t("login.registerNow")}
         </Link>
       </div>
 
       <div className="relative my-8 w-full">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
-          <div className="w-full border-t border-gray-200"></div>
+          <div className="w-full border-t border-neutral-200"></div>
         </div>
 
         <div className="relative flex justify-center text-sm">
-          <span className="bg-white px-4 font-medium text-gray-400">
+          <span className="bg-white px-4 font-medium text-muted">
             {t("login.or")}
           </span>
         </div>
       </div>
 
-      <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 py-3 font-medium text-gray-600 transition-all hover:bg-gray-50">
+      <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 py-3 font-medium text-main transition-all hover:bg-neutral-50">
         <img src={googleIcon} className="h-5 w-5" alt="Google" />
         {t("login.googleLogin")}
       </button>
