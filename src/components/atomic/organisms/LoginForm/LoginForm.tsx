@@ -1,12 +1,18 @@
 import { Button } from "@/components/atomic/atoms";
 import { FormField } from "@/components/atomic/molecules";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import googleIcon from "@/assets/icons/google-icon.svg";
 import logoIcon from "@/assets/icons/logo-icon.svg";
 
 export default function LoginForm() {
   const { t } = useTranslation();
+
+  const navigation = useNavigate();
+
+  const handleClick = () => {
+    navigation("/dashboard");
+  };
 
   return (
     <div className="flex flex-col">
@@ -49,6 +55,7 @@ export default function LoginForm() {
         <Button
           type="submit"
           className="w-full rounded-xl bg-primary py-3 font-bold text-white transition-all hover:opacity-90"
+          onClick={handleClick}
         >
           {t("login.submit")}
         </Button>
@@ -73,10 +80,13 @@ export default function LoginForm() {
         </div>
       </div>
 
-      <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 py-3 font-medium text-main transition-all hover:bg-neutral-50">
+      <Button
+        type="button"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 py-3 font-medium text-main transition-all hover:bg-neutral-50"
+      >
         <img src={googleIcon} className="h-5 w-5" alt="Google" />
         {t("login.googleLogin")}
-      </button>
+      </Button>
     </div>
   );
 }
