@@ -1,5 +1,5 @@
 export const colors = {
-  primary: "#1D4ED8",
+  primary: "#6366F1",
   secondary: "#9333EA",
   accent: "#F59E0B",
   neutral: {
@@ -8,7 +8,8 @@ export const colors = {
     200: "#E5E7EB",
   },
   text: {
-    default: "#111827",
-    muted: "#6B7280",
+    main: "#374151",
+    muted: "#545458",
+    disabled: "#C6C6CD",
   },
 };
