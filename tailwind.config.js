@@ -15,9 +15,13 @@ export default {
         accent: {
           DEFAULT: colors.accent,
         },
-        neutral: colors.neutral,
-        text: colors.text,
+        neutral: colors.neutral, 
       },
+      textColor: {
+        main: colors.text.main,
+        muted: colors.text.muted,
+        disabled: colors.text.disabled,
+      }
     },
   },
   plugins: [],
