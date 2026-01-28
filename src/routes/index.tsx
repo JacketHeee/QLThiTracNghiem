@@ -6,11 +6,13 @@ import NotFoundPage from "@/pages/not-found/NotFoundPage";
 import ErrorPage from "@/pages/error/ErrorPage";
 import ErrorBoundaryTestPage from "@/pages/test/ErrorBoundaryTestPage";
 import { createBrowserRouter } from "react-router-dom";
+import { MainLayout } from "@/components/atomic/templates/MainLayout/MainLayout";
+import { DashboardPage } from "@/pages/dashboard/DashboardPage";
 
 export const router = createBrowserRouter([
   {
     element: <App />,
-    errorElement: <ErrorPage />, // Dùng ErrorPage thay vì default Router v7 UI
+    errorElement: <ErrorPage />,
     children: [
       { path: "/", element: <HomePage /> },
       { path: "/test-error-boundary", element: <ErrorBoundaryTestPage /> },
@@ -25,6 +27,16 @@ export const router = createBrowserRouter([
     path: "/register",
     element: <RegisterPage />,
     errorElement: <ErrorPage />,
+  },
+  {
+    path: "/",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "dashboard",
+        element: <DashboardPage />,
+      },
+    ],
   },
   {
     path: "*",

@@ -3,6 +3,7 @@ import { FormField } from "@/components/atomic/molecules";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import googleIcon from "@/assets/icons/google-icon.svg";
+import logoIcon from "@/assets/icons/logo-icon.svg";
 
 export default function RegisterForm() {
   const { t } = useTranslation();
@@ -11,9 +12,7 @@ export default function RegisterForm() {
     <div className="flex flex-col">
       <div className="mb-4 flex flex-col items-center">
         <div className="mb-2 flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary font-bold text-white">
-            M
-          </div>
+          <img src={logoIcon} alt="Logo" className="h-10 w-10 object-contain" />
           <span className="text-2xl font-bold text-main">MaHiChAn</span>
         </div>
         <h2 className="text-center text-xl font-bold text-main">
