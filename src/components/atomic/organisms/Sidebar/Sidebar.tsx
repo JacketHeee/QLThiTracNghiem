@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button, Icon } from "../../atoms";
 
 const SIDEBAR_SECTIONS = [
@@ -8,72 +9,72 @@ const SIDEBAR_SECTIONS = [
     items: [
       {
         icon: "home",
-        label: "Tổng quan",
+        labelKey: "sidebar.overview",
         to: "/dashboard",
       },
     ],
   },
   {
-    title: "SINH VIÊN",
+    title: "sidebar.sections.student",
     items: [
       {
         icon: "users",
-        label: "Học phần",
+        labelKey: "sidebar.items.courses",
         to: "/courses",
       },
       {
         icon: "academyCap",
-        label: "Đề thi",
+        labelKey: "sidebar.items.exams",
         to: "/exams",
       },
     ],
   },
   {
-    title: "QUẢN LÝ",
+    title: "sidebar.sections.management",
     items: [
       {
         icon: "clipboard",
-        label: "Nhóm học phần",
+        labelKey: "sidebar.items.courseGroup",
         to: "/course-group",
       },
       {
         icon: "question",
-        label: "Câu hỏi",
+        labelKey: "sidebar.items.questions",
         to: "/question",
       },
       {
         icon: "user",
-        label: "Người dùng",
+        labelKey: "sidebar.items.users",
         to: "/users",
       },
       {
         icon: "folder",
-        label: "Môn học",
+        labelKey: "sidebar.items.subjects",
         to: "/subjects",
       },
       {
         icon: "refresh",
-        label: "Phân công",
+        labelKey: "sidebar.items.assignments",
         to: "/assignments",
       },
       {
         icon: "documentDuplicate",
-        label: "Đề kiểm tra",
+        labelKey: "sidebar.items.tests",
         to: "/tests",
       },
       {
         icon: "massage",
-        label: "Thông báo",
+        labelKey: "sidebar.items.notifications",
         to: "/notifications",
       },
     ],
   },
   {
-    title: "QUẢN TRỊ",
+    title: "sidebar.sections.admin",
     items: [
       {
         icon: "groupUser",
-        label: "Nhóm quyền",
+        labelKey: "sidebar.items.permissionGroups",
         to: "/permission-groups",
       },
     ],
@@ -82,6 +83,7 @@ const SIDEBAR_SECTIONS = [
 
 export const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <div
@@ -118,10 +120,10 @@ export const Sidebar = () => {
                   {({ isActive }) => (
                     <Button
                       className={`w-full justify-start ${isActive && "bg-action-selected"}`}
-                      tooltip={isCollapsed ? child.label : undefined}
+                      tooltip={isCollapsed ? t(child.labelKey) : undefined}
                     >
                       <Icon name={child.icon} className="shrink-0" />
-                      {!isCollapsed && child.label}
+                      {!isCollapsed && t(child.labelKey)}
                     </Button>
                   )}
                 </NavLink>
@@ -138,7 +140,7 @@ export const Sidebar = () => {
                 <div className="flex items-center gap-4">
                   <span className="h-0.5 w-4 bg-other-divider" />
                   <span className="text-caption overflow-hidden text-nowrap text-text-disabled">
-                    {item.title}
+                    {t(item.title)}
                   </span>
                 </div>
               )}
@@ -149,10 +151,10 @@ export const Sidebar = () => {
                     {({ isActive }) => (
                       <Button
                         className={`w-full justify-start ${isActive && "bg-action-selected"}`}
-                        tooltip={isCollapsed ? child.label : undefined}
+                        tooltip={isCollapsed ? t(child.labelKey) : undefined}
                       >
                         <Icon name={child.icon} className="shrink-0" />
-                        {!isCollapsed && child.label}
+                        {!isCollapsed && t(child.labelKey)}
                       </Button>
                     )}
                   </NavLink>

@@ -36,5 +36,29 @@
     "login": "Đăng nhập",
     "errorPage": "Trang test lỗi",
     "lang": "Ngôn ngữ (Nhấn để thấy thay đổi)"
+  },
+  "sidebar": {
+    "overview": "Tổng quan",
+    "sections": {
+      "student": "SINH VIÊN",
+      "management": "QUẢN LÝ",
+      "admin": "QUẢN TRỊ"
+    },
+    "items": {
+      "courses": "Học phần",
+      "exams": "Đề thi",
+      "courseGroup": "Nhóm học phần",
+      "questions": "Câu hỏi",
+      "users": "Người dùng",
+      "subjects": "Môn học",
+      "assignments": "Phân công",
+      "tests": "Đề kiểm tra",
+      "notifications": "Thông báo",
+      "permissionGroups": "Nhóm quyền"
+    }
+  },
+  "header": {
+    "search": "Tìm kiếm",
+    "user": "Người dùng"
   }
 }

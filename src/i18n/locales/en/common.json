@@ -36,5 +36,29 @@
     "login": "Login",
     "errorPage": "error page",
     "lang": "Language (Click to change)"
+  },
+  "sidebar": {
+    "overview": "Overview",
+    "sections": {
+      "student": "STUDENT",
+      "management": "MANAGEMENT",
+      "admin": "ADMIN"
+    },
+    "items": {
+      "courses": "Courses",
+      "exams": "Exams",
+      "courseGroup": "Course Groups",
+      "questions": "Questions",
+      "users": "Users",
+      "subjects": "Subjects",
+      "assignments": "Assignments",
+      "tests": "Tests",
+      "notifications": "Notifications",
+      "permissionGroups": "Permission Groups"
+    }
+  },
+  "header": {
+    "search": "Search",
+    "user": "User"
   }
 }

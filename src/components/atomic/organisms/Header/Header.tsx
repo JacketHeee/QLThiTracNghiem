@@ -1,28 +1,44 @@
-import { GLYPHS, Icon } from "../../atoms";
-import ThemeToggle from "../../molecules/ToggleTheme/ToggleTheme";
+import { Header as HeaderBar } from "../../molecules/Header/Header";
+import { Button, ColorPicker, Icon, Input } from "../../atoms";
+import { useThemeStore } from "@/stores/theme.store";
+import { useTranslation } from "react-i18next";
 
-export const Header = () => {
+export default function Header() {
+  const { isDarkMode, toggleTheme } = useThemeStore();
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    i18n.changeLanguage(i18n.language === "vi" ? "en" : "vi");
+  };
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-gray-100 bg-white px-8">
-      <div className="flex w-96 items-center gap-3">
-        <Icon name={GLYPHS.MenuArrow} />
-        <input
-          type="text"
-          placeholder="Tìm kiếm..."
-          className="w-full text-sm text-gray-600 placeholder-gray-400 outline-none"
+    <HeaderBar
+      left={
+        <Input
+          placeholder={t("header.search")}
+          icon={
+            <Button>
+              <Icon name="search" />
+            </Button>
+          }
         />
-      </div>
-
-      <div className="flex items-center gap-4">
-        <ThemeToggle />
-        <button className="h-10 w-10 overflow-hidden rounded-full border border-gray-200 p-0.5">
-          <img
-            src={avtIcon}
-            alt="User Avatar"
-            className="h-full w-full rounded-full object-cover"
-          />
-        </button>
-      </div>
-    </header>
+      }
+      right={
+        <>
+          <ColorPicker />
+          <Button onClick={toggleLanguage} title={t("navigation.lang")}>
+            <Icon name="translate" />
+          </Button>
+          <Button onClick={toggleTheme}>
+            {!isDarkMode ? <Icon name="lightMode" /> : <Icon name="darkMode" />}
+          </Button>
+          <Button>
+            <Icon name="notificationsNone" />
+          </Button>
+          <Button className="p-0">
+            <Icon size={40} name="avatar" />
+          </Button>
+        </>
+      }
+    />
   );
-};
+}
