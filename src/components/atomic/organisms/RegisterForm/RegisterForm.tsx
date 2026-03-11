@@ -1,9 +1,7 @@
-import { Button } from "@/components/atomic/atoms";
+import { Button, Icon } from "@/components/atomic/atoms";
 import { FormField } from "@/components/atomic/molecules";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import googleIcon from "@/assets/icons/google-icon.svg";
-import logoIcon from "@/assets/icons/logo-icon.svg";
 
 export default function RegisterForm() {
   const { t } = useTranslation();
@@ -12,7 +10,7 @@ export default function RegisterForm() {
     <div className="flex flex-col">
       <div className="mb-4 flex flex-col items-center">
         <div className="mb-2 flex items-center gap-2">
-          <img src={logoIcon} alt="Logo" className="h-10 w-10 object-contain" />
+          <Icon name="logoIcon" />
           <span className="text-main text-2xl font-bold">MaHiChAn</span>
         </div>
         <h2 className="text-main text-center text-xl font-bold">
@@ -81,7 +79,7 @@ export default function RegisterForm() {
       </div>
 
       <button className="text-main flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 py-2.5 text-sm font-medium transition-all hover:bg-neutral-50">
-        <img src={googleIcon} className="h-5 w-5" alt="Google" />
+        <Icon name="googleIcon" />
         {t("register.googleLogin")}
       </button>
     </div>

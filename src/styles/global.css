@@ -1,5 +1,6 @@
 @import "./generated/typography.css";
 @import "./generated/colors.css";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -42,4 +43,10 @@
   --color-primary-contrast: #ffffff;
   --color-action-selected: #26c6f914;
   --color-states-active-menu: #26c6f914;
+}
+
+@layer base {
+  html {
+    font-family: "Inter", sans-serif;
+  }
 }
