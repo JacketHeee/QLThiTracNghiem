@@ -1,113 +1,45 @@
+@import "./generated/typography.css";
+@import "./generated/colors.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  * {
-    box-sizing: border-box;
-  }
+/* ===== PRIMARY COLOR PALETTES ===== */
+/* Mặc định (red) — đã định nghĩa trong colors.css, không cần override */
 
-  html,
-  body,
-  #root {
-    height: 100%;
-  }
+[data-primary="blue"] {
+  --color-primary-main: #666cff;
+  --color-primary-dark: #5a5fe0;
+  --color-primary-light: #7a80ff;
+  --color-primary-contrast: #ffffff;
+  --color-action-selected: #666cff14;
+  --color-states-active-menu: #666cff14;
+}
 
-  /* ============================================ */
-  /* LIGHT MODE (default) */
-  /* ============================================ */
-  :root {
-    /* Text */
-    --color-text-primary: #4c4e64de;
-    --color-text-secondary: #4c4e64ad;
-    --color-text-disabled: #4c4e6461;
+[data-primary="green"] {
+  --color-primary-main: #72e128;
+  --color-primary-dark: #64c623;
+  --color-primary-light: #83e542;
+  --color-primary-contrast: #ffffff;
+  --color-action-selected: #72e12814;
+  --color-states-active-menu: #72e12814;
+}
 
-    /* Background */
-    --color-bg-body: #f7f7f9;
-    --color-bg-paper: #ffffff;
-    --color-bg-page-header: #f5f5f7;
-    --color-bg-extra: #f9f8f9;
-    --color-bg-border: #3a35414d;
+[data-primary="orange"] {
+  --color-primary-main: #fdb528;
+  --color-primary-dark: #df9f23;
+  --color-primary-light: #fdbe42;
+  --color-primary-contrast: #ffffff;
+  --color-action-selected: #fdb52814;
+  --color-states-active-menu: #fdb52814;
+}
 
-    /* Action */
-    --color-action-active: #4c4e648a;
-    --color-action-hover: #4c4e640d;
-    --color-action-selected: #4c4e6414;
-    --color-action-disabled: #4c4e6442;
-    --color-action-disabled-bg: #4c4e641f;
-    --color-action-focus: #4c4e641f;
-
-    /* Other */
-    --color-divider: #4c4e641f;
-    --color-outlined-border: #4c4e6438;
-    --color-input-border: #4c4e6438;
-    --color-backdrop: #4c4e6480;
-    --color-tooltip: #262732e6;
-    --color-snackbar: #212121;
-    --color-chip-bg: #3a354114;
-    --color-filled-input-bg: #4c4e640a;
-    --color-rating-active: #fdb528;
-
-    /* Shadows */
-    --shadow-sm:
-      0px 1px 3px 0px #4c4e641f, 0px 1px 1px 0px #4c4e6424,
-      0px 2px 1px -1px #4c4e6433;
-    --shadow-md: 0px 4px 8px -4px #4c4e646b;
-    --shadow-lg: 0px 6px 18px -8px #4c4e648f;
-    --shadow-xl:
-      0px 1px 14px 0px #4c4e641f, 0px 5px 8px 0px #4c4e6424,
-      0px 3px 5px -1px #4c4e6433;
-    --shadow-2xl: 0px 2px 10px 0px #4c4e6438;
-  }
-
-  /* ============================================ */
-  /* DARK MODE */
-  /* ============================================ */
-  .dark {
-    /* Text */
-    --color-text-primary: #eaeaffde;
-    --color-text-secondary: #e7e3fcad;
-    --color-text-disabled: #e7e3fc61;
-
-    /* Background */
-    --color-bg-body: #282a42;
-    --color-bg-paper: #30334e;
-    --color-bg-page-header: #3a3e5b;
-    --color-bg-extra: #3e4461;
-    --color-bg-border: #e7e3fc4d;
-
-    /* Action */
-    --color-action-active: #eaeaff8a;
-    --color-action-hover: #eaeaff0d;
-    --color-action-selected: #eaeaff14;
-    --color-action-disabled: #eaeaff42;
-    --color-action-disabled-bg: #eaeaff1f;
-    --color-action-focus: #eaeaff1f;
-
-    /* Other */
-    --color-divider: #eaeaff1f;
-    --color-outlined-border: #eaf2ff38;
-    --color-input-border: #eaeaff38;
-    --color-backdrop: #10112199;
-    --color-tooltip: #464a65e6;
-    --color-snackbar: #f5f5f5;
-    --color-chip-bg: #e7e3fc14;
-    --color-filled-input-bg: #e7e3fc0a;
-    --color-rating-active: #ffb400;
-
-    /* Shadows */
-    --shadow-sm:
-      0px 1px 3px 0px #1011211f, 0px 1px 1px 0px #10112124,
-      0px 2px 1px -1px #10112133;
-    --shadow-md: 0px 4px 8px -4px #1011216b;
-    --shadow-lg: 0px 6px 18px -8px #1011218f;
-    --shadow-xl:
-      0px 1px 14px 0px #1011211f, 0px 5px 8px 0px #10112124,
-      0px 3px 5px -1px #10112133;
-    --shadow-2xl: 0px 2px 10px 0px #10112138;
-  }
-
-  body {
-    @apply bg-body font-inter text-text-primary antialiased transition-colors duration-200;
-  }
+[data-primary="teal"] {
+  --color-primary-main: #26c6f9;
+  --color-primary-dark: #21aedb;
+  --color-primary-light: #40cdfa;
+  --color-primary-contrast: #ffffff;
+  --color-action-selected: #26c6f914;
+  --color-states-active-menu: #26c6f914;
 }
