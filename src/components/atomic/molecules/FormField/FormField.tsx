@@ -104,7 +104,7 @@ export default function FormField({
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             // Icon mặc định màu muted, khi hover đổi sang primary
-            className="text-muted absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:text-primary"
+            className="text-muted hover:text-primary absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>

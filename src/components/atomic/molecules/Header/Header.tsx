@@ -53,7 +53,7 @@ export default function Header() {
 
 function Card() {
   return (
-    <div className="rounded-lg border border-divider bg-paper p-6 shadow-md">
+    <div className="border-divider bg-paper rounded-lg border p-6 shadow-md">
       // Brand colors (không đổi theo theme)
       <button className="bg-primary text-primary-contrast">Primary</button>
       <span className="text-error">Error text</span>
@@ -76,7 +76,7 @@ function Card() {
       <div className="shadow-sm">Small</div>
       <div className="shadow-xl">Extra large</div>
       // Grid
-      <div className="grid grid-cols-layout gap-gutter">12 columns</div>
+      <div className="grid-cols-layout gap-gutter grid">12 columns</div>
     </div>
   );
 }

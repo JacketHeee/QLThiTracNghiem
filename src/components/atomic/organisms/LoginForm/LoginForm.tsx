@@ -43,18 +43,18 @@ export default function LoginForm() {
           <label className="text-main flex cursor-pointer items-center gap-2">
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-neutral-200 accent-primary"
+              className="accent-primary h-4 w-4 rounded border-neutral-200"
             />
             {t("login.rememberMe")}
           </label>
-          <a href="#" className="font-medium text-primary hover:underline">
+          <a href="#" className="text-primary font-medium hover:underline">
             {t("login.forgotPassword")}
           </a>
         </div>
 
         <Button
           type="submit"
-          className="w-full rounded-xl bg-primary py-3 font-bold text-white transition-all hover:opacity-90"
+          className="bg-primary w-full rounded-xl py-3 font-bold text-white transition-all hover:opacity-90"
           onClick={handleClick}
         >
           {t("login.submit")}
@@ -63,7 +63,7 @@ export default function LoginForm() {
 
       <div className="text-muted mt-6 text-center text-sm">
         {t("login.noAccount")}{" "}
-        <Link to="/register" className="font-bold text-primary hover:underline">
+        <Link to="/register" className="text-primary font-bold hover:underline">
           {t("login.registerNow")}
         </Link>
       </div>

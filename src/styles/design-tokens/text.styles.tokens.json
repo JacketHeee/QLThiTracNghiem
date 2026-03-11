@@ -191,7 +191,7 @@
           "fontWeight": 500,
           "letterSpacing": "0.46px",
           "lineHeight": "26px",
-          "textTransform": "uppercase",
+          "textTransform": "none",
           "textDecoration": "none"
         }
       },
@@ -203,7 +203,7 @@
           "fontWeight": 500,
           "letterSpacing": "0.4px",
           "lineHeight": "24px",
-          "textTransform": "uppercase",
+          "textTransform": "none",
           "textDecoration": "none"
         }
       },
@@ -227,7 +227,7 @@
           "fontWeight": 500,
           "letterSpacing": "0.46px",
           "lineHeight": "22px",
-          "textTransform": "uppercase",
+          "textTransform": "none",
           "textDecoration": "none"
         }
       },

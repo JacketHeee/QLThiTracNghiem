@@ -4,16 +4,16 @@
       "Primary": {
         "$type": "color",
         "$description": "Text primary",
-        "$value": "#4c4e64de"
+        "$value": "#000000de"
       },
       "Secondary": {
         "$type": "color",
         "$description": "Text secondary",
-        "$value": "#4c4e64ad"
+        "$value": "#000000ad"
       },
       "Disabled": {
         "$type": "color",
-        "$value": "#4c4e6461"
+        "$value": "#00000061"
       }
     },
     "Action": {
@@ -25,12 +25,12 @@
       "Hover": {
         "$type": "color",
         "$description": "Fill background for components in hover state (List, Table, etc)",
-        "$value": "#4c4e640d"
+        "$value": "#f6f6f8"
       },
       "Selected": {
         "$type": "color",
         "$description": "Fill background for components in selected state (List, Table, etc)",
-        "$value": "#4c4e6414"
+        "$value": "#fb331114"
       },
       "Disabled": {
         "$type": "color",
@@ -46,6 +46,14 @@
         "$type": "color",
         "$description": "Fill background for components in focus state (List, Table, etc)",
         "$value": "#4c4e641f"
+      },
+      "Infor-back": {
+        "$type": "color",
+        "$value": "#e4f1fb"
+      },
+      "Success-back": {
+        "$type": "color",
+        "$value": "#e6fff2"
       }
     },
     "Other": {
@@ -99,7 +107,7 @@
       },
       "Body Background": {
         "$type": "color",
-        "$value": "#f7f7f9"
+        "$value": "#ffffff"
       },
       "Page Header Background": {
         "$type": "color",
@@ -112,13 +120,21 @@
       "Extra BG": {
         "$type": "color",
         "$value": "#f9f8f9"
+      },
+      "Section": {
+        "$type": "color",
+        "$value": "#ffffff"
+      },
+      "body": {
+        "$type": "color",
+        "$value": "#f6f6f8"
       }
     },
     "Primary": {
       "Main": {
         "$type": "color",
         "$description": "Main color used by most components",
-        "$value": "#666cff"
+        "$value": "#fb3311"
       },
       "Dark": {
         "$type": "color",
@@ -128,7 +144,7 @@
       "Light": {
         "$type": "color",
         "$description": "Alternative light shade",
-        "$value": "#787eff"
+        "$value": "#df2e0f"
       },
       "Contrast": {
         "$type": "color",
@@ -154,7 +170,7 @@
       },
       "Active Menu": {
         "$type": "color",
-        "$value": "#666cff"
+        "$value": "#ff331114"
       },
       "Outline Selected Background": {
         "$type": "color",
