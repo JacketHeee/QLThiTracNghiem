@@ -1,154 +1,167 @@
-import { SidebarItem } from "../../molecules/SidebarItem/SidebarItem";
-import dashboardIcon from "@/assets/icons/dashboard-icon.svg";
-import classGroupsIcon from "@/assets/icons/class-groups-icon.svg";
-import questionsIcon from "@/assets/icons/questions-icon.svg";
-import usersIcon from "@/assets/icons/users-icon.svg";
-import subjectsIcon from "@/assets/icons/subjects-icon.svg";
-import assignmentsIcon from "@/assets/icons/assignments-icon.svg";
-import examsIcon from "@/assets/icons/exams-icon.svg";
-import notificationsIcon from "@/assets/icons/notifications-icon.svg";
-import roleGroupsIcon from "@/assets/icons/role-groups-icon.svg";
-import logoIcon from "@/assets/icons/logo-icon.svg";
-
-interface SidebarProps {
-  isCollapsed: boolean;
-  onToggle: () => void;
-}
+import { useState } from "react";
+import { NavLink } from "react-router-dom";
+import { Button, Icon } from "../../atoms";
 
 const SIDEBAR_SECTIONS = [
   {
     title: null,
     items: [
       {
-        icon: dashboardIcon,
+        icon: "home",
         label: "Tổng quan",
         to: "/dashboard",
       },
     ],
   },
   {
-    title: "Quản lý",
+    title: "SINH VIÊN",
     items: [
-      { icon: classGroupsIcon, label: "Nhóm học phần", to: "/class-groups" },
-      { icon: questionsIcon, label: "Câu hỏi", to: "/questions" },
-      { icon: usersIcon, label: "Người dùng", to: "/users" },
       {
-        icon: subjectsIcon,
-        label: "Môn học",
-        to: "/subjects",
-        hasSubmenu: true,
+        icon: "users",
+        label: "Học phần",
+        to: "/courses",
       },
       {
-        icon: assignmentsIcon,
-        label: "Phân công",
-        to: "/assignments",
-        hasSubmenu: true,
-      },
-      {
-        icon: examsIcon,
-        label: "Đề kiểm tra",
+        icon: "academyCap",
+        label: "Đề thi",
         to: "/exams",
-        hasSubmenu: true,
-      },
-      {
-        icon: notificationsIcon,
-        label: "Thông báo",
-        to: "/notifications",
-        hasSubmenu: true,
       },
     ],
   },
   {
-    title: "Quản trị",
-    items: [{ icon: roleGroupsIcon, label: "Nhóm quyền", to: "/roles" }],
+    title: "QUẢN LÝ",
+    items: [
+      {
+        icon: "clipboard",
+        label: "Nhóm học phần",
+        to: "/course-group",
+      },
+      {
+        icon: "question",
+        label: "Câu hỏi",
+        to: "/question",
+      },
+      {
+        icon: "user",
+        label: "Người dùng",
+        to: "/users",
+      },
+      {
+        icon: "folder",
+        label: "Môn học",
+        to: "/subjects",
+      },
+      {
+        icon: "refresh",
+        label: "Phân công",
+        to: "/assignments",
+      },
+      {
+        icon: "documentDuplicate",
+        label: "Đề kiểm tra",
+        to: "/tests",
+      },
+      {
+        icon: "massage",
+        label: "Thông báo",
+        to: "/notifications",
+      },
+    ],
+  },
+  {
+    title: "QUẢN TRỊ",
+    items: [
+      {
+        icon: "groupUser",
+        label: "Nhóm quyền",
+        to: "/permission-groups",
+      },
+    ],
   },
 ];
 
-export const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
+export const Sidebar = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
-    <aside
-      className={`sticky left-0 top-0 z-50 flex h-screen flex-col border-r border-slate-100 bg-white transition-all duration-300 ${
-        isCollapsed ? "w-[85px]" : "w-[280px]"
-      }`}
+    <div
+      className={`flex h-screen flex-col ${isCollapsed ? "w-fit" : "min-w-[260px] max-w-[260px]"}`}
     >
       {/* Header */}
-      <div
-        className={`mb-2 flex h-20 items-center px-6 ${
-          isCollapsed ? "justify-center" : ""
-        }`}
-      >
-        <div className="flex items-center gap-3 overflow-hidden">
-          <img
-            src={logoIcon}
-            alt="Logo"
-            className="h-9 w-9 min-w-[36px] object-contain"
-          />
-          {!isCollapsed && (
-            <span className="animate-fade-in truncate text-xl font-bold text-indigo-600">
-              MaHiChAn
-            </span>
-          )}
-        </div>
-
-        <button
-          onClick={onToggle}
-          className={`ml-auto rounded-lg p-1.5 text-slate-400 transition-all hover:bg-indigo-50 hover:text-indigo-600 ${
-            isCollapsed
-              ? "absolute -right-3 top-7 rotate-180 border border-slate-100 bg-white shadow-md"
-              : ""
-          }`}
+      <div className={`relative flex justify-between p-3`}>
+        {!isCollapsed && (
+          <div className="flex items-center gap-2">
+            <Icon name="logoIcon" size={40} />
+            <span className="text-h6">MaHiChAn</span>
+          </div>
+        )}
+        <Button
+          className={(isCollapsed && "rotate-180") + ""}
+          onClick={() => {
+            setIsCollapsed(!isCollapsed);
+          }}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m11 17-5-5 5-5M18 17l-5-5 5-5" />
-          </svg>
-        </button>
+          <Icon name="menuArrow" size={22} />
+        </Button>
       </div>
 
       {/* Menu */}
-      <div className="flex-1 overflow-y-auto pb-6">
-        {SIDEBAR_SECTIONS.map((section, sectionIndex) => (
-          <div key={sectionIndex}>
-            {section.title && (
-              <div
-                className={`mb-4 mt-6 px-7 transition-all duration-300 ${
-                  isCollapsed ? "flex justify-center" : ""
-                }`}
-              >
-                {!isCollapsed ? (
-                  <p className="animate-fade-in text-[11px] font-bold uppercase tracking-[1.5px] text-slate-400">
-                    {section.title}
-                  </p>
-                ) : (
-                  <div className="h-[3px] w-8 rounded-full bg-slate-100" />
-                )}
+      <div
+        className={`flex flex-1 flex-col pt-0 ${isCollapsed && "justify-center"}`}
+      >
+        {SIDEBAR_SECTIONS.map((item, idx) => {
+          if (!item.title) {
+            const child = item.items[0];
+            return (
+              <div key={idx} className="px-3">
+                <NavLink to={child.to}>
+                  {({ isActive }) => (
+                    <Button
+                      className={`w-full justify-start ${isActive && "bg-action-selected"}`}
+                      tooltip={isCollapsed ? child.label : undefined}
+                    >
+                      <Icon name={child.icon} className="shrink-0" />
+                      {!isCollapsed && child.label}
+                    </Button>
+                  )}
+                </NavLink>
               </div>
-            )}
+            );
+          }
 
-            <div className="space-y-1">
-              {section.items.map((item) => (
-                <SidebarItem
-                  key={item.to}
-                  icon={item.icon}
-                  label={item.label}
-                  to={item.to}
-                  hasSubmenu={item.hasSubmenu}
-                  hideLabel={isCollapsed}
-                />
-              ))}
+          return (
+            <div
+              key={idx}
+              className={`${!isCollapsed && "mt-4"} flex flex-col gap-0.5`}
+            >
+              {!isCollapsed && (
+                <div className="flex items-center gap-4">
+                  <span className="h-0.5 w-4 bg-other-divider" />
+                  <span className="text-caption overflow-hidden text-nowrap text-text-disabled">
+                    {item.title}
+                  </span>
+                </div>
+              )}
+
+              <div className="m-3 flex flex-col gap-1">
+                {item.items.map((child, childIdx) => (
+                  <NavLink key={childIdx} to={child.to}>
+                    {({ isActive }) => (
+                      <Button
+                        className={`w-full justify-start ${isActive && "bg-action-selected"}`}
+                        tooltip={isCollapsed ? child.label : undefined}
+                      >
+                        <Icon name={child.icon} className="shrink-0" />
+                        {!isCollapsed && child.label}
+                      </Button>
+                    )}
+                  </NavLink>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-    </aside>
+    </div>
   );
 };

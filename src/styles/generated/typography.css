@@ -1,5 +1,4 @@
 .text-h1 {
-  font-family: Inter;
   font-size: 96px;
   font-weight: 500;
   line-height: 112.03px;
@@ -8,7 +7,6 @@
 }
 
 .text-h2 {
-  font-family: Inter;
   font-size: 60px;
   font-weight: 500;
   line-height: 72px;
@@ -17,16 +15,14 @@
 }
 
 .text-h3 {
-  font-family: Inter;
   font-size: 48px;
-  font-weight: 500;
+  font-weight: bold;
   line-height: 56px;
   letter-spacing: 0px;
   text-transform: none;
 }
 
 .text-h4 {
-  font-family: Inter;
   font-size: 32px;
   font-weight: 500;
   line-height: 40px;
@@ -35,25 +31,22 @@
 }
 
 .text-h5 {
-  font-family: Inter;
   font-size: 24px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 133.4%;
   letter-spacing: 0px;
   text-transform: none;
 }
 
 .text-h6 {
-  font-family: Inter;
   font-size: 20px;
-  font-weight: 500;
+  font-weight: bold;
   line-height: 32px;
   letter-spacing: 0.15px;
   text-transform: none;
 }
 
 .text-body-1 {
-  font-family: Inter;
   font-size: 16px;
   font-weight: 400;
   line-height: 24px;
@@ -62,7 +55,6 @@
 }
 
 .text-body-1-semibold {
-  font-family: Inter;
   font-size: 16px;
   font-weight: 600;
   line-height: 24px;
@@ -71,7 +63,6 @@
 }
 
 .text-body-2 {
-  font-family: Inter;
   font-size: 14px;
   font-weight: 400;
   line-height: 20px;
@@ -80,7 +71,6 @@
 }
 
 .text-body-2-semibold {
-  font-family: Inter;
   font-size: 14px;
   font-weight: 600;
   line-height: 20px;
@@ -89,7 +79,6 @@
 }
 
 .text-subtitle-1 {
-  font-family: Inter;
   font-size: 16px;
   font-weight: 400;
   line-height: 175%;
@@ -98,7 +87,6 @@
 }
 
 .text-subtitle-2 {
-  font-family: Inter;
   font-size: 14px;
   font-weight: 500;
   line-height: 157%;
@@ -107,7 +95,6 @@
 }
 
 .text-overline {
-  font-family: Inter;
   font-size: 12px;
   font-weight: 400;
   line-height: 15px;
@@ -116,7 +103,6 @@
 }
 
 .text-caption {
-  font-family: Inter;
   font-size: 12px;
   font-weight: 400;
   line-height: 15px;
@@ -125,7 +111,6 @@
 }
 
 .text-toast {
-  font-family: Inter;
   font-size: 16px;
   font-weight: 400;
   line-height: 21px;
@@ -134,7 +119,6 @@
 }
 
 .text-button-large {
-  font-family: Inter;
   font-size: 15px;
   font-weight: 500;
   line-height: 26px;
@@ -143,7 +127,6 @@
 }
 
 .text-button-medium {
-  font-family: Inter;
   font-size: 14px;
   font-weight: 500;
   line-height: 24px;
@@ -152,7 +135,6 @@
 }
 
 .text-button-medium-capitalize {
-  font-family: Inter;
   font-size: 14px;
   font-weight: 500;
   line-height: 24px;
@@ -161,7 +143,6 @@
 }
 
 .text-button-small {
-  font-family: Inter;
   font-size: 13px;
   font-weight: 500;
   line-height: 22px;
@@ -170,7 +151,6 @@
 }
 
 .text-input-label {
-  font-family: Inter;
   font-size: 12px;
   font-weight: 400;
   line-height: 12px;
@@ -179,7 +159,6 @@
 }
 
 .text-helper-text {
-  font-family: Inter;
   font-size: 12px;
   font-weight: 400;
   line-height: 20px;
@@ -188,7 +167,6 @@
 }
 
 .text-input-text {
-  font-family: Inter;
   font-size: 16px;
   font-weight: 400;
   line-height: 24px;
@@ -197,7 +175,6 @@
 }
 
 .text-avatar-initials {
-  font-family: Inter;
   font-size: 18px;
   font-weight: 400;
   line-height: 20px;
@@ -206,7 +183,6 @@
 }
 
 .text-chip {
-  font-family: Inter;
   font-size: 13px;
   font-weight: 400;
   line-height: 18px;
@@ -215,7 +191,6 @@
 }
 
 .text-tooltip {
-  font-family: Inter;
   font-size: 11px;
   font-weight: 500;
   line-height: 16px;
@@ -224,7 +199,6 @@
 }
 
 .text-alert-title {
-  font-family: Inter;
   font-size: 16px;
   font-weight: 500;
   line-height: 150%;
@@ -233,7 +207,6 @@
 }
 
 .text-table-header {
-  font-family: Inter;
   font-size: 12px;
   font-weight: 500;
   line-height: 24px;
@@ -242,7 +215,6 @@
 }
 
 .text-badge-label {
-  font-family: Inter;
   font-size: 12px;
   font-weight: 500;
   line-height: 20px;
