@@ -46,7 +46,7 @@ export default function RegisterForm() {
           <label className="flex cursor-pointer items-center gap-2 font-medium">
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-neutral-200 accent-primary"
+              className="accent-primary h-4 w-4 rounded border-neutral-200"
             />
             <span className="text-muted text-[13px]">
               {t("register.agreeTerms")}
@@ -56,7 +56,7 @@ export default function RegisterForm() {
 
         <Button
           type="submit"
-          className="mt-1 w-full rounded-xl bg-primary py-2.5 font-bold uppercase text-white transition-all hover:opacity-90"
+          className="bg-primary mt-1 w-full rounded-xl py-2.5 font-bold uppercase text-white transition-all hover:opacity-90"
         >
           {t("register.submit")}
         </Button>
@@ -64,7 +64,7 @@ export default function RegisterForm() {
 
       <div className="text-muted mt-4 text-center text-sm">
         {t("register.hasAccount")}{" "}
-        <Link to="/login" className="font-bold text-primary hover:underline">
+        <Link to="/login" className="text-primary font-bold hover:underline">
           {t("register.loginNow")}
         </Link>
       </div>
