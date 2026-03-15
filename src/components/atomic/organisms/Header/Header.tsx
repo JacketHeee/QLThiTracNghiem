@@ -16,7 +16,7 @@ export default function Header() {
         <Input
           placeholder={t("header.search")}
           icon={
-            <Button>
+            <Button size={"small"}>
               <Icon name="search" />
             </Button>
           }
@@ -25,13 +25,17 @@ export default function Header() {
       right={
         <>
           <ColorPicker />
-          <Button onClick={toggleLanguage} title={t("navigation.lang")}>
+          <Button
+            size={"small"}
+            onClick={toggleLanguage}
+            title={t("navigation.lang")}
+          >
             <Icon name="translate" />
           </Button>
-          <Button onClick={toggleTheme}>
+          <Button size={"small"} onClick={toggleTheme}>
             {!isDarkMode ? <Icon name="lightMode" /> : <Icon name="darkMode" />}
           </Button>
-          <Button>
+          <Button size={"small"}>
             <Icon name="notificationsNone" />
           </Button>
           <Button className="!p-0">

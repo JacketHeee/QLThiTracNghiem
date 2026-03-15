@@ -1,48 +1,31 @@
-import { Button, Icon, Input } from "@/components/atomic";
+import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
+import Tabs from "@/components/atomic/molecules/Tabs/Tabs";
+import AddQuestionForm from "@/components/atomic/organisms/AddQuestionForm/AddQuestionForm";
 import { useState } from "react";
 
 export const QuestionPage = () => {
   const [selected, setSelected] = useState("public");
+  const [isAddOpen, setIsAddOpen] = useState(false);
+
   return (
     <div className="flex w-[1000px] max-w-[1000px] flex-col gap-2">
       <div className="flex flex-col gap-3 rounded-md bg-background-body-background">
         <div className="border-b-1 flex items-center justify-between border-other-outlined-border pr-3">
-          <div className="text-button-medium flex">
-            <div
-              onClick={() => setSelected("public")}
-              className={`cursor-pointer border-b-2 p-5 ${
-                selected === "public"
-                  ? "border-primary-main text-primary-main"
-                  : "border-background-body-background text-text-primary"
-              }`}
-            >
-              Công khai
-            </div>
-
-            <div
-              onClick={() => setSelected("private")}
-              className={`cursor-pointer border-b-2 p-5 ${
-                selected === "private"
-                  ? "border-primary-main text-primary-main"
-                  : "border-background-body-background text-text-primary"
-              }`}
-            >
-              Cá nhân
-            </div>
-
-            <div
-              onClick={() => setSelected("archive")}
-              className={`cursor-pointer border-b-2 p-5 ${
-                selected === "archive"
-                  ? "border-primary-main text-primary-main"
-                  : "border-background-body-background text-text-primary"
-              }`}
-            >
-              Lưu trữ
-            </div>
-          </div>
-          <Button className="h-fit bg-primary-main text-primary-contrast">
+          <Tabs
+            value={selected}
+            onChange={setSelected}
+            tabs={[
+              { value: "public", label: "Công khai" },
+              { value: "private", label: "Cá nhân" },
+              { value: "archive", label: "Lưu trữ" }, // ví dụ tab bị disable
+            ]}
+          />
+          <Button
+            onClick={() => setIsAddOpen(true)}
+            variant={"contained"}
+            color={"primary"}
+          >
             Thêm câu hỏi
             <Icon name="arrowDown" />
           </Button>
@@ -117,18 +100,10 @@ export const QuestionPage = () => {
             </div>
             <div className="flex items-center justify-between py-2">
               <div className="flex gap-2">
-                <Button hasHover={false} className="text-primary-main">
-                  Hiển thị đáp án
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Sửa
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Xóa
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Thêm vào ngân hàng câu hỏi
-                </Button>
+                <Button color={"primary"}>Hiển thị đáp án</Button>
+                <Button color={"primary"}>Sửa</Button>
+                <Button color={"primary"}>Xóa</Button>
+                <Button color={"primary"}>Thêm vào ngân hàng câu hỏi</Button>
               </div>
               <div className="flex gap-1 text-text-secondary">
                 <span>5 giờ ·</span>
@@ -159,11 +134,12 @@ export const QuestionPage = () => {
                     <strong>A</strong>. Đây là đáp án a
                   </span>{" "}
                 </div>
-                <div className="flex max-w-[700px] justify-between rounded-md bg-action-hover px-2 py-1">
+                <div className="flex max-w-[700px] items-center justify-between rounded-md bg-action-hover px-2 py-1">
                   <span>
-                    <strong>B</strong>. Đây là đáp án b
+                    <strong>B</strong>. Đây là đáp án ban
                   </span>{" "}
                   <Icon
+                    size={20}
                     name="success"
                     className="text-alert-success-content"
                   />{" "}
@@ -182,18 +158,10 @@ export const QuestionPage = () => {
             </div>
             <div className="flex items-center justify-between py-2">
               <div className="flex gap-2">
-                <Button hasHover={false} className="text-primary-main">
-                  Hiển thị đáp án
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Sửa
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Xóa
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Thêm vào ngân hàng câu hỏi
-                </Button>
+                <Button color={"primary"}>Hiển thị đáp án</Button>
+                <Button color={"primary"}>Sửa</Button>
+                <Button color={"primary"}>Xóa</Button>
+                <Button color={"primary"}>Thêm vào ngân hàng câu hỏi</Button>
               </div>
               <div className="flex gap-1 text-text-secondary">
                 <span>5 giờ ·</span>
@@ -221,18 +189,10 @@ export const QuestionPage = () => {
             </div>
             <div className="flex items-center justify-between py-2">
               <div className="flex gap-2">
-                <Button hasHover={false} className="text-primary-main">
-                  Hiển thị đáp án
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Sửa
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Xóa
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Thêm vào ngân hàng câu hỏi
-                </Button>
+                <Button color={"primary"}>Hiển thị đáp án</Button>
+                <Button color={"primary"}>Sửa</Button>
+                <Button color={"primary"}>Xóa</Button>
+                <Button color={"primary"}>Thêm vào ngân hàng câu hỏi</Button>
               </div>
               <div className="flex gap-1 text-text-secondary">
                 <span>5 giờ ·</span>
@@ -260,18 +220,10 @@ export const QuestionPage = () => {
             </div>
             <div className="flex items-center justify-between py-2">
               <div className="flex gap-2">
-                <Button hasHover={false} className="text-primary-main">
-                  Hiển thị đáp án
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Sửa
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Xóa
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Thêm vào ngân hàng câu hỏi
-                </Button>
+                <Button color={"primary"}>Hiển thị đáp án</Button>
+                <Button color={"primary"}>Sửa</Button>
+                <Button color={"primary"}>Xóa</Button>
+                <Button color={"primary"}>Thêm vào ngân hàng câu hỏi</Button>
               </div>
               <div className="flex gap-1 text-text-secondary">
                 <span>5 giờ ·</span>
@@ -302,11 +254,12 @@ export const QuestionPage = () => {
                     <strong>A</strong>. Đây là đáp án a
                   </span>{" "}
                 </div>
-                <div className="flex max-w-[700px] justify-between rounded-md bg-action-hover px-2 py-1">
+                <div className="flex max-w-[700px] items-center justify-between rounded-md bg-action-hover px-2 py-1">
                   <span>
                     <strong>B</strong>. Đây là đáp án b
                   </span>{" "}
                   <Icon
+                    size={20}
                     name="success"
                     className="text-alert-success-content"
                   />{" "}
@@ -325,18 +278,10 @@ export const QuestionPage = () => {
             </div>
             <div className="flex items-center justify-between py-2">
               <div className="flex gap-2">
-                <Button hasHover={false} className="text-primary-main">
-                  Hiển thị đáp án
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Sửa
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Xóa
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Thêm vào ngân hàng câu hỏi
-                </Button>
+                <Button color={"primary"}>Hiển thị đáp án</Button>
+                <Button color={"primary"}>Sửa</Button>
+                <Button color={"primary"}>Xóa</Button>
+                <Button color={"primary"}>Thêm vào ngân hàng câu hỏi</Button>
               </div>
               <div className="flex gap-1 text-text-secondary">
                 <span>5 giờ ·</span>
@@ -364,18 +309,10 @@ export const QuestionPage = () => {
             </div>
             <div className="flex items-center justify-between py-2">
               <div className="flex gap-2">
-                <Button hasHover={false} className="text-primary-main">
-                  Hiển thị đáp án
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Sửa
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Xóa
-                </Button>
-                <Button hasHover={false} className="text-primary-main">
-                  Thêm vào ngân hàng câu hỏi
-                </Button>
+                <Button color={"primary"}>Hiển thị đáp án</Button>
+                <Button color={"primary"}>Sửa</Button>
+                <Button color={"primary"}>Xóa</Button>
+                <Button color={"primary"}>Thêm vào ngân hàng câu hỏi</Button>
               </div>
               <div className="flex gap-1 text-text-secondary">
                 <span>5 giờ ·</span>
@@ -394,6 +331,8 @@ export const QuestionPage = () => {
           Made with ❤️ by <span className="text-primary-main">MaChHiAn</span>
         </span>
       </div>
+
+      <AddQuestionForm isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
     </div>
   );
 };

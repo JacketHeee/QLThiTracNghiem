@@ -55,9 +55,9 @@ export default function SelectField({
       {isOpen && (
         <ul className="animate-in fade-in slide-in-from-top-1 text-input-text absolute top-14 z-50 max-h-60 w-full overflow-y-auto rounded border border-other-outlined-border bg-background-body-background text-text-primary shadow-lg">
           {options.length > 0 ? (
-            options.map((opt) => (
+            options.map((opt, index) => (
               <li
-                key={opt.value}
+                key={index}
                 onClick={() => handleOptionClick(opt)}
                 className="cursor-pointer px-4 py-2.5 transition-colors hover:bg-action-hover"
               >
