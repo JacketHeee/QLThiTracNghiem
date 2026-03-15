@@ -7,9 +7,9 @@ export const MainLayout = () => {
     <div className="flex min-h-screen bg-background-body-background">
       <Sidebar />
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex max-h-screen flex-1 flex-col">
         <Header />
-        <main className="flex-1 overflow-auto bg-background-body p-8">
+        <main className="scroll-thin flex flex-1 justify-center overflow-auto bg-background-body pt-5">
           <Outlet />
         </main>
       </div>

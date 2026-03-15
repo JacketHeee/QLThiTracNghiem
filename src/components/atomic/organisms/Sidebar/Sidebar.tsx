@@ -94,7 +94,7 @@ export const Sidebar = () => {
         {!isCollapsed && (
           <div className="flex items-center gap-2">
             <Icon name="logoIcon" size={40} />
-            <span className="text-h6">MaHiChAn</span>
+            <span className="text-h6 text-text-primary">MaHiChAn</span>
           </div>
         )}
         <Button
@@ -119,7 +119,7 @@ export const Sidebar = () => {
                 <NavLink to={child.to}>
                   {({ isActive }) => (
                     <Button
-                      className={`w-full justify-start ${isActive && "bg-action-selected"}`}
+                      className={`w-full justify-start ${isActive && "bg-action-selected text-primary-main"}`}
                       tooltip={isCollapsed ? t(child.labelKey) : undefined}
                     >
                       <Icon name={child.icon} className="shrink-0" />
@@ -150,7 +150,7 @@ export const Sidebar = () => {
                   <NavLink key={childIdx} to={child.to}>
                     {({ isActive }) => (
                       <Button
-                        className={`w-full justify-start ${isActive && "bg-action-selected"}`}
+                        className={`w-full justify-start ${isActive && "bg-action-selected text-primary-main"}`}
                         tooltip={isCollapsed ? t(child.labelKey) : undefined}
                       >
                         <Icon name={child.icon} className="shrink-0" />

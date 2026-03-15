@@ -1,17 +1,19 @@
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   tooltip?: string;
+  hasHover?: boolean;
 };
 
 export default function Button({
   children,
   className = "",
+  hasHover = true,
   tooltip,
   ...props
 }: ButtonProps) {
   return (
     <button
       {...props}
-      className={`group relative flex items-center gap-2 rounded-md p-2 hover:bg-black/5 ${className}`}
+      className={`group relative flex items-center gap-2 rounded-md p-2 text-text-primary ${hasHover && "hover:bg-action-hover"} ${className}`}
     >
       {children}
 

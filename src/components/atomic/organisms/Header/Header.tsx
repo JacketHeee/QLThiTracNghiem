@@ -34,7 +34,7 @@ export default function Header() {
           <Button>
             <Icon name="notificationsNone" />
           </Button>
-          <Button className="p-0">
+          <Button className="!p-0">
             <Icon size={40} name="avatar" />
           </Button>
         </>
