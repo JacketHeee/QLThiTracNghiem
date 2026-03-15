@@ -119,7 +119,7 @@ export const Sidebar = () => {
                 <NavLink to={child.to}>
                   {({ isActive }) => (
                     <Button
-                      className={`w-full justify-start ${isActive && "bg-action-selected text-primary-main"}`}
+                      className={`w-full ${isActive && "bg-action-selected text-primary-main"}`}
                       tooltip={isCollapsed ? t(child.labelKey) : undefined}
                     >
                       <Icon name={child.icon} className="shrink-0" />
@@ -150,7 +150,7 @@ export const Sidebar = () => {
                   <NavLink key={childIdx} to={child.to}>
                     {({ isActive }) => (
                       <Button
-                        className={`w-full justify-start ${isActive && "bg-action-selected text-primary-main"}`}
+                        className={`w-full ${isActive && "bg-action-selected text-primary-main"}`}
                         tooltip={isCollapsed ? t(child.labelKey) : undefined}
                       >
                         <Icon name={child.icon} className="shrink-0" />
