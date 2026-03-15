@@ -1,0 +1,64 @@
+{
+  "hello": "Hello",
+  "login": {
+    "welcome": "Welcome back!",
+    "subtitle": "Please login to start your session.",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email",
+    "password": "Password",
+    "passwordPlaceholder": "********",
+    "rememberMe": "Keep me logged in",
+    "forgotPassword": "Forgot password",
+    "submit": "LOGIN",
+    "noAccount": "Don't have an account?",
+    "registerNow": "Register now.",
+    "or": "or",
+    "googleLogin": "Login with Google"
+  },
+  "register": {
+    "welcome": "Start managing effectively.",
+    "subtitle": "Makes exam management simpler and more optimal!",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email",
+    "password": "Password",
+    "passwordPlaceholder": "********",
+    "agreeTerms": "Agree to the Terms & Conditions.",
+    "submit": "REGISTER",
+    "hasAccount": "Already have an account?",
+    "loginNow": "Login now.",
+    "or": "or",
+    "googleLogin": "Login with Google"
+  },
+  "navigation": {
+    "home": "Home",
+    "login": "Login",
+    "errorPage": "error page",
+    "lang": "Language (Click to change)"
+  },
+  "sidebar": {
+    "overview": "Overview",
+    "sections": {
+      "student": "STUDENT",
+      "management": "MANAGEMENT",
+      "admin": "ADMIN"
+    },
+    "items": {
+      "courses": "Courses",
+      "exams": "Exams",
+      "courseGroup": "Course Groups",
+      "questions": "Questions",
+      "users": "Users",
+      "subjects": "Subjects",
+      "assignments": "Assignments",
+      "tests": "Tests",
+      "notifications": "Notifications",
+      "permissionGroups": "Permission Groups"
+    }
+  },
+  "header": {
+    "search": "Search",
+    "user": "User"
+  }
+}
