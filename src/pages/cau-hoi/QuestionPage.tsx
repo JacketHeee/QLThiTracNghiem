@@ -1,4 +1,4 @@
-import { Button, Icon, Input } from "@/components/atomic";
+import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import { useState } from "react";
 

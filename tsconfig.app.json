@@ -5,7 +5,7 @@
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "types": ["vite/client"],
+    "types": [],
     "skipLibCheck": true,
 
     "paths": {
@@ -26,5 +26,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src", "vite-env.d.ts"]
 }

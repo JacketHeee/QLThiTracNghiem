@@ -1,4 +1,4 @@
-import { ColorPicker } from "@/components/atomic";
+import { ColorPicker } from "@/components/atomic/atoms";
 import ThemeToggle from "@/components/atomic/molecules/ToggleTheme/ToggleTheme";
 
 export default function TestDesignSystem() {
