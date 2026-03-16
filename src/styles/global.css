@@ -71,4 +71,10 @@
   ::-webkit-scrollbar-thumb:hover {
     /* background: var(--color-primary-main); */
   }
+
+  .flex-bet-center {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 }

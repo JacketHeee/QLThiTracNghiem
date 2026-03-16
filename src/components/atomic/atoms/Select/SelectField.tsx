@@ -8,10 +8,11 @@ interface Option {
 }
 
 interface SelectFieldProps {
-  label: string;
+  label?: string;
   placeholder: string;
   options: Option[];
   onSelect: (value: string | number) => void;
+  classname?: string;
 }
 
 export default function SelectField({
@@ -19,6 +20,7 @@ export default function SelectField({
   placeholder,
   options,
   onSelect,
+  classname,
 }: SelectFieldProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<Option | null>(null);
@@ -32,17 +34,18 @@ export default function SelectField({
 
   return (
     <div
-      className="relative flex flex-1 flex-col gap-1"
+      className={`relative flex w-fit flex-1 flex-col gap-1 rounded-md border border-other-outlined-border ${classname}`}
       ref={dropdownRef}
       onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
     >
-      <span className="text-input-label pl-2 text-text-secondary">{label}</span>
+      {label && (
+        <span className="text-input-label absolute left-1 top-[-6px] z-10 bg-background-body-background pl-2 text-text-secondary">
+          {label}
+        </span>
+      )}
 
-      <Button
-        type="button"
-        className="flex-1 justify-between border-b border-other-outlined-border transition-colors hover:border-primary-main"
-      >
+      <Button className="justify-between">
         <span
           className={`text-input-text truncate ${selected ? "text-text-primary" : "text-text-secondary"}`}
         >
@@ -53,7 +56,7 @@ export default function SelectField({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <ul className="animate-in fade-in slide-in-from-top-1 text-input-text absolute top-14 z-50 max-h-60 w-full overflow-y-auto rounded border border-other-outlined-border bg-background-body-background text-text-primary shadow-lg">
+        <ul className="animate-in fade-in slide-in-from-top-1 text-input-text absolute top-10 z-50 max-h-60 w-full overflow-y-auto rounded border border-other-outlined-border bg-background-body-background text-text-primary shadow-lg">
           {options.length > 0 ? (
             options.map((opt, index) => (
               <li

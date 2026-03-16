@@ -7,13 +7,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         contained: "",
-        outline: "border-2 bg-transparent hover:bg-action-hover",
+        outline: "border bg-transparent hover:bg-action-hover",
         text: "bg-transparent hover:bg-action-hover",
       },
       size: {
-        small: "px-2 py-0.5 text-button-small",
-        medium: "px-4 py-1 text-button-medium",
-        large: "px-6 py-2 text-button-large",
+        small: "px-1 py-0.5 text-button-small",
+        medium: "px-2 py-1 text-button-medium",
+        large: "px-4 py-2 text-button-large",
       },
       color: {
         primary: "", // Sẽ xử lý ở compoundVariants
@@ -98,7 +98,7 @@ const buttonVariants = cva(
         variant: "outline",
         color: "standard",
         className:
-          "border-text-disabled text-text-secondary hover:bg-action-hover",
+          "border-other-outlined-border text-text-secondary hover:bg-action-hover",
       },
 
       // 3. Text States
