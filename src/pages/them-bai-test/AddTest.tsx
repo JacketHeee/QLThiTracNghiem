@@ -6,6 +6,7 @@ import GroupInput from "@/components/atomic/molecules/GroupInput/GroupInput";
 import { TextField } from "@/components/atomic/molecules/TextField/TextField";
 import RighSidebar from "@/components/atomic/organisms/RightSidebar/RightSidebar";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
+import { Link } from "react-router-dom";
 
 export default function AddTest() {
   return (
@@ -91,9 +92,11 @@ export default function AddTest() {
           {/*  */}
           <div className="flex justify-end gap-2">
             <Button variant={"outline"}>Quay lại</Button>
-            <Button variant={"contained"} color={"primary"}>
-              Tiếp tục thêm câu hỏi
-            </Button>
+            <Link to="add-questions">
+              <Button variant={"contained"} color={"primary"}>
+                Tiếp tục thêm câu hỏi
+              </Button>
+            </Link>
           </div>
         </div>
       </MainContentLayout>

@@ -60,7 +60,7 @@ const buttonVariants = cva(
         variant: "contained",
         color: "standard",
         className:
-          "text-primary-contrast bg-primary-main hover:bg-primary-main",
+          "text-primary-contrast bg-secondary-main hover:bg-secondary-main",
       },
 
       // 2. Outline States
