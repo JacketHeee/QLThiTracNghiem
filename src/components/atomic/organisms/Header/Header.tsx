@@ -13,14 +13,7 @@ export default function Header() {
   return (
     <HeaderBar
       left={
-        <Input
-          placeholder={t("header.search")}
-          icon={
-            <Button size={"small"}>
-              <Icon name="search" />
-            </Button>
-          }
-        />
+        <Input placeholder={t("header.search")} icon={<Icon name="search" />} />
       }
       right={
         <>

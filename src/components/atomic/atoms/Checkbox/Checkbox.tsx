@@ -3,10 +3,11 @@ import { Check } from "lucide-react";
 
 interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
+  classnameLabel?: string;
 }
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ label, id, ...props }, ref) => {
+  ({ label, id, classnameLabel, ...props }, ref) => {
     return (
       <div className="group flex cursor-pointer items-center gap-2">
         <div className="relative flex items-center">
@@ -25,7 +26,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         {label && (
           <label
             htmlFor={id}
-            className="text-button-medium cursor-pointer select-none text-text-secondary"
+            className={`text-button-medium cursor-pointer select-none text-text-secondary ${classnameLabel}`}
           >
             {label}
           </label>

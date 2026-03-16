@@ -19,6 +19,8 @@ import { TestPage } from "@/pages/de-kiem-tra/TestPage";
 import { NotificationPage } from "@/pages/thong-bao/NotificationPage";
 import { PermissionGroupPage } from "@/pages/nhom-quyen/PermissionGroupPage";
 import TestDesignSystem from "@/pages/test-component/TestDesignSystem";
+import TestPageDetail from "@/pages/chi-tiet-de-kiem-tra/TestPageDetail";
+import AddTest from "@/pages/them-bai-test/AddTest";
 
 export const router = createBrowserRouter([
   {
@@ -37,7 +39,14 @@ export const router = createBrowserRouter([
           { path: "/users", element: <UserPage /> },
           { path: "/subjects", element: <SubjectPage /> },
           { path: "/assignments", element: <AssignmentPage /> },
-          { path: "/tests", element: <TestPage /> },
+          {
+            path: "/tests",
+            children: [
+              { index: true, element: <TestPage /> },
+              { path: ":id", element: <TestPageDetail /> },
+              { path: "add", element: <AddTest /> },
+            ],
+          },
           { path: "/notifications", element: <NotificationPage /> },
           { path: "/permission-groups", element: <PermissionGroupPage /> },
           { path: "/test-design-system", element: <TestDesignSystem /> },

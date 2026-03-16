@@ -2,6 +2,7 @@ import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import Tabs from "@/components/atomic/molecules/Tabs/Tabs";
 import AddQuestionForm from "@/components/atomic/organisms/AddQuestionForm/AddQuestionForm";
+import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import { useState } from "react";
 
 export const QuestionPage = () => {
@@ -9,7 +10,7 @@ export const QuestionPage = () => {
   const [isAddOpen, setIsAddOpen] = useState(false);
 
   return (
-    <div className="flex w-[1000px] max-w-[1000px] flex-col gap-2">
+    <MainContentLayout>
       <div className="flex flex-col gap-3 rounded-md bg-background-body-background">
         <div className="border-b-1 flex items-center justify-between border-other-outlined-border pr-3">
           <Tabs
@@ -76,8 +77,8 @@ export const QuestionPage = () => {
             hasBoder={true}
             icon={<Icon name="search" className="text-text-secondary" />}
           />
-          <Button>
-            <Icon name="arrowUpDown" className="text-text-secondary" />
+          <Button variant={"outline"}>
+            <Icon name="arrowUpDown" />
           </Button>
         </div>
       </div>
@@ -323,16 +324,8 @@ export const QuestionPage = () => {
           </div>
         </div>
       </div>
-      <div className="text-body-1 flex justify-between gap-3 rounded-md bg-background-body-background px-6 py-4 text-text-secondary">
-        <span>
-          <span className="text-primary-main">SGU Test</span> © 2026
-        </span>
-        <span>
-          Made with ❤️ by <span className="text-primary-main">MaChHiAn</span>
-        </span>
-      </div>
 
       <AddQuestionForm isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
-    </div>
+    </MainContentLayout>
   );
 };

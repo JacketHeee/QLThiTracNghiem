@@ -1,6 +1,7 @@
 import React from "react";
+import Button from "../Button/Button";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   icon?: React.ReactNode;
   hasBoder?: boolean;
 }
@@ -13,9 +14,11 @@ export default function Input({
 }: InputProps) {
   return (
     <div
-      className={`flex w-fit items-center gap-2 rounded-md border border-background-body-background bg-background-body-background px-3 focus-within:border-action-selected ${hasBoder && "!border-other-input-border"} ${className}`}
+      className={`flex w-fit items-center gap-1 rounded-md border border-other-outlined-border bg-background-body-background px-3 ${hasBoder && "!border-other-input-border"} ${className}`}
     >
-      {icon}
+      <Button size={"small"} className="text-text-disabled">
+        {icon}
+      </Button>
 
       <input
         {...props}
