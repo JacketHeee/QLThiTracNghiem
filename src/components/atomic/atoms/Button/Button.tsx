@@ -11,9 +11,12 @@ const buttonVariants = cva(
         text: "bg-transparent hover:bg-action-hover",
       },
       size: {
-        small: "px-1 py-0.5 text-button-small",
-        medium: "px-2 py-1 text-button-medium",
-        large: "px-4 py-2 text-button-large",
+        small:
+          "px-2 py-1 text-[13px] font-medium leading-[22px] tracking-[0.46px] uppercase-none",
+        medium:
+          "px-3 py-1.5 text-[14px] font-medium leading-[24px] tracking-[0.4px]",
+        large:
+          "px-4 py-2 text-[15px] font-medium leading-[26px] tracking-[0.46px]",
       },
       color: {
         primary: "", // Sẽ xử lý ở compoundVariants
@@ -105,32 +108,32 @@ const buttonVariants = cva(
       {
         variant: "text",
         color: "primary",
-        className: "text-primary-main hover:bg-action-hover",
+        className: "text-primary-main",
       },
       {
         variant: "text",
         color: "success",
-        className: "text-alert-success-content hover:bg-action-hover",
+        className: "text-alert-success-content",
       },
       {
         variant: "text",
         color: "warning",
-        className: "text-alert-warning-content hover:bg-action-hover",
+        className: "text-alert-warning-content ",
       },
       {
         variant: "text",
         color: "error",
-        className: "text-alert-error-content hover:bg-action-hover",
+        className: "text-alert-error-content",
       },
       {
         variant: "text",
         color: "infor",
-        className: "text-alert-infor-content hover:bg-action-hover",
+        className: "text-alert-infor-content",
       },
       {
         variant: "text",
         color: "standard",
-        className: "text-text-primary hover:bg-action-hover",
+        className: "text-text-primary",
       },
     ],
     defaultVariants: {

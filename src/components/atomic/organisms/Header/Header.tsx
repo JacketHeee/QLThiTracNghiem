@@ -2,6 +2,7 @@ import { Header as HeaderBar } from "../../molecules/Header/Header";
 import { Button, ColorPicker, Icon, Input } from "../../atoms";
 import { useThemeStore } from "@/stores/theme.store";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 export default function Header() {
   const { isDarkMode, toggleTheme } = useThemeStore();
@@ -31,9 +32,11 @@ export default function Header() {
           <Button size={"small"}>
             <Icon name="notificationsNone" />
           </Button>
-          <Button className="!p-0">
-            <Icon size={40} name="avatar" />
-          </Button>
+          <Link to="/login">
+            <Button className="!p-0">
+              <Icon size={40} name="avatar" />
+            </Button>
+          </Link>
         </>
       }
     />

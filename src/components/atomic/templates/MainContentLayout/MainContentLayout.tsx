@@ -1,14 +1,14 @@
 import type { ReactNode } from "react";
 
 interface MainContentLayoutProps {
-  children: ReactNode[];
+  children: ReactNode[] | ReactNode;
 }
 
 export default function MainContentLayout({
   children,
 }: MainContentLayoutProps) {
   return (
-    <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-2 overflow-auto px-4 pt-5 md:px-0">
+    <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-2 px-4 pt-5 md:px-0">
       {children}
 
       {/* Footer */}
