@@ -29,7 +29,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         {label && (
           <label
             htmlFor={id}
-            className={`text-body-1 cursor-pointer select-none text-text-secondary ${classnameLabel}`}
+            className={`text-body-2 cursor-pointer select-none text-text-primary ${classnameLabel}`}
           >
             {label}
           </label>
