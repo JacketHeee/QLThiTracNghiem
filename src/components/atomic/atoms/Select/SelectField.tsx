@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import Button from "../Button/Button";
 import Icon from "../Icon/Icon";
+import { cn } from "@/utils/cn";
 
 interface Option {
   label: string;
@@ -13,6 +14,7 @@ interface SelectFieldProps {
   options: Option[];
   onSelect: (value: string | number) => void;
   classname?: string;
+  defaultIndex?: number;
 }
 
 export default function SelectField({
@@ -21,58 +23,97 @@ export default function SelectField({
   options,
   onSelect,
   classname,
+  defaultIndex,
 }: SelectFieldProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState<Option | null>(null);
+  const [userSelection, setUserSelection] = useState<Option | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const selectedOption =
+    userSelection ??
+    (defaultIndex !== undefined ? options[defaultIndex] : null);
+
   const handleOptionClick = (option: Option) => {
-    setSelected(option);
+    setUserSelection(option);
     onSelect(option.value);
     setIsOpen(false);
   };
 
   return (
     <div
-      className={`relative flex w-fit flex-1 flex-col gap-1 rounded-md border border-other-outlined-border ${classname}`}
       ref={dropdownRef}
+      className={cn(
+        "group relative flex flex-col rounded-md border border-other-outlined-border bg-background-body-background",
+        "w-full min-w-[150px] max-w-[300px] transition-all",
+        isOpen && "border-primary-main shadow-sm", // Highlight viền khi đang mở
+        classname
+      )}
+      // Sử dụng MouseEnter/Leave trên container tổng
       onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
     >
       {label && (
-        <span className="text-input-label absolute left-1 top-[-6px] z-10 bg-background-body-background pl-2 text-text-secondary">
+        <span
+          className={cn(
+            "absolute left-2 top-[-10px] z-10 bg-background-body-background px-1 text-[12px] font-medium transition-colors",
+            isOpen ? "text-primary-main" : "text-text-secondary"
+          )}
+        >
           {label}
         </span>
       )}
 
-      <Button className="justify-between">
+      <Button
+        variant="text"
+        className="w-full items-center justify-between px-3 py-2 hover:bg-transparent"
+      >
         <span
-          className={`text-input-text truncate ${selected ? "text-text-primary" : "text-text-secondary"}`}
+          className={cn(
+            "block flex-1 truncate text-left text-[14px]",
+            selectedOption ? "text-text-primary" : "text-text-secondary"
+          )}
         >
-          {selected ? selected.label : placeholder}
+          {selectedOption ? selectedOption.label : placeholder}
         </span>
-        <Icon name="arrowDown" className="text-text-secondary" />
+        <Icon
+          name="arrowDown"
+          size={20}
+          className={cn(
+            "ml-2 flex-shrink-0 text-text-secondary transition-transform duration-200",
+            isOpen && "rotate-180 text-primary-main" // Xoay icon cho "xịn"
+          )}
+        />
       </Button>
 
-      {/* Dropdown Menu */}
+      {/* DROPDOWN MENU */}
       {isOpen && (
-        <ul className="animate-in fade-in slide-in-from-top-1 text-input-text absolute top-10 z-50 max-h-60 w-full overflow-y-auto rounded border border-other-outlined-border bg-background-body-background text-text-primary shadow-lg">
-          {options.length > 0 ? (
-            options.map((opt, index) => (
-              <li
-                key={index}
-                onClick={() => handleOptionClick(opt)}
-                className="cursor-pointer px-4 py-2.5 transition-colors hover:bg-action-hover"
-              >
-                {opt.label}
+        <>
+          {/* Invisible Bridge: Lớp đệm vô hình để nối liền button và menu, chống bug hover */}
+          <div className="absolute left-0 top-full h-[6px] w-full" />
+
+          <ul className="animate-in fade-in zoom-in-95 absolute left-[-1px] top-[calc(100%+4px)] z-50 max-h-60 w-[calc(100%+2px)] overflow-y-auto rounded-md border border-other-outlined-border bg-background-body-background shadow-lg">
+            {options.length > 0 ? (
+              options.map((opt, index) => (
+                <li
+                  key={index}
+                  onClick={() => handleOptionClick(opt)}
+                  className={cn(
+                    "cursor-pointer px-4 py-2.5 text-[14px] transition-colors hover:bg-action-hover",
+                    selectedOption?.value === opt.value
+                      ? "bg-action-selected font-medium text-primary-main"
+                      : "text-text-primary"
+                  )}
+                >
+                  <span className="block truncate">{opt.label}</span>
+                </li>
+              ))
+            ) : (
+              <li className="px-4 py-2 text-center text-[14px] italic text-text-disabled">
+                Không có dữ liệu
               </li>
-            ))
-          ) : (
-            <li className="px-4 py-2 italic text-text-disabled">
-              Không có dữ liệu
-            </li>
-          )}
-        </ul>
+            )}
+          </ul>
+        </>
       )}
     </div>
   );
