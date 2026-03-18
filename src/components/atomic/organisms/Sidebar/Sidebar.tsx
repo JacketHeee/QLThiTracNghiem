@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button, Icon } from "../../atoms";
+import Logo from "../../molecules/Logo/Logo";
 
 const SIDEBAR_SECTIONS = [
   {
@@ -91,12 +92,7 @@ export const Sidebar = () => {
     >
       {/* Header */}
       <div className={`relative flex justify-between p-3`}>
-        {!isCollapsed && (
-          <div className="flex items-center gap-2">
-            <Icon name="logoIcon" size={40} />
-            <span className="text-h6 text-text-primary">MaHiChAn</span>
-          </div>
-        )}
+        {!isCollapsed && <Logo />}
         <Button
           className={(isCollapsed && "rotate-180") + ""}
           onClick={() => {
