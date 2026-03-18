@@ -78,12 +78,12 @@
     --color-grey-grey-a200: #aaaaaa;
     --color-grey-grey-a400: #616161;
     --color-grey-grey-a700: #303030;
-    --color-custom-background-error-background: #ffffffe0;
-    --color-custom-background-warning-background: #ffffffe0;
-    --color-custom-background-info-background: #ffffffe0;
-    --color-custom-background-success-background: #ffffffe0;
-    --color-custom-background-primary-background: #ffffffe0;
-    --color-custom-background-secondary-background: #ffffffe0;
+    --color-custom-background-error-background: #ff4d491a;
+    --color-custom-background-warning-background: #fdb5281a;
+    --color-custom-background-info-background: #0071d91a;
+    --color-custom-background-success-background: #3cb27a1a;
+    --color-custom-background-primary-background: #fb33111a;
+    --color-custom-background-secondary-background: #ffffff1a;
   }
 
   .dark {
