@@ -182,8 +182,6 @@ export const PermissionGroupPage = () => {
           onPageChange={(page) => setCurrentPage(page)}
         />
       </div>
-
-      {/* <div className="flex flex-col gap-2"></div> */}
     </MainContentLayout>
   );
 };

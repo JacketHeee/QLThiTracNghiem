@@ -39,7 +39,7 @@ export default function DynamicTable<T>({
               </th>
             ))}
             {hasColumnActions && (
-              <th className="px-6 py-4 text-right">Thao tác</th>
+              <th className="px-6 py-4 text-center">Thao tác</th>
             )}
           </tr>
         </thead>
@@ -68,7 +68,7 @@ export default function DynamicTable<T>({
                   {/* Render Actions nếu có */}
                   {hasColumnActions && (
                     <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-1">
+                      <div className="flex justify-center gap-1">
                         <Button
                           variant={"text"}
                           size={"small"}

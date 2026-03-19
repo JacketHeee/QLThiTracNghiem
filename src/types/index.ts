@@ -23,3 +23,11 @@ export interface PermissionFormData {
   canTakeExam: boolean; // Tham gia thi
   canJoinCourse: boolean; // Tham gia học phần
 }
+
+export interface Subject {
+  monHocId: number;
+  tenMonHoc: string;
+  soTinChi: number;
+  soTietLyThuyet: number;
+  soTietThucHanh: number;
+}

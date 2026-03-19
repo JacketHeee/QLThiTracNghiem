@@ -11,7 +11,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
   ({ label, error, placeholder = "", classNameParent }) => {
     return (
       <div
-        className={`flex flex-col gap-1 text-text-secondary ${classNameParent}`}
+        className={`flex flex-col gap-1 text-text-primary ${classNameParent}`}
       >
         {label && <div className="text-input-text">{label}</div>}
         <Input placeholder={placeholder} className="!w-full" />
