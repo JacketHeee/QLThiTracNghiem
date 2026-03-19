@@ -18,7 +18,7 @@ export const RadioButton = forwardRef<HTMLInputElement, RadioButtonProps>(
         {label && (
           <label
             htmlFor={id}
-            className="text-button-meddium cursor-pointer text-text-secondary"
+            className="text-body-2 cursor-pointer text-text-primary"
           >
             {label}
           </label>

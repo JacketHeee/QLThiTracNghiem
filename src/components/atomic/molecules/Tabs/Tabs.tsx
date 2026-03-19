@@ -11,6 +11,7 @@ interface TabsProps {
   tabs: TabItem[];
   className?: string;
   tabClassName?: string;
+  childClassName?: string;
 }
 
 /**
@@ -35,6 +36,7 @@ export default function Tabs({
   onChange,
   tabs,
   className = "",
+  childClassName = "",
 }: TabsProps) {
   return (
     <div className={`text-button-medium flex ${className}`}>
@@ -52,7 +54,7 @@ export default function Tabs({
               isActive
                 ? "border-primary-main text-primary-main"
                 : "border-background-body-background text-text-primary"
-            }`}
+            } ${childClassName}`}
           >
             {tab.label}
           </button>

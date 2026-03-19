@@ -15,7 +15,7 @@ export const RadioGroup = ({
   onChange: (value: string) => void;
 }) => {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex gap-3">
       {options.map((opt) => (
         <RadioButton
           key={opt.value}
