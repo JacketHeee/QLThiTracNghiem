@@ -34,12 +34,15 @@ export default function DynamicTable<T>({
         <thead className="text-table-header bg-action-focus">
           <tr>
             {columns.map((col, index) => (
-              <th key={index} className={`px-6 py-4 ${col.className || ""}`}>
+              <th
+                key={index}
+                className={`text-nowrap px-6 py-4 ${col.className || ""}`}
+              >
                 {col.title}
               </th>
             ))}
             {hasColumnActions && (
-              <th className="px-6 py-4 text-center">Thao tác</th>
+              <th className="text-nowrap px-6 py-4 text-center">Thao tác</th>
             )}
           </tr>
         </thead>
@@ -57,7 +60,7 @@ export default function DynamicTable<T>({
                   {columns.map((col, colIndex) => (
                     <td
                       key={colIndex}
-                      className={`text-body-2 px-6 py-4 ${col.className || ""}`}
+                      className={`text-body-2 text-nowrap px-6 py-4 ${col.className || ""}`}
                     >
                       {col.render
                         ? col.render(item[col.key as keyof T], item)
@@ -74,6 +77,7 @@ export default function DynamicTable<T>({
                           size={"small"}
                           color={"primary"}
                           onClick={() => onAction?.("detail", item)}
+                          className="text-nowrap"
                         >
                           Chi tiết
                         </Button>
@@ -82,6 +86,7 @@ export default function DynamicTable<T>({
                           size={"small"}
                           color={"primary"}
                           onClick={() => onAction?.("edit", item)}
+                          className="text-nowrap"
                         >
                           Sửa
                         </Button>
@@ -90,6 +95,7 @@ export default function DynamicTable<T>({
                           size={"small"}
                           color={"primary"}
                           onClick={() => onAction?.("remove", item)}
+                          className="text-nowrap"
                         >
                           Xóa
                         </Button>

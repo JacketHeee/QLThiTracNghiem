@@ -2,13 +2,17 @@ import type { ReactNode } from "react";
 
 interface MainContentLayoutProps {
   children: ReactNode[] | ReactNode;
+  classname?: string;
 }
 
 export default function MainContentLayout({
   children,
+  classname = "",
 }: MainContentLayoutProps) {
   return (
-    <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-2 px-4 pt-5 md:px-0">
+    <div
+      className={`mx-auto flex w-full max-w-[1200px] flex-col gap-2 px-4 pt-5 md:px-0 ${classname}`}
+    >
       {children}
 
       {/* Footer */}
