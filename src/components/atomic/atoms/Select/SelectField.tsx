@@ -44,7 +44,7 @@ export default function SelectField({
       ref={dropdownRef}
       className={cn(
         "group relative flex flex-col rounded-md border border-other-outlined-border bg-background-body-background",
-        "w-full min-w-[80px] max-w-[300px] transition-all",
+        "w-full min-w-[80px] transition-all",
         isOpen && "border-primary-main shadow-sm", // Highlight viền khi đang mở
         classname
       )}
@@ -65,7 +65,7 @@ export default function SelectField({
 
       <Button
         variant="text"
-        className="w-full items-center justify-between px-3 py-2 hover:bg-transparent"
+        className="!w-full items-center justify-between px-3 py-2 hover:bg-transparent"
       >
         <span
           className={cn(
