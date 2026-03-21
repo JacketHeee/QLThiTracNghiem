@@ -2,7 +2,7 @@ import { cn } from "@/utils/cn";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const buttonVariants = cva(
-  "group relative flex items-center gap-2 rounded-md transition-colors focus:outline-none disabled:opacity-50 disabled:pointer-events-none",
+  "group relative text-nowrap flex items-center gap-2 rounded-md transition-colors focus:outline-none disabled:opacity-50 disabled:pointer-events-none",
   {
     variants: {
       variant: {
@@ -128,7 +128,7 @@ const buttonVariants = cva(
       {
         variant: "text",
         color: "infor",
-        className: "text-alert-infor-content",
+        className: "text-alert-info-content",
       },
       {
         variant: "text",
@@ -149,6 +149,7 @@ interface ButtonProps
     Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "color">,
     VariantProps<typeof buttonVariants> {
   tooltip?: string;
+  isButtonIcon?: boolean;
 }
 
 export default function Button({
@@ -158,12 +159,17 @@ export default function Button({
   color,
   tooltip,
   children,
+  isButtonIcon,
   ...props
 }: ButtonProps) {
   return (
     <button
       // Khi truyền color vào buttonVariants, giờ đây nó sẽ khớp với kiểu dữ liệu của CVA
-      className={cn(buttonVariants({ variant, size, color }), className)}
+      className={cn(
+        buttonVariants({ variant, size, color }),
+        `${isButtonIcon && "rounded-full"}`,
+        className
+      )}
       {...props}
     >
       {children}

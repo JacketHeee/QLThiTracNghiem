@@ -35,7 +35,7 @@ export const PermissionForm: FC<PermissionFormProps> = ({
   const [canTakeExam, setCanTakeExam] = useState<boolean>(
     initialData?.canTakeExam || false
   );
-  const [canJoinCourse, setCanJoinCourse] = useState<boolean>(
+  const [canJoinCourse] = useState<boolean>(
     initialData?.canJoinCourse || false
   );
 
@@ -158,14 +158,9 @@ export const PermissionForm: FC<PermissionFormProps> = ({
 
           <div className="flex items-center gap-8">
             <Toggle
-              label="Tham gia thi"
+              label="Là sinh viên?"
               checked={canTakeExam}
               onChange={() => setCanTakeExam}
-            />
-            <Toggle
-              label="Tham gia học phần"
-              checked={canJoinCourse}
-              onChange={() => setCanJoinCourse}
             />
           </div>
         </div>
