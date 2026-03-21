@@ -2,10 +2,11 @@ import type { ReactNode } from "react";
 import { Button } from "../../atoms";
 
 export type TableColumn<T> = {
-  title: string;
-  key: keyof T | "actions";
+  title: string | ReactNode;
+  key: keyof T | "actions" | "selection";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   render?: (value: any, item: T) => ReactNode;
+  headerRender?: () => ReactNode;
   className?: string;
 };
 
@@ -16,6 +17,7 @@ type Props<T> = {
   data: T[];
   rowKey?: keyof T;
   hasColumnActions?: boolean;
+  renderActions?: (item: T) => ReactNode;
   onAction?: (action: TableAction, item: T) => void;
   className?: string;
 };
@@ -25,6 +27,7 @@ export default function DynamicTable<T>({
   data,
   rowKey,
   hasColumnActions,
+  renderActions,
   onAction,
   className = "",
 }: Props<T>) {
@@ -38,7 +41,7 @@ export default function DynamicTable<T>({
                 key={index}
                 className={`text-nowrap px-6 py-4 ${col.className || ""}`}
               >
-                {col.title}
+                {col.headerRender ? col.headerRender() : col.title}
               </th>
             ))}
             {hasColumnActions && (
@@ -70,35 +73,42 @@ export default function DynamicTable<T>({
 
                   {/* Render Actions nếu có */}
                   {hasColumnActions && (
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4">
                       <div className="flex justify-center gap-1">
-                        <Button
-                          variant={"text"}
-                          size={"small"}
-                          color={"primary"}
-                          onClick={() => onAction?.("detail", item)}
-                          className="text-nowrap"
-                        >
-                          Chi tiết
-                        </Button>
-                        <Button
-                          variant={"text"}
-                          size={"small"}
-                          color={"primary"}
-                          onClick={() => onAction?.("edit", item)}
-                          className="text-nowrap"
-                        >
-                          Sửa
-                        </Button>
-                        <Button
-                          variant={"text"}
-                          size={"small"}
-                          color={"primary"}
-                          onClick={() => onAction?.("remove", item)}
-                          className="text-nowrap"
-                        >
-                          Xóa
-                        </Button>
+                        {renderActions ? (
+                          renderActions(item)
+                        ) : (
+                          // Mặc định nếu không truyền renderActions
+                          <>
+                            <Button
+                              variant={"text"}
+                              size={"small"}
+                              color={"primary"}
+                              onClick={() => onAction?.("detail", item)}
+                              className="text-nowrap"
+                            >
+                              Chi tiết
+                            </Button>
+                            <Button
+                              variant={"text"}
+                              size={"small"}
+                              color={"primary"}
+                              onClick={() => onAction?.("edit", item)}
+                              className="text-nowrap"
+                            >
+                              Sửa
+                            </Button>
+                            <Button
+                              variant={"text"}
+                              size={"small"}
+                              color={"primary"}
+                              onClick={() => onAction?.("remove", item)}
+                              className="text-nowrap"
+                            >
+                              Xóa
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </td>
                   )}
