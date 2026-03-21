@@ -22,6 +22,7 @@ import TestDesignSystem from "@/pages/test-component/TestDesignSystem";
 import TestPageDetail from "@/pages/chi-tiet-de-kiem-tra/TestPageDetail";
 import AddTest from "@/pages/them-bai-test/AddTest";
 import AddQuestionTestPage from "@/pages/them-cau-hoi-test/AddQuestionTestPage";
+import CourseElement from "@/pages/CourseElement/CourseElement";
 
 export const router = createBrowserRouter([
   {
@@ -33,7 +34,13 @@ export const router = createBrowserRouter([
         children: [
           { path: "/", element: <HomePage /> },
           { path: "/dashboard", element: <DashboardPage /> },
-          { path: "/courses", element: <CoursePage /> },
+          {
+            path: "/courses",
+            children: [
+              { index: true, element: <CoursePage /> },
+              { path: "1", element: <CourseElement /> },
+            ],
+          },
           { path: "/exams", element: <ExamPage /> },
           { path: "/course-group", element: <CourseGroupPage /> },
           { path: "/question", element: <QuestionPage /> },
