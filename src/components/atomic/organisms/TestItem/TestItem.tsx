@@ -24,7 +24,7 @@ export default function TestItem() {
         {/* title */}
         <div className="flex-bet-center">
           <Link to="/tests/1">
-            <span className="text-h6 text-text-secondary hover:underline">
+            <span className="text-h6 font-bold text-text-secondary hover:underline">
               Đề thi 100 câu siêu cháy
             </span>
           </Link>

@@ -115,7 +115,7 @@ export const Sidebar = () => {
                 <NavLink to={child.to}>
                   {({ isActive }) => (
                     <Button
-                      className={`w-full ${isActive && "bg-action-selected text-primary-main"}`}
+                      className={`w-full ${isActive && "bg-primary-background text-primary-main"}`}
                       tooltip={isCollapsed ? t(child.labelKey) : undefined}
                     >
                       <Icon name={child.icon} className="shrink-0" />
