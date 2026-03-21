@@ -16,9 +16,11 @@ export default function Input({
     <div
       className={`flex w-fit items-center gap-1 rounded-md border border-other-outlined-border bg-background-body-background px-3 ${hasBoder && "!border-other-input-border"} ${className}`}
     >
-      <Button size={"small"} className="text-text-disabled">
-        {icon}
-      </Button>
+      {icon && (
+        <Button size={"small"} className="text-text-disabled">
+          {icon}
+        </Button>
+      )}
 
       <input
         {...props}
