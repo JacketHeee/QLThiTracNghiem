@@ -20,6 +20,7 @@ type Props<T> = {
   renderActions?: (item: T) => ReactNode;
   onAction?: (action: TableAction, item: T) => void;
   className?: string;
+  getRowClassName?: (item: T) => string;
 };
 
 export default function DynamicTable<T>({
@@ -30,6 +31,7 @@ export default function DynamicTable<T>({
   renderActions,
   onAction,
   className = "",
+  getRowClassName,
 }: Props<T>) {
   return (
     <div className="w-full overflow-x-auto rounded-md bg-background-body-background">
@@ -58,7 +60,7 @@ export default function DynamicTable<T>({
               return (
                 <tr
                   key={uniqueKey}
-                  className="transition-colors hover:bg-action-hover"
+                  className={`transition-colors hover:bg-action-hover ${getRowClassName && getRowClassName(item)}`}
                 >
                   {columns.map((col, colIndex) => (
                     <td

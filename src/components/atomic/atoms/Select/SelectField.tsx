@@ -91,7 +91,7 @@ export default function SelectField({
           {/* Invisible Bridge: Lớp đệm vô hình để nối liền button và menu, chống bug hover */}
           <div className="absolute left-0 top-full h-[6px] w-full" />
 
-          <ul className="animate-in fade-in zoom-in-95 absolute left-[-1px] top-[calc(100%+4px)] z-50 max-h-60 w-[calc(100%+2px)] overflow-y-auto rounded-md border border-other-outlined-border bg-background-body-background shadow-lg">
+          <ul className="absolute left-[-1px] top-[calc(100%+4px)] z-50 max-h-60 w-[calc(100%+2px)] overflow-y-auto rounded-md border border-other-outlined-border bg-background-body-background shadow-lg animate-in fade-in zoom-in-95">
             {options.length > 0 ? (
               options.map((opt, index) => (
                 <li

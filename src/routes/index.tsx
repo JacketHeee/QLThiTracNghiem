@@ -23,6 +23,7 @@ import TestPageDetail from "@/pages/TestPageDetail/TestPageDetail";
 import AddTest from "@/pages/AddTest/AddTest";
 import AddQuestionTestPage from "@/pages/AddQuestionTestPage/AddQuestionTestPage";
 import CourseElement from "@/pages/CourseElement/CourseElement";
+import ResultPage from "@/pages/ResultPage/ResultPage";
 
 export const router = createBrowserRouter([
   {
@@ -51,7 +52,13 @@ export const router = createBrowserRouter([
             path: "/tests",
             children: [
               { index: true, element: <TestPage /> },
-              { path: ":id", element: <TestPageDetail /> },
+              {
+                path: ":id",
+                children: [
+                  { index: true, element: <TestPageDetail /> },
+                  { path: "result/:id", element: <ResultPage /> },
+                ],
+              },
               {
                 path: "add",
                 children: [
