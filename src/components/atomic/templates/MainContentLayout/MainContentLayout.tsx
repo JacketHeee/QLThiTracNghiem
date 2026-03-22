@@ -13,7 +13,7 @@ export default function MainContentLayout({
 }: MainContentLayoutProps) {
   return (
     <div
-      className={`mx-auto flex w-full max-w-[1200px] flex-col gap-2 px-4 pt-5 md:px-0 ${classname}`}
+      className={`mx-auto flex w-[1000px] max-w-[1200px] flex-col gap-2 px-4 pt-5 md:px-0 ${classname}`}
     >
       {children}
 

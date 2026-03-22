@@ -1,5 +1,6 @@
 import { Button, Icon } from "@/components/atomic/atoms";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
+import { Link } from "react-router-dom";
 
 export default function TestPageDetail() {
   return (
@@ -75,9 +76,11 @@ export default function TestPageDetail() {
                 32 bài làm
               </Button>
 
-              <Button variant={"contained"} color={"success"}>
-                Kết quả
-              </Button>
+              <Link to="/tests/1/result/dkp1232">
+                <Button variant={"contained"} color={"success"}>
+                  Kết quả
+                </Button>
+              </Link>
             </div>
           </div>
           {/* item */}
@@ -92,26 +95,11 @@ export default function TestPageDetail() {
                 32 bài làm
               </Button>
 
-              <Button variant={"contained"} color={"success"}>
-                Kết quả
-              </Button>
-            </div>
-          </div>
-          {/* item */}
-          <div className="flex-bet-center border-t border-other-outlined-border px-10 py-3">
-            <div className="flex items-center gap-1">
-              <Icon name="groupUser" size={24} />
-              <span className="text-body-1-semibold">DKP1233</span>
-            </div>
-
-            <div className="flex gap-5">
-              <Button size={"medium"} className="text-text-secondary underline">
-                132 bài làm
-              </Button>
-
-              <Button variant={"contained"} color={"success"}>
-                Kết quả
-              </Button>
+              <Link to="/tests/1/result/dkp1232">
+                <Button variant={"contained"} color={"success"}>
+                  Kết quả
+                </Button>
+              </Link>
             </div>
           </div>
           {/* item */}
@@ -126,9 +114,49 @@ export default function TestPageDetail() {
                 32 bài làm
               </Button>
 
-              <Button variant={"contained"} color={"success"}>
-                Kết quả
+              <Link to="/tests/1/result/dkp1232">
+                <Button variant={"contained"} color={"success"}>
+                  Kết quả
+                </Button>
+              </Link>
+            </div>
+          </div>
+          {/* item */}
+          <div className="flex-bet-center border-t border-other-outlined-border px-10 py-3">
+            <div className="flex items-center gap-1">
+              <Icon name="groupUser" size={24} />
+              <span className="text-body-1-semibold">DKP1232</span>
+            </div>
+
+            <div className="flex gap-5">
+              <Button size={"medium"} className="text-text-secondary underline">
+                32 bài làm
               </Button>
+
+              <Link to="/tests/1/result/dkp1232">
+                <Button variant={"contained"} color={"success"}>
+                  Kết quả
+                </Button>
+              </Link>
+            </div>
+          </div>
+          {/* item */}
+          <div className="flex-bet-center border-t border-other-outlined-border px-10 py-3">
+            <div className="flex items-center gap-1">
+              <Icon name="groupUser" size={24} />
+              <span className="text-body-1-semibold">DKP1232</span>
+            </div>
+
+            <div className="flex gap-5">
+              <Button size={"medium"} className="text-text-secondary underline">
+                32 bài làm
+              </Button>
+
+              <Link to="/tests/1/result/dkp1232">
+                <Button variant={"contained"} color={"success"}>
+                  Kết quả
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

@@ -13,6 +13,10 @@ export default {
     },
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  plugins: [require("tailwind-scrollbar")({ nocompatible: true })],
+  plugins: [
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("tailwind-scrollbar")({ nocompatible: true }),
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("tailwindcss-animate"),
+  ],
 };

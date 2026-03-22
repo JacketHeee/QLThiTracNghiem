@@ -170,7 +170,7 @@ export default function CourseElement() {
         <main className="px-4">
           {/* TAB: NEWS */}
           {selectedTab === "news" && (
-            <div className="animate-in fade-in mt-6 duration-300">
+            <div className="mt-6 duration-300 animate-in fade-in">
               <div className="relative mb-6 flex h-[240px] w-full items-end overflow-hidden rounded-xl bg-background-section p-8 shadow-md">
                 <div className="absolute inset-0 bg-[url('https://www.gstatic.com/classroom/themes/img_graduation.jpg')] bg-cover bg-center opacity-25"></div>
                 <div className="absolute inset-0 to-transparent"></div>
@@ -299,7 +299,7 @@ export default function CourseElement() {
 
           {/* TAB: CLASSWORK */}
           {selectedTab === "classwork" && (
-            <div className="animate-in slide-in-from-bottom-2 mt-8 flex justify-center duration-300">
+            <div className="mt-8 flex justify-center duration-300 animate-in slide-in-from-bottom-2">
               <div className="w-full overflow-hidden rounded-md border border-other-outlined-border bg-background-body-background shadow-sm">
                 <DynamicTable
                   columns={classworkColumns}
@@ -312,7 +312,7 @@ export default function CourseElement() {
 
           {/* TAB: EVERYBODY */}
           {selectedTab === "everybody" && (
-            <div className="animate-in fade-in mt-10 flex justify-center duration-500">
+            <div className="mt-10 flex justify-center duration-500 animate-in fade-in">
               <div className="w-full max-w-[800px] space-y-12">
                 <section>
                   <div className="mb-6 flex items-center justify-between border-b border-other-outlined-border pb-4">

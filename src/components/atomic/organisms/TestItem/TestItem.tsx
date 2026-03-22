@@ -73,12 +73,13 @@ export default function TestItem() {
                 32 bài làm
               </Button>
 
-              <Button variant={"contained"} color={"success"}>
-                Kết quả
-              </Button>
+              <Link to="/tests/1/result/dkp1232">
+                <Button variant={"contained"} color={"success"}>
+                  Kết quả
+                </Button>
+              </Link>
             </div>
           </div>
-          {/* item */}
           <div className="flex-bet-center border-t border-other-outlined-border px-10 py-3">
             <div className="flex items-center gap-1">
               <Icon name="groupUser" size={24} />
@@ -90,29 +91,13 @@ export default function TestItem() {
                 32 bài làm
               </Button>
 
-              <Button variant={"contained"} color={"success"}>
-                Kết quả
-              </Button>
+              <Link to="/tests/1/result/dkp1232">
+                <Button variant={"contained"} color={"success"}>
+                  Kết quả
+                </Button>
+              </Link>
             </div>
           </div>
-          {/* item */}
-          <div className="flex-bet-center border-t border-other-outlined-border px-10 py-3">
-            <div className="flex items-center gap-1">
-              <Icon name="groupUser" size={24} />
-              <span className="text-body-1-semibold">DKP1233</span>
-            </div>
-
-            <div className="flex gap-5">
-              <Button size={"medium"} className="text-text-secondary underline">
-                132 bài làm
-              </Button>
-
-              <Button variant={"contained"} color={"success"}>
-                Kết quả
-              </Button>
-            </div>
-          </div>
-          {/* item */}
           <div className="flex-bet-center border-t border-other-outlined-border px-10 py-3">
             <div className="flex items-center gap-1">
               <Icon name="groupUser" size={24} />
@@ -124,9 +109,11 @@ export default function TestItem() {
                 32 bài làm
               </Button>
 
-              <Button variant={"contained"} color={"success"}>
-                Kết quả
-              </Button>
+              <Link to="/tests/1/result/dkp1232">
+                <Button variant={"contained"} color={"success"}>
+                  Kết quả
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

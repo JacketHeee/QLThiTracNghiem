@@ -27,7 +27,7 @@ const Divider = ({
   if (!isHorizontal) {
     return (
       <div
-        className={`inline-block h-full border-l ${borderStyles[variant]} border-other-outlined-border ${className}`}
+        className={`inline-block min-h-[1em] self-stretch border-l ${borderStyles[variant]} border-other-outlined-border ${className}`}
         style={{ borderLeftWidth: thickness }}
         role="separator"
         aria-orientation="vertical"

@@ -44,7 +44,7 @@ export function SubjectForm({
 
   return (
     <Overlay onClose={onCancel}>
-      <div className="animate-in fade-in zoom-in-95 flex w-[500px] flex-col overflow-hidden rounded-xl bg-background-paper shadow-2xl duration-200">
+      <div className="flex w-[500px] flex-col overflow-hidden rounded-xl bg-background-paper shadow-2xl duration-200 animate-in fade-in zoom-in-95">
         {/* Header */}
         <div className="flex-bet-center border-b border-other-divider px-6 py-2">
           <h6 className="text-body-1 font-bold text-text-primary">
