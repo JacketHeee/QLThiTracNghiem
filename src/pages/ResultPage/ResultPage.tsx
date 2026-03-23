@@ -8,6 +8,9 @@ import DynamicTable from "@/components/atomic/organisms/DynamicTable/DynamicTabl
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import { useEffect, useMemo, useState } from "react";
 import StatSection from "@/components/atomic/organisms/StatSection/StatSection";
+import { useNavigate } from "react-router-dom";
+import { useExamStore } from "@/stores/useExamStore";
+import { getProgressColor } from "@/utils";
 
 type ViewMode = "user" | "question" | "chapter" | "difficulty";
 
@@ -117,6 +120,13 @@ export default function ResultPage() {
   );
   const [viewMode, setViewMode] = useState<ViewMode>("user");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
+  const navigate = useNavigate();
+
+  const handleStartExam = () => {
+    // Chuyển hướng thẳng vào trang làm bài (mặc định mode là STUDENT)
+    useExamStore.getState().mode = "PREVIEW";
+    navigate(`/tests/1/take`);
+  };
 
   // --- 1. Cấu hình Cột (Columns) theo ViewMode ---
   const columns = useMemo(() => {
@@ -275,7 +285,11 @@ export default function ResultPage() {
               Đã đóng
             </Button>
             <Divider orientation="vertical" />
-            <Button variant={"outline"} size={"small"}>
+            <Button
+              variant={"outline"}
+              size={"small"}
+              onClick={handleStartExam}
+            >
               <Icon name="play" /> Xem trước
             </Button>
           </div>
@@ -436,11 +450,3 @@ export default function ResultPage() {
     </MainContentLayout>
   );
 }
-
-const getProgressColor = (percent: number) => {
-  if (percent >= 80) return "bg-alert-success-content"; // Xanh lá (Giỏi/Xuất sắc)
-  if (percent >= 65) return "bg-alert-info-content"; // Xanh dương (Khá)
-  if (percent >= 50) return "bg-alert-warning-content"; // Vàng/Cam (Trung bình)
-  if (percent > 0) return "bg-alert-error-content"; // Đỏ (Yếu/Kém)
-  return "bg-text-disabled"; // Xám (Chưa làm bài/0%)
-};

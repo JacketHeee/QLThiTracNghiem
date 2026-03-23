@@ -1,9 +1,14 @@
 import { Button, Icon } from "@/components/atomic/atoms";
+import { Overlay } from "@/components/atomic/molecules/Overlay/Overlay";
 import Tabs from "@/components/atomic/molecules/Tabs/Tabs";
 import DynamicTable, {
   type TableColumn,
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
+import ExamResultOverview from "@/components/atomic/organisms/ExamResultOverview/ExamResultOverview";
+import { useExamStore } from "@/stores/useExamStore";
+import { getProgressColor } from "@/utils";
 import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 // --- Interfaces ---
 interface IStudent {
@@ -22,8 +27,46 @@ interface IClasswork {
   status: "completed" | "todo";
 }
 
+const MOCK_QUESTIONS = [
+  {
+    id: "q1",
+    text: "Những thuộc tính nào sau đây thuộc về mô hình hộp (Box Model) trong CSS? (Chọn nhiều đáp án)",
+    options: ["color", "margin", "padding", "display"],
+    correctAnswer: ["margin", "padding"],
+    type: "multiple",
+  },
+  {
+    id: "q2",
+    text: "Thẻ nào được sử dụng để tạo một liên kết (hyperlink) trong HTML?",
+    options: ["<link>", "<a>", "<html>", "<href>"],
+    correctAnswer: "<a>",
+    type: "single",
+  },
+];
+
 export default function CourseElement() {
   const [selectedTab, setSelectedTab] = useState("news");
+  const navigate = useNavigate();
+  const { attemptId } = useParams();
+  const { answers, violationCount, resetExam } = useExamStore();
+
+  // Các dữ liệu này sau này Mạnh fetch từ API dựa trên attemptId
+  const resultData = {
+    score: 1,
+    totalPoints: 15,
+    percentage: 85,
+    duration: "00:00:12",
+    dateStarted: "Mon 23 Mar '26 05:51",
+    dateFinished: "Mon 23 Mar '26 05:51",
+  };
+
+  const handleStartExam = () => {
+    // Chuyển hướng thẳng vào trang làm bài (mặc định mode là STUDENT)
+    useExamStore.getState().mode = "STUDENT";
+    navigate(`/tests/1/take`);
+  };
+
+  const [openResultModal, setOpenResultModal] = useState(false);
 
   // --- Data Mockup ---
   const students: IStudent[] = [
@@ -97,6 +140,7 @@ export default function CourseElement() {
                 size={"medium"}
                 color={"success"}
                 variant={"contained"}
+                onClick={handleStartExam}
               >
                 Bắt đầu
               </Button>
@@ -114,7 +158,7 @@ export default function CourseElement() {
           <div className="flex items-center justify-center gap-3">
             <div className="h-2 w-24 overflow-hidden rounded-full bg-action-hover">
               <div
-                className="h-full bg-alert-info-content"
+                className={`h-full ${getProgressColor(val)}`}
                 style={{ width: `${val}%` }}
               ></div>
             </div>
@@ -133,7 +177,12 @@ export default function CourseElement() {
         <div className="flex items-center justify-between pl-4">
           <span className="text-body-2">{val || ""}</span>
           {item.status === "completed" && (
-            <Button variant={"contained"} color={"infor"} size={"medium"}>
+            <Button
+              variant={"contained"}
+              color={"success"}
+              size={"medium"}
+              onClick={() => setOpenResultModal(!openResultModal)}
+            >
               Kết quả
             </Button>
           )}
@@ -142,6 +191,7 @@ export default function CourseElement() {
     },
   ];
 
+  const handleClose = () => setOpenResultModal(false);
   return (
     <div className="flex h-fit min-h-screen flex-1 flex-col items-center bg-background-body-background">
       <div className="flex h-fit w-[1200px] flex-col pb-10">
@@ -368,6 +418,28 @@ export default function CourseElement() {
                 </section>
               </div>
             </div>
+          )}
+
+          {openResultModal && (
+            <Overlay onClose={handleClose}>
+              {" "}
+              <main className="mb-20 flex max-h-[90vh] w-fit flex-col items-center overflow-y-auto rounded-lg bg-background-body-background px-8 py-8">
+                <ExamResultOverview
+                  {...resultData}
+                  examTitle="Kiểm tra kiến thức cơ bản HTML & CSS"
+                  userName="Nguyễn Hùng Mạnh"
+                  attemptId={attemptId}
+                  violationCount={violationCount}
+                  questions={MOCK_QUESTIONS}
+                  userAnswers={answers}
+                  textMainAction="Quay lại"
+                  onBackToDashboard={() => {
+                    resetExam();
+                    handleClose();
+                  }}
+                />
+              </main>
+            </Overlay>
           )}
         </main>
       </div>

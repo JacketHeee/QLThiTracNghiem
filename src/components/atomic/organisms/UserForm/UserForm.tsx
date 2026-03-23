@@ -130,11 +130,31 @@ export function UserForm({ initialData, onSave, onCancel }: UserFormProps) {
 
               {/* Trạng thái - Switch Style */}
               <div className="flex items-center justify-between py-2">
-                <span className="text-text-primary">Trạng thái</span>
-                <Toggle
-                  checked={!formData.isLocked}
-                  onChange={(e) => handleChange("isLocked", !e.target.checked)}
-                />
+                <div className="flex items-center gap-2">
+                  <span className="text-text-primary">Khóa tài khoản</span>
+                  <Toggle
+                    checked={!formData.isLocked}
+                    onChange={(e) =>
+                      handleChange("isLocked", !e.target.checked)
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-text-primary">Là sinh viên</span>
+                  <Toggle
+                    checked={!formData.isLocked}
+                    onChange={(e) =>
+                      handleChange("isLocked", !e.target.checked)
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end py-2">
+                <Button variant={"outline"} color="primary">
+                  Tạo lại mật khẩu
+                </Button>
               </div>
             </div>
 
