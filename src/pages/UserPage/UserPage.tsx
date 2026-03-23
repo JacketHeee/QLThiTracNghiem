@@ -169,7 +169,7 @@ export function UserPage() {
   };
 
   return (
-    <MainContentLayout>
+    <MainContentLayout classname="w-full">
       <div className="flex justify-between rounded-md bg-background-body-background px-2 py-2">
         {/* Left */}
         <div className="flex gap-2">

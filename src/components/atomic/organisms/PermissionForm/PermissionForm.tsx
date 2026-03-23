@@ -2,7 +2,6 @@ import { useState, type FC, type FormEvent } from "react";
 import { Button, Icon } from "@/components/atomic/atoms";
 import { cn } from "@/utils/cn";
 import type { PermissionFormData, PermissionItem } from "@/types";
-import { Toggle } from "../../atoms/Toggle/Toggle";
 import { TextField } from "../../molecules/TextField/TextField";
 import { Overlay } from "../../molecules/Overlay/Overlay";
 
@@ -32,6 +31,7 @@ export const PermissionForm: FC<PermissionFormProps> = ({
   const [permissions, setPermissions] = useState<PermissionItem[]>(
     initialData?.permissions || []
   );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [canTakeExam, setCanTakeExam] = useState<boolean>(
     initialData?.canTakeExam || false
   );
@@ -154,14 +154,6 @@ export const PermissionForm: FC<PermissionFormProps> = ({
                 </tbody>
               </table>
             </div>
-          </div>
-
-          <div className="flex items-center gap-8">
-            <Toggle
-              label="Là sinh viên?"
-              checked={canTakeExam}
-              onChange={() => setCanTakeExam}
-            />
           </div>
         </div>
 

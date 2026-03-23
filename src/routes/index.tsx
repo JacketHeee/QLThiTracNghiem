@@ -24,6 +24,10 @@ import AddTest from "@/pages/AddTest/AddTest";
 import AddQuestionTestPage from "@/pages/AddQuestionTestPage/AddQuestionTestPage";
 import CourseElement from "@/pages/CourseElement/CourseElement";
 import ResultPage from "@/pages/ResultPage/ResultPage";
+import DoTestPage from "@/pages/DoTestPage/DoTestPage";
+import ResultDoTestPage from "@/pages/ResultDoTestPage/ResultDoTestPage";
+import { ExamInstruction } from "@/components/atomic/organisms/ExamInstruction/ExamInstruction";
+import { ExamDoing } from "@/components/atomic/organisms/ExamDoing/ExamDoing";
 
 export const router = createBrowserRouter([
   {
@@ -57,6 +61,18 @@ export const router = createBrowserRouter([
                 children: [
                   { index: true, element: <TestPageDetail /> },
                   { path: "result/:id", element: <ResultPage /> },
+                  {
+                    path: "take",
+                    element: <DoTestPage />,
+                    children: [
+                      { index: true, element: <ExamInstruction /> },
+                      { path: "doing", element: <ExamDoing /> },
+                      {
+                        path: "result/:attemptId",
+                        element: <ResultDoTestPage />,
+                      },
+                    ],
+                  },
                 ],
               },
               {

@@ -12,6 +12,7 @@ interface TabsProps {
   className?: string;
   tabClassName?: string;
   childClassName?: string;
+  small?: boolean;
 }
 
 /**
@@ -37,9 +38,12 @@ export default function Tabs({
   tabs,
   className = "",
   childClassName = "",
+  small = false,
 }: TabsProps) {
   return (
-    <div className={`text-button-medium flex ${className}`}>
+    <div
+      className={`${small ? "text-body-2" : "text-button-medium"} flex ${className}`}
+    >
       {tabs.map((tab) => {
         const isActive = value === tab.value;
 
@@ -50,7 +54,7 @@ export default function Tabs({
             onClick={() => {
               onChange(tab.value);
             }}
-            className={`text-body-1 cursor-pointer border-b-2 p-5 ${
+            className={`${small ? "text-body-2 p-3 font-medium" : "text-body-1 p-5"} cursor-pointer border-b-2 ${
               isActive
                 ? "border-primary-main text-primary-main"
                 : "border-background-body-background text-text-primary"

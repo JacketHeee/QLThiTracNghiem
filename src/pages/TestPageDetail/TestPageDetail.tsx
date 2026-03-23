@@ -1,8 +1,26 @@
 import { Button, Icon } from "@/components/atomic/atoms";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
-import { Link } from "react-router-dom";
+import { useExamStore } from "@/stores/useExamStore";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 export default function TestPageDetail() {
+  const navigate = useNavigate();
+  const { id } = useParams();
+
+  const handlePreview = () => {
+    // Reset store trước khi vào bài mới để tránh dính dữ liệu cũ
+    useExamStore.getState().resetExam();
+    useExamStore.getState().mode = "PREVIEW";
+
+    // Chuyển hướng kèm theo query param mode=preview
+    navigate(`/tests/${id}/take?mode=preview`);
+  };
+
+  const handleStartExam = () => {
+    // Chuyển hướng thẳng vào trang làm bài (mặc định mode là STUDENT)
+    useExamStore.getState().mode = "STUDENT";
+    navigate(`/tests/${id}/take`);
+  };
   return (
     <MainContentLayout>
       {/* Overview */}
@@ -35,11 +53,11 @@ export default function TestPageDetail() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant={"outline"}>
+              <Button variant={"outline"} onClick={handlePreview}>
                 <Icon name="play" /> Xem trước
               </Button>
-              <Button>
-                <Icon name="detail" /> Hành động
+              <Button onClick={handleStartExam}>
+                <Icon name="detail" /> Hành động (Test trải nghiệm user)
               </Button>
             </div>
           </div>
