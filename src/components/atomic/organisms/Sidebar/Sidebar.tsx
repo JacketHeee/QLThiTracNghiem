@@ -24,7 +24,7 @@ const SIDEBAR_SECTIONS = [
         to: "/courses",
       },
       {
-        icon: "academyCap",
+        icon: "calendar",
         labelKey: "sidebar.items.exams",
         to: "/exams",
       },
