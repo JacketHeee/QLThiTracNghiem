@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Icon } from "@/components/atomic/atoms";
 import { TextField } from "@/components/atomic/molecules/TextField/TextField";
 import type { Subject } from "@/types";
@@ -15,30 +15,74 @@ export function SubjectForm({
   onSave,
   onCancel,
 }: SubjectFormProps) {
-  const [formData, setFormData] = useState<Subject>(
-    initialData ?? {
-      monHocId: 0,
-      tenMonHoc: "",
-      soTinChi: 0,
-      soTietLyThuyet: 0,
-      soTietThucHanh: 0,
-    }
-  );
+  const [formData, setFormData] = useState<Subject>({
+    id: 0,
+    maMonHoc: "",
+    tenMonHoc: "",
+    soTinChi: 0,
+    soTietLyThuyet: 0,
+    soTietThucHanh: 0,
+    isDeleted: 0,
+  });
 
   const [errors, setErrors] = useState<Partial<Record<keyof Subject, string>>>(
     {}
   );
 
+  // Reset formData mỗi khi initialData thay đổi (rất quan trọng)
+  useEffect(() => {
+    if (initialData) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFormData(initialData);
+    } else {
+      setFormData({
+        id: 0,
+        maMonHoc: "",
+        tenMonHoc: "",
+        soTinChi: 0,
+        soTietLyThuyet: 0,
+        soTietThucHanh: 0,
+        isDeleted: 0,
+      });
+    }
+    setErrors({}); // Reset lỗi khi mở form mới
+  }, [initialData]);
+
   const handleChange = (field: keyof Subject, value: string | number) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    // Xóa lỗi nếu có khi người dùng đang sửa
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
   };
 
   const handleValidateAndSave = () => {
-    if (!formData.tenMonHoc) {
-      setErrors({ tenMonHoc: "Tên môn học không được để trống" });
+    console.log("Manh - Form Data trước khi lưu:", formData);
+
+    // Validate cơ bản
+    if (!formData.tenMonHoc?.trim()) {
+      setErrors((prev) => ({
+        ...prev,
+        tenMonHoc: "Tên môn học không được để trống",
+      }));
+      alert("Vui lòng nhập Tên môn học");
       return;
     }
+
+    if (!formData.maMonHoc?.trim()) {
+      setErrors((prev) => ({
+        ...prev,
+        maMonHoc: "Mã môn học không được để trống",
+      }));
+      alert("Vui lòng nhập Mã môn học");
+      return;
+    }
+
+    // Gọi onSave để lưu dữ liệu
     onSave(formData);
   };
 
@@ -60,7 +104,7 @@ export function SubjectForm({
           </Button>
         </div>
 
-        {/* Body - Sử dụng TextField */}
+        {/* Body */}
         <div className="space-y-4 px-6 py-6">
           <TextField
             label="Tên môn học"
@@ -73,19 +117,23 @@ export function SubjectForm({
 
           <div className="grid grid-cols-2 gap-2">
             <TextField
-              label="Mã môn học (ID)"
-              type="number"
-              placeholder="101"
-              value={formData.monHocId || ""}
-              onChange={(e) => handleChange("monHocId", Number(e.target.value))}
-              disabled={!!initialData}
+              label="Mã môn học"
+              placeholder="Ví dụ: 841010"
+              value={formData.maMonHoc}
+              onChange={(e) => handleChange("maMonHoc", e.target.value)}
+              disabled={!!initialData} // Không cho sửa mã khi đang edit
+              error={errors.maMonHoc}
+              required
             />
+
             <TextField
               label="Số tín chỉ"
               type="number"
               placeholder="3"
               value={formData.soTinChi || ""}
-              onChange={(e) => handleChange("soTinChi", Number(e.target.value))}
+              onChange={(e) =>
+                handleChange("soTinChi", Number(e.target.value) || 0)
+              }
             />
           </div>
 
@@ -96,23 +144,24 @@ export function SubjectForm({
               placeholder="45"
               value={formData.soTietLyThuyet || ""}
               onChange={(e) =>
-                handleChange("soTietLyThuyet", Number(e.target.value))
+                handleChange("soTietLyThuyet", Number(e.target.value) || 0)
               }
             />
+
             <TextField
               label="Số tiết thực hành"
               type="number"
               placeholder="30"
               value={formData.soTietThucHanh || ""}
               onChange={(e) =>
-                handleChange("soTietThucHanh", Number(e.target.value))
+                handleChange("soTietThucHanh", Number(e.target.value) || 0)
               }
             />
           </div>
         </div>
 
-        {/* Action */}
-        <div className="flex justify-end px-5 py-2">
+        {/* Action Buttons */}
+        <div className="flex justify-end border-t border-other-divider px-5 py-2">
           <div className="flex gap-2">
             <Button variant={"outline"} color={"standard"} onClick={onCancel}>
               Quay lại

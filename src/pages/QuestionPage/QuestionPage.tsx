@@ -1,34 +1,133 @@
+import { useMemo, useState } from "react";
 import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import Tabs from "@/components/atomic/molecules/Tabs/Tabs";
 import AddQuestionForm from "@/components/atomic/organisms/AddQuestionForm/AddQuestionForm";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
-import { useState } from "react";
+import QuestionItem, {
+  type QuestionData,
+} from "@/components/atomic/molecules/QuestionItem/QuestionItem";
+
+const MOCK_QUESTIONS: QuestionData[] = [
+  {
+    id: "1",
+    difficulty: "Thông hiểu",
+    category: "Lập trình hướng đối tượng/Chương 1",
+    content: "Mã số sinh viên của bạn là gì?",
+    timeAgo: "5 giờ",
+    usageCount: 160,
+    status: "public",
+    answers: [
+      { label: "A", content: "Mã số định danh duy nhất" },
+      { label: "B", content: "Số chứng minh nhân dân", isCorrect: true },
+      { label: "C", content: "Số điện thoại cá nhân" },
+      { label: "D", content: "Họ và tên viết tắt" },
+    ],
+  },
+  {
+    id: "2",
+    difficulty: "Vận dụng",
+    category: "Cấu trúc dữ liệu/Cây nhị phân",
+    content: "Độ phức tạp của thuật toán tìm kiếm trên cây BST là bao nhiêu?",
+    timeAgo: "1 ngày",
+    usageCount: 45,
+    status: "private",
+    answers: [
+      { label: "A", content: "O(n)" },
+      { label: "B", content: "O(1)" },
+      { label: "C", content: "O(log n)", isCorrect: true },
+      { label: "D", content: "O(n log n)" },
+    ],
+  },
+  {
+    id: "3",
+    difficulty: "Nhận biết",
+    category: "ReactJS/Hook",
+    content: "Hook nào dùng để quản lý side effect trong React?",
+    timeAgo: "2 giờ",
+    usageCount: 1200,
+    status: "public",
+    answers: [
+      { label: "A", content: "useState" },
+      { label: "B", content: "useEffect", isCorrect: true },
+      { label: "C", content: "useContext" },
+      { label: "D", content: "useMemo" },
+    ],
+  },
+  {
+    id: "4",
+    difficulty: "Vận dụng cao",
+    category: "Toán cao cấp/Ma trận",
+    content: "Tính định thức của ma trận xoay chiều 4x4 sau...",
+    timeAgo: "12 giờ",
+    usageCount: 12,
+    status: "archive",
+  },
+  {
+    id: "5",
+    difficulty: "Thông hiểu",
+    category: "Mạng máy tính/OSI",
+    content: "Tầng nào trong mô hình OSI chịu trách nhiệm định tuyến?",
+    timeAgo: "3 ngày",
+    usageCount: 89,
+    status: "public",
+    answers: [
+      { label: "A", content: "Physical Layer" },
+      { label: "B", content: "Data Link Layer" },
+      { label: "C", content: "Network Layer", isCorrect: true },
+      { label: "D", content: "Transport Layer" },
+    ],
+  },
+];
 
 export const QuestionPage = () => {
-  const [selected, setSelected] = useState("public");
+  const [selectedTab, setSelectedTab] = useState("public");
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterDifficulty, setFilterDifficulty] = useState("");
+
+  const filteredQuestions = useMemo(() => {
+    return MOCK_QUESTIONS.filter((q) => {
+      // 1. Lọc theo Tab (Trạng thái)
+      const matchTab = q.status === selectedTab;
+
+      // 2. Lọc theo nội dung Search (Không phân biệt hoa thường)
+      const matchSearch = q.content
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+
+      // 3. Lọc theo Độ khó (nếu có chọn)
+      const matchDifficulty = filterDifficulty
+        ? q.difficulty === filterDifficulty
+        : true;
+
+      return matchTab && matchSearch && matchDifficulty;
+    });
+  }, [selectedTab, searchQuery, filterDifficulty]);
+
+  const handleAction = (type: string, id: string) => {
+    console.log(`Action: ${type} on ID: ${id}`);
+  };
 
   return (
     <MainContentLayout>
       <div className="flex flex-col gap-3 rounded-md bg-background-body-background">
         <div className="border-b-1 flex items-center justify-between border-other-outlined-border pr-3">
           <Tabs
-            value={selected}
-            onChange={setSelected}
+            value={selectedTab}
+            onChange={setSelectedTab}
             tabs={[
               { value: "public", label: "Công khai" },
               { value: "private", label: "Cá nhân" },
-              { value: "archive", label: "Lưu trữ" }, // ví dụ tab bị disable
+              { value: "archive", label: "Lưu trữ" },
             ]}
           />
           <Button
             onClick={() => setIsAddOpen(true)}
-            variant={"contained"}
-            color={"primary"}
+            variant="contained"
+            color="primary"
           >
-            Thêm câu hỏi
-            <Icon name="arrowDown" />
+            Thêm câu hỏi <Icon name="arrowDown" />
           </Button>
         </div>
 
@@ -37,9 +136,8 @@ export const QuestionPage = () => {
             label="Môn học"
             placeholder="Chọn môn học"
             options={[
-              { label: "Toán học", value: "math" },
-              { label: "Vật lý", value: "physics" },
-              { label: "Hóa học", value: "chemistry" },
+              { label: "Lập trình React", value: "react" },
+              { label: "Toán cao cấp", value: "math" },
             ]}
             onSelect={() => {}}
           />
@@ -47,14 +145,10 @@ export const QuestionPage = () => {
             label="Chương"
             placeholder="Chọn chương"
             options={[
-              { label: "Chương 1: Đây là chương 1", value: "math" },
-              { label: "Chương 2: Đây là chương 2", value: "physics" },
-              { label: "Chương 3: Đây là chương 3", value: "chemistry" },
-              { label: "Chương 3: Đây là chương 3", value: "chemistry" },
-              { label: "Chương 3: Đây là chương 3", value: "chemistry" },
-              { label: "Chương 3: Đây là chương 3", value: "chemistry" },
-              { label: "Chương 3: Đây là chương 3", value: "chemistry" },
-              { label: "Chương 3: Đây là chương 3", value: "chemistry" },
+              { label: "Nhận biết", value: "Nhận biết" },
+              { label: "Thông hiểu", value: "Thông hiểu" },
+              { label: "Vận dụng", value: "Vận dụng" },
+              { label: "Vận dụng cao", value: "Vận dụng cao" },
             ]}
             onSelect={() => {}}
           />
@@ -62,268 +156,56 @@ export const QuestionPage = () => {
             label="Độ khó"
             placeholder="Chọn độ khó"
             options={[
-              { label: "Nhận biết", value: "math" },
-              { label: "Thông hiểu", value: "physics" },
-              { label: "Vận dụng", value: "chemistry" },
-              { label: "Vận dụng cao", value: "chemistry" },
+              { label: "Nhận biết", value: "Nhận biết" },
+              { label: "Thông hiểu", value: "Thông hiểu" },
+              { label: "Vận dụng", value: "Vận dụng" },
+              { label: "Vận dụng cao", value: "Vận dụng cao" },
             ]}
-            onSelect={() => {}}
+            onSelect={(val) => setFilterDifficulty(val.toString())}
           />
         </div>
         <div className="flex gap-5 px-3 pb-3">
           <Input
             className="flex-1"
-            placeholder="Tìm kiếm theo tên"
+            placeholder={`Tìm kiếm trong ${filteredQuestions.length} câu hỏi...`}
             hasBoder={true}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             icon={<Icon name="search" className="text-text-secondary" />}
           />
-          <Button variant={"outline"}>
+          <Button
+            variant="outline"
+            className="shrink-0"
+            onClick={() => {
+              setSearchQuery("");
+              setFilterDifficulty("");
+            }}
+          >
             <Icon name="arrowUpDown" />
           </Button>
         </div>
       </div>
-      <div className="flex flex-col gap-3">
-        {/* item */}
-        <div className="flex flex-1 flex-col rounded-md bg-background-body-background px-3">
-          <div className="flex justify-between border-b border-other-outlined-border p-5">
-            <span className="text-caption rounded-sm border border-text-secondary p-1 text-text-secondary">
-              Thông hiểu
-            </span>
-            <span className="text-body-1 text-text-secondary">
-              Lập trình hướng đối tượng/Chương 1: Dao động điều hòa
-            </span>
-          </div>
-          <div className="flex flex-col px-2">
-            <div className="flex flex-col border-b border-other-outlined-border px-2 py-4">
-              <span className="text-body-1 text-text-secondary">
-                Mã số sinh viên?
-              </span>
-            </div>
-            <div className="flex items-center justify-between py-2">
-              <div className="flex gap-2">
-                <Button color={"primary"}>Hiển thị đáp án</Button>
-                <Button color={"primary"}>Sửa</Button>
-                <Button color={"primary"}>Xóa</Button>
-                <Button color={"primary"}>Thêm vào ngân hàng câu hỏi</Button>
-              </div>
-              <div className="flex gap-1 text-text-secondary">
-                <span>5 giờ ·</span>
-                <Icon name="word" />
-                <span>· Lượt sử dụng: 160 lần</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* item */}
-        <div className="flex flex-1 flex-col rounded-md bg-background-body-background px-3">
-          <div className="flex justify-between border-b border-other-outlined-border p-5">
-            <span className="text-caption rounded-sm border border-text-secondary p-1 text-text-secondary">
-              Thông hiểu
-            </span>
-            <span className="text-body-1 text-text-secondary">
-              Lập trình hướng đối tượng/Chương 1: Dao động điều hòa
+
+      {/* List Section */}
+      <section className="mt-4 flex flex-col gap-4">
+        {filteredQuestions.length > 0 ? (
+          filteredQuestions.map((q) => (
+            <QuestionItem
+              key={q.id}
+              data={q}
+              onEdit={(id) => handleAction("edit", id)}
+              onDelete={(id) => handleAction("delete", id)}
+              onAddToBank={(id) => handleAction("add-to-bank", id)}
+            />
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-other-outlined-border bg-background-body-background py-20">
+            <span className="italic text-text-secondary">
+              Không tìm thấy câu hỏi nào phù hợp
             </span>
           </div>
-          <div className="flex flex-col px-2">
-            <div className="flex flex-col gap-2 border-b border-other-outlined-border px-2 py-4">
-              <span className="text-body-1 text-text-secondary">
-                Mã số sinh viên?
-              </span>
-              <div className="text-body-1 flex flex-col gap-1 text-text-secondary">
-                <div className="flex max-w-[700px] justify-between px-2 py-1">
-                  <span>
-                    <strong>A</strong>. Đây là đáp án a
-                  </span>{" "}
-                </div>
-                <div className="flex max-w-[700px] items-center justify-between rounded-md bg-action-hover px-2 py-1">
-                  <span>
-                    <strong>B</strong>. Đây là đáp án ban
-                  </span>{" "}
-                  <Icon
-                    size={20}
-                    name="success"
-                    className="text-alert-success-content"
-                  />{" "}
-                </div>
-                <div className="flex max-w-[700px] justify-between px-2 py-1">
-                  <span>
-                    <strong>C</strong>. Đây là đáp án c
-                  </span>{" "}
-                </div>
-                <div className="flex max-w-[700px] justify-between px-2 py-1">
-                  <span>
-                    <strong>D</strong>. Đây là đáp án d
-                  </span>{" "}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between py-2">
-              <div className="flex gap-2">
-                <Button color={"primary"}>Hiển thị đáp án</Button>
-                <Button color={"primary"}>Sửa</Button>
-                <Button color={"primary"}>Xóa</Button>
-                <Button color={"primary"}>Thêm vào ngân hàng câu hỏi</Button>
-              </div>
-              <div className="flex gap-1 text-text-secondary">
-                <span>5 giờ ·</span>
-                <Icon name="word" />
-                <span>· Lượt sử dụng: 160 lần</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* item */}
-        <div className="flex flex-1 flex-col rounded-md bg-background-body-background px-3">
-          <div className="flex justify-between border-b border-other-outlined-border p-5">
-            <span className="text-caption rounded-sm border border-text-secondary p-1 text-text-secondary">
-              Thông hiểu
-            </span>
-            <span className="text-body-1 text-text-secondary">
-              Lập trình hướng đối tượng/Chương 1: Dao động điều hòa
-            </span>
-          </div>
-          <div className="flex flex-col px-2">
-            <div className="flex flex-col border-b border-other-outlined-border px-2 py-4">
-              <span className="text-body-1 text-text-secondary">
-                Mã số sinh viên?
-              </span>
-            </div>
-            <div className="flex items-center justify-between py-2">
-              <div className="flex gap-2">
-                <Button color={"primary"}>Hiển thị đáp án</Button>
-                <Button color={"primary"}>Sửa</Button>
-                <Button color={"primary"}>Xóa</Button>
-                <Button color={"primary"}>Thêm vào ngân hàng câu hỏi</Button>
-              </div>
-              <div className="flex gap-1 text-text-secondary">
-                <span>5 giờ ·</span>
-                <Icon name="word" />
-                <span>· Lượt sử dụng: 160 lần</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* item */}
-        <div className="flex flex-1 flex-col rounded-md bg-background-body-background px-3">
-          <div className="flex justify-between border-b border-other-outlined-border p-5">
-            <span className="text-caption rounded-sm border border-text-secondary p-1 text-text-secondary">
-              Thông hiểu
-            </span>
-            <span className="text-body-1 text-text-secondary">
-              Lập trình hướng đối tượng/Chương 1: Dao động điều hòa
-            </span>
-          </div>
-          <div className="flex flex-col px-2">
-            <div className="flex flex-col border-b border-other-outlined-border px-2 py-4">
-              <span className="text-body-1 text-text-secondary">
-                Mã số sinh viên?
-              </span>
-            </div>
-            <div className="flex items-center justify-between py-2">
-              <div className="flex gap-2">
-                <Button color={"primary"}>Hiển thị đáp án</Button>
-                <Button color={"primary"}>Sửa</Button>
-                <Button color={"primary"}>Xóa</Button>
-                <Button color={"primary"}>Thêm vào ngân hàng câu hỏi</Button>
-              </div>
-              <div className="flex gap-1 text-text-secondary">
-                <span>5 giờ ·</span>
-                <Icon name="word" />
-                <span>· Lượt sử dụng: 160 lần</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* item */}
-        <div className="flex flex-1 flex-col rounded-md bg-background-body-background px-3">
-          <div className="flex justify-between border-b border-other-outlined-border p-5">
-            <span className="text-caption rounded-sm border border-text-secondary p-1 text-text-secondary">
-              Thông hiểu
-            </span>
-            <span className="text-body-1 text-text-secondary">
-              Lập trình hướng đối tượng/Chương 1: Dao động điều hòa
-            </span>
-          </div>
-          <div className="flex flex-col px-2">
-            <div className="flex flex-col gap-2 border-b border-other-outlined-border px-2 py-4">
-              <span className="text-body-1 text-text-secondary">
-                Mã số sinh viên?
-              </span>
-              <div className="text-body-1 flex flex-col gap-1 text-text-secondary">
-                <div className="flex max-w-[700px] justify-between px-2 py-1">
-                  <span>
-                    <strong>A</strong>. Đây là đáp án a
-                  </span>{" "}
-                </div>
-                <div className="flex max-w-[700px] items-center justify-between rounded-md bg-action-hover px-2 py-1">
-                  <span>
-                    <strong>B</strong>. Đây là đáp án b
-                  </span>{" "}
-                  <Icon
-                    size={20}
-                    name="success"
-                    className="text-alert-success-content"
-                  />{" "}
-                </div>
-                <div className="flex max-w-[700px] justify-between px-2 py-1">
-                  <span>
-                    <strong>C</strong>. Đây là đáp án c
-                  </span>{" "}
-                </div>
-                <div className="flex max-w-[700px] justify-between px-2 py-1">
-                  <span>
-                    <strong>D</strong>. Đây là đáp án d
-                  </span>{" "}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between py-2">
-              <div className="flex gap-2">
-                <Button color={"primary"}>Hiển thị đáp án</Button>
-                <Button color={"primary"}>Sửa</Button>
-                <Button color={"primary"}>Xóa</Button>
-                <Button color={"primary"}>Thêm vào ngân hàng câu hỏi</Button>
-              </div>
-              <div className="flex gap-1 text-text-secondary">
-                <span>5 giờ ·</span>
-                <Icon name="word" />
-                <span>· Lượt sử dụng: 160 lần</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* item */}
-        <div className="flex flex-1 flex-col rounded-md bg-background-body-background px-3">
-          <div className="flex justify-between border-b border-other-outlined-border p-5">
-            <span className="text-caption rounded-sm border border-text-secondary p-1 text-text-secondary">
-              Thông hiểu
-            </span>
-            <span className="text-body-1 text-text-secondary">
-              Lập trình hướng đối tượng/Chương 1: Dao động điều hòa
-            </span>
-          </div>
-          <div className="flex flex-col px-2">
-            <div className="flex flex-col border-b border-other-outlined-border px-2 py-4">
-              <span className="text-body-1 text-text-secondary">
-                Mã số sinh viên?
-              </span>
-            </div>
-            <div className="flex items-center justify-between py-2">
-              <div className="flex gap-2">
-                <Button color={"primary"}>Hiển thị đáp án</Button>
-                <Button color={"primary"}>Sửa</Button>
-                <Button color={"primary"}>Xóa</Button>
-                <Button color={"primary"}>Thêm vào ngân hàng câu hỏi</Button>
-              </div>
-              <div className="flex gap-1 text-text-secondary">
-                <span>5 giờ ·</span>
-                <Icon name="word" />
-                <span>· Lượt sử dụng: 160 lần</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        )}
+      </section>
 
       <AddQuestionForm isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
     </MainContentLayout>
