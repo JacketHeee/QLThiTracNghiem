@@ -7,11 +7,12 @@ import DynamicTable, {
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 // import { SubjectForm } from "./SubjectForm";
-import type { Subject } from "@/types";
 import { SubjectForm } from "@/components/atomic/organisms/SubjectForm/SubjectForm";
+import type { Subject } from "@/types";
+import { useSubjects } from "@/hooks/useSubject";
 
 const columns: TableColumn<Subject>[] = [
-  { title: "Mã môn", key: "monHocId" },
+  { title: "Mã môn", key: "maMonHoc" },
   {
     title: "Tên môn học",
     key: "tenMonHoc",
@@ -21,53 +22,10 @@ const columns: TableColumn<Subject>[] = [
   { title: "Thực hành", key: "soTietThucHanh", className: "text-center" },
 ];
 
-const initialSubjects: Subject[] = [
-  {
-    monHocId: 101,
-    tenMonHoc: "Toán rời rạc",
-    soTinChi: 3,
-    soTietLyThuyet: 30,
-    soTietThucHanh: 0,
-  },
-  {
-    monHocId: 102,
-    tenMonHoc: "Mạng máy tính",
-    soTinChi: 3,
-    soTietLyThuyet: 30,
-    soTietThucHanh: 15,
-  },
-  {
-    monHocId: 103,
-    tenMonHoc: "Cấu trúc dữ liệu và giải thuật",
-    soTinChi: 4,
-    soTietLyThuyet: 45,
-    soTietThucHanh: 30,
-  },
-  {
-    monHocId: 104,
-    tenMonHoc: "Lập trình hướng đối tượng",
-    soTinChi: 3,
-    soTietLyThuyet: 30,
-    soTietThucHanh: 30,
-  },
-  {
-    monHocId: 105,
-    tenMonHoc: "Cơ sở dữ liệu",
-    soTinChi: 3,
-    soTietLyThuyet: 30,
-    soTietThucHanh: 30,
-  },
-  {
-    monHocId: 106,
-    tenMonHoc: "Hệ điều hành",
-    soTinChi: 3,
-    soTietLyThuyet: 45,
-    soTietThucHanh: 0,
-  },
-];
-
 export const SubjectPage = () => {
-  const [subjects, setSubjects] = useState<Subject[]>(initialSubjects);
+  const { subjects, isLoading, createSubject, updateSubject, deleteSubject } =
+    useSubjects();
+  // const [subjects, setSubjects] = useState<Subject[]>(initialSubjects);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
 
@@ -77,27 +35,30 @@ export const SubjectPage = () => {
   };
 
   const handleAction = (action: string, item: Subject) => {
-    if (action === "edit") {
-      setEditingSubject(item); // Gán dữ liệu dòng này vào state
-      setIsModalOpen(true); // Mở modal
+    if (action === "edit" || action === "detail") {
+      setEditingSubject(item); // Dữ liệu dòng này sẽ được truyền vào initialData của Form
+      setIsModalOpen(true);
     } else if (action === "remove") {
-      if (confirm(`Bạn có chắc muốn xóa môn: ${item.tenMonHoc}?`)) {
-        setSubjects((prev) => prev.filter((s) => s.monHocId !== item.monHocId));
+      if (window.confirm(`Bạn có chắc muốn xóa môn: ${item.tenMonHoc}?`)) {
+        deleteSubject(item.id); // Gọi API Delete thực tế
       }
     }
   };
 
   const handleSave = (data: Subject) => {
     if (editingSubject) {
-      setSubjects((prev) =>
-        prev.map((s) => (s.monHocId === data.monHocId ? data : s))
-      );
+      // Trường hợp Sửa
+      updateSubject(data);
     } else {
-      setSubjects((prev) => [...prev, data]);
+      // Trường hợp Thêm mới (loại bỏ id: 0 để backend tự sinh nếu cần)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id, ...payload } = data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      createSubject(payload as any);
     }
     setIsModalOpen(false);
+    setEditingSubject(null);
   };
-
   return (
     <MainContentLayout>
       {/* Toolbar */}
@@ -105,6 +66,20 @@ export const SubjectPage = () => {
         <div className="flex justify-between">
           {/* Left: Filter & Search */}
           <div className="flex gap-2">
+            <Button
+              onClick={() =>
+                createSubject({
+                  maMonHoc: "841013",
+                  tenMonHoc: "Lập Trình Web hehe",
+                  soTinChi: 3,
+                  soTietLyThuyet: 30,
+                  soTietThucHanh: 30,
+                  isDeleted: 0,
+                })
+              }
+            >
+              con bof
+            </Button>
             <SelectField
               placeholder="Chọn tiêu chí"
               defaultIndex={0}
@@ -131,13 +106,6 @@ export const SubjectPage = () => {
               <Icon name="plus" size={20} />
               Tạo môn học mới
             </Button>
-            {isModalOpen && (
-              <SubjectForm
-                initialData={editingSubject} // Truyền dữ liệu (null hoặc object)
-                onSave={handleSave}
-                onCancel={() => setIsModalOpen(false)}
-              />
-            )}
           </div>
         </div>
       </div>
@@ -147,11 +115,22 @@ export const SubjectPage = () => {
         <DynamicTable
           columns={columns}
           data={subjects}
-          rowKey="monHocId"
+          rowKey="id"
           hasColumnActions
           onAction={handleAction}
+          isLoading={isLoading}
         />
         <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
+        {isModalOpen && (
+          <SubjectForm
+            initialData={editingSubject}
+            onSave={handleSave}
+            onCancel={() => {
+              setIsModalOpen(false);
+              setEditingSubject(null);
+            }}
+          />
+        )}
       </div>
     </MainContentLayout>
   );

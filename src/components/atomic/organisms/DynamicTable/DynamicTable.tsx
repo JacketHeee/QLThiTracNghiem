@@ -21,6 +21,8 @@ type Props<T> = {
   onAction?: (action: TableAction, item: T) => void;
   className?: string;
   getRowClassName?: (item: T) => string;
+  isLoading?: boolean;
+  isError?: boolean;
 };
 
 export default function DynamicTable<T>({
@@ -123,7 +125,7 @@ export default function DynamicTable<T>({
                 colSpan={columns.length + (hasColumnActions ? 1 : 0)}
                 className="px-6 py-10 text-center italic text-text-disabled"
               >
-                Không có dữ liệu hiển thị
+                Đang tải
               </td>
             </tr>
           )}

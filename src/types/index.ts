@@ -1,4 +1,14 @@
 //export all
+export interface ApiResponse<T> {
+  success: boolean;
+  code: number;
+  message: string;
+  data: T;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  errors?: any;
+}
+
+export type EmptyResponse = ApiResponse<null>;
 
 export interface NhomQuyen {
   nhomQuyenId: number;
@@ -24,39 +34,65 @@ export interface PermissionFormData {
   canJoinCourse: boolean; // Tham gia học phần
 }
 
+export interface TaiKhoan {
+  id: number;
+  ma: string;
+  username: string;
+  hoTen: string;
+  email: string;
+  nhomQuyenId: number;
+  sdt: string;
+  ngaySinh: string; // ISO date string
+  laGioiTinhNu: boolean;
+  ggid: string | null;
+  urlAvatar: string | null;
+  isStudent: boolean;
+  isLocked: boolean;
+  isDeleted: boolean;
+  lastLogin: string; // ISO date string
+  created_at: string; // ISO date string
+  updated_at: string; // ISO date string
+}
+
 export interface Subject {
-  monHocId: number;
+  id: number;
+  maMonHoc: string;
   tenMonHoc: string;
   soTinChi: number;
   soTietLyThuyet: number;
   soTietThucHanh: number;
+  isDeleted: number;
 }
 
-export const UserRole = {
-  STUDENT: "STUDENT",
-  TEACHER: "TEACHER",
-  ADMIN: "ADMIN",
-} as const;
+export interface DoKho {
+  id: number;
+  tenDoKho: string;
+  created_at: string; // ISO date string
+  updated_at: string; // ISO date string
+}
 
-export type UserRole = (typeof UserRole)[keyof typeof UserRole];
-
-export interface TaiKhoan {
-  taiKhoanId: number;
-  username: string; //mssv
-  // password?: string;
-  hoTen: string;
-  ngaySinh?: Date;
-  laGioiTinhNu: boolean;
-  email: string;
-  sdt?: string;
-  nhomQuyenId: number; // Liên kết tới NHOMQUYEN
-  ggid?: string;
-  urlAvartar?: string;
-  createdAt: Date;
-  isStudent: boolean; // Flag lọc nhanh
-  isLocked: boolean;
-  lastLogin?: Date;
+export interface Question {
+  id: number;
+  noiDungCauHoi: string;
+  imageUrl: string | null;
+  giaiThichDapAn: string;
+  diemMacDinh: string; // "1.50" -> string từ API
+  soLuotSuDung: number;
+  status: "public" | "private" | "archive";
   isDeleted: boolean;
+  created_at: string;
+  updated_at: string;
 
-  role?: UserRole;
+  doKhoId: number;
+  monHocId: number;
+  chuongId: number | null;
+  nguoiTaoId: number;
+
+  de_this_count: number;
+
+  // relations
+  mon_hoc: Subject;
+  chuong: unknown | null;
+  do_kho: DoKho;
+  nguoi_tao: TaiKhoan;
 }

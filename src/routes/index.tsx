@@ -28,6 +28,7 @@ import DoTestPage from "@/pages/DoTestPage/DoTestPage";
 import ResultDoTestPage from "@/pages/ResultDoTestPage/ResultDoTestPage";
 import { ExamInstruction } from "@/components/atomic/organisms/ExamInstruction/ExamInstruction";
 import { ExamDoing } from "@/components/atomic/organisms/ExamDoing/ExamDoing";
+import ProtectedRoute from "./ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
@@ -35,59 +36,67 @@ export const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        element: <MainLayout />,
+        element: <ProtectedRoute />, // Bọc tất cả children bên dưới
         children: [
-          { path: "/", element: <HomePage /> },
-          { path: "/dashboard", element: <DashboardPage /> },
           {
-            path: "/courses",
+            element: <MainLayout />,
             children: [
-              { index: true, element: <CoursePage /> },
-              { path: "1", element: <CourseElement /> },
-            ],
-          },
-          { path: "/exams", element: <ExamPage /> },
-          { path: "/course-group", element: <CourseGroupPage /> },
-          { path: "/question", element: <QuestionPage /> },
-          { path: "/users", element: <UserPage /> },
-          { path: "/subjects", element: <SubjectPage /> },
-          { path: "/assignments", element: <AssignmentPage /> },
-          {
-            path: "/tests",
-            children: [
-              { index: true, element: <TestPage /> },
+              { path: "/", element: <HomePage /> },
+              { path: "/dashboard", element: <DashboardPage /> },
               {
-                path: ":id",
+                path: "/courses",
                 children: [
-                  { index: true, element: <TestPageDetail /> },
-                  { path: "result/:id", element: <ResultPage /> },
+                  { index: true, element: <CoursePage /> },
+                  { path: "1", element: <CourseElement /> },
+                ],
+              },
+              { path: "/exams", element: <ExamPage /> },
+              { path: "/course-group", element: <CourseGroupPage /> },
+              { path: "/question", element: <QuestionPage /> },
+              { path: "/users", element: <UserPage /> },
+              { path: "/subjects", element: <SubjectPage /> },
+              { path: "/assignments", element: <AssignmentPage /> },
+              {
+                path: "/tests",
+                children: [
+                  { index: true, element: <TestPage /> },
                   {
-                    path: "take",
-                    element: <DoTestPage />,
+                    path: ":id",
                     children: [
-                      { index: true, element: <ExamInstruction /> },
-                      { path: "doing", element: <ExamDoing /> },
+                      { index: true, element: <TestPageDetail /> },
+                      { path: "result/:id", element: <ResultPage /> },
                       {
-                        path: "result/:attemptId",
-                        element: <ResultDoTestPage />,
+                        path: "take",
+                        element: <DoTestPage />,
+                        children: [
+                          { index: true, element: <ExamInstruction /> },
+                          { path: "doing", element: <ExamDoing /> },
+                          {
+                            path: "result/:attemptId",
+                            element: <ResultDoTestPage />,
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    path: "add",
+                    children: [
+                      { index: true, element: <AddTest /> },
+                      {
+                        path: "add-questions",
+                        element: <AddQuestionTestPage />,
                       },
                     ],
                   },
                 ],
               },
-              {
-                path: "add",
-                children: [
-                  { index: true, element: <AddTest /> },
-                  { path: "add-questions", element: <AddQuestionTestPage /> },
-                ],
-              },
+              { path: "/notifications", element: <NotificationPage /> },
+              { path: "/permission-groups", element: <PermissionGroupPage /> },
+              { path: "/test-design-system", element: <TestDesignSystem /> },
+              { path: "/error-page", element: <ErrorBoundaryTestPage /> },
             ],
           },
-          { path: "/notifications", element: <NotificationPage /> },
-          { path: "/permission-groups", element: <PermissionGroupPage /> },
-          { path: "/test-design-system", element: <TestDesignSystem /> },
-          { path: "/error-page", element: <ErrorBoundaryTestPage /> },
         ],
       },
 
