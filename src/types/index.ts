@@ -22,8 +22,6 @@ export interface PermissionItem {
 export interface PermissionFormData {
   groupName: string;
   permissions: PermissionItem[];
-  canTakeExam: boolean; // Tham gia thi
-  canJoinCourse: boolean; // Tham gia học phần
 }
 
 export interface TaiKhoan {
@@ -113,6 +111,20 @@ export interface Role {
   updated_at: string;
   /** Tổng số người dùng thuộc nhóm quyền này */
   total_users: number;
+}
+
+export interface RoleDetail {
+  id: number;
+  tenNhomQuyen: string;
+  role_details: RoleDetailItem[];
+}
+
+export interface RoleDetailItem {
+  tenChucNang: string;
+  canView: boolean;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }
 
 export interface Assign {

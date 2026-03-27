@@ -1,11 +1,11 @@
-import type { ApiResponse, Role } from "@/types";
+import type { ApiResponse, Role, RoleDetail } from "@/types";
 import axiosClient from "./axios";
 
 export const roleService = {
   getAll: (): Promise<ApiResponse<Role[]>> => axiosClient.get("/roles"),
 
-  //   getById: (id: number): Promise<ApiResponse<Subject>> =>
-  //     axiosClient.get(`/monhocs/${id}`),
+  getById: (id: number): Promise<ApiResponse<RoleDetail>> =>
+    axiosClient.get(`/roles/${id}`),
 
   //   create: (data: Omit<Subject, "id">): Promise<ApiResponse<Subject>> =>
   //     axiosClient.post("/monhocs", data),

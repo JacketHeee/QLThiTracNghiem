@@ -6,56 +6,8 @@ import DynamicTable from "@/components/atomic/organisms/DynamicTable/DynamicTabl
 import { PermissionForm } from "@/components/atomic/organisms/PermissionForm/PermissionForm";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import { useRole } from "@/hooks/useRole";
-import type { PermissionFormData, PermissionItem, Role } from "@/types";
+import type { PermissionFormData, Role } from "@/types";
 import { useState } from "react";
-
-const getInitialPermissions = (): PermissionItem[] => [
-  {
-    key: "nguoi-dung",
-    name: "Người dùng",
-    actions: { read: false, create: false, update: false, delete: false },
-  },
-  {
-    key: "hoc-phan",
-    name: "Học phần",
-    actions: { read: false, create: false, update: false, delete: false },
-  },
-  {
-    key: "cau-hoi",
-    name: "Câu hỏi",
-    actions: { read: false, create: false, update: false, delete: false },
-  },
-  {
-    key: "mon-hoc",
-    name: "Môn học",
-    actions: { read: false, create: false, update: false, delete: false },
-  },
-  {
-    key: "chuong",
-    name: "Chương",
-    actions: { read: false, create: false, update: false, delete: false },
-  },
-  {
-    key: "phan-cong",
-    name: "Phân công",
-    actions: { read: false, create: false, update: false, delete: false },
-  },
-  {
-    key: "de-thi",
-    name: "Đề thi",
-    actions: { read: false, create: false, update: false, delete: false },
-  },
-  {
-    key: "nhom-quyen",
-    name: "Nhóm quyền",
-    actions: { read: false, create: false, update: false, delete: false },
-  },
-  {
-    key: "thong-bao",
-    name: "Thông báo",
-    actions: { read: false, create: false, update: false, delete: false },
-  },
-];
 
 const totalPages = 5;
 
@@ -93,30 +45,69 @@ const columns: TableColumn<Role>[] = [
     ),
   },
 ];
+
 export const PermissionGroupPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const defaultModalState = {
+    open: false,
+    mode: "none",
+    id: undefined,
+  } as const;
+
+  const [modalState, setModalState] = useState<{
+    open: boolean;
+    mode: "create" | "view" | "update" | "none";
+    id: number | undefined;
+  }>(defaultModalState);
+
   const { roles } = useRole();
 
   const handleAction = (action: "detail" | "edit" | "remove", item: Role) => {
-    console.log(`Đang thực hiện ${action} cho nhóm: ${item.tenNhomQuyen}`);
+    // console.log(`Đang thực hiện ${action} cho nhóm: ${item.tenNhomQuyen}`);
 
-    if (action === "remove") {
-      alert(`Xác nhận xóa nhóm: ${item.tenNhomQuyen}`);
+    switch (action) {
+      case "detail":
+        detailRole(item.id);
+        break;
+
+      case "edit":
+        break;
+
+      case "remove":
+        alert(`Xác nhận xóa nhóm: ${item.tenNhomQuyen}`);
+        break;
+
+      default:
+        break;
     }
-  };
-
-  const defaultFormData: PermissionFormData = {
-    groupName: "",
-    permissions: getInitialPermissions(),
-    canTakeExam: false,
-    canJoinCourse: true, // Mặc định bật
   };
 
   const handleSaveGroup = (data: PermissionFormData) => {
     console.log("Dữ liệu cần gửi lên API:", data);
     // Gọi API lưu nhóm quyền ở đây...
-    setIsModalOpen(false);
+    closeModal();
+  };
+
+  const closeModal = () => {
+    setModalState(defaultModalState);
+  };
+
+  const insert = () => {
+    setModalState({
+      open: true,
+      mode: "create",
+      id: undefined,
+    });
+  };
+
+  const detailRole = (id: number) => {
+    setModalState({
+      open: true,
+      mode: "view",
+      id: id,
+    });
   };
 
   return (
@@ -143,19 +134,16 @@ export const PermissionGroupPage = () => {
 
           {/* Right: Actions */}
           <div className="flex gap-2">
-            <Button
-              variant={"contained"}
-              color={"primary"}
-              onClick={() => setIsModalOpen(!isModalOpen)}
-            >
+            <Button variant={"contained"} color={"primary"} onClick={insert}>
               <Icon name="plus" size={20} />
               Tạo nhóm quyền mới
             </Button>
-            {isModalOpen && (
+            {modalState.open && (
               <PermissionForm
-                initialData={defaultFormData}
+                mode={modalState.mode}
+                id={modalState.id}
                 onSave={handleSaveGroup}
-                onCancel={() => setIsModalOpen(false)}
+                onCancel={closeModal}
                 //className="w-[900px] h-[80vh] rounded-xl" // Tuỳ chỉnh kích thước modal ở đây
               />
             )}
