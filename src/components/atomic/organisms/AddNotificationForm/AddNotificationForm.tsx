@@ -3,6 +3,7 @@ import { Checkbox } from "../../atoms/Checkbox/Checkbox";
 import SelectField from "../../atoms/Select/SelectField";
 import { Overlay } from "../../molecules/Overlay/Overlay";
 import { TextArea } from "../../molecules/TextArea/TextArea";
+import { TextField } from "../../molecules/TextField/TextField";
 
 interface AddNotificationFormProps {
   onClose: () => void;
@@ -18,6 +19,10 @@ export default function AddNotificationForm({
           Tạo thông báo mới
         </div>
         <div className="flex flex-col gap-5 rounded-md bg-background-body-background p-5 text-text-secondary">
+          <TextField
+            label="Tiêu đề"
+            placeholder="Thông báo khai giảng học kỳ ..."
+          />
           {/*  */}
           <TextArea
             label="Nội dung thông báo"

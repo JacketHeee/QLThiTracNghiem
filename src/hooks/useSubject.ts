@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { subjectService } from "@/services/api/subject.service";
 import type { Subject } from "@/types";
 
-export const useSubjects = () => {
+export const useSubject = () => {
   const queryClient = useQueryClient();
 
   // Lấy danh sách

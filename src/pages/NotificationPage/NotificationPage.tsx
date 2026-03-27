@@ -4,33 +4,11 @@ import NotificationItem from "@/components/atomic/molecules/NotificationItem/Not
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import { useState } from "react";
 import AddNotificationForm from "@/components/atomic/organisms/AddNotificationForm/AddNotificationForm";
+import { useThongBao } from "@/hooks/useThongBao";
 
 export const NotificationPage = () => {
+  const { thongBaos } = useThongBao();
   const [isOpenModal, setIsOpenModal] = useState(false);
-  // Mock data mẫu
-  const notifications = [
-    {
-      id: "1",
-      title: "Thông báo kiểm tra giữa kỳ - Lớp LT Web",
-      sender: "Nguyen Thanh Sang",
-      course: "Lập trình hướng đối tượng",
-      date: "17:05 08/03/2026",
-      status: "Đang mở" as const,
-      recipients: [
-        { group: "DKP1231", count: 45 },
-        { group: "DKP1232", count: 32 },
-      ],
-    },
-    {
-      id: "2",
-      title: "Cập nhật tài liệu ôn tập chương 3",
-      sender: "Bằng Vũ Mai",
-      course: "Cơ sở dữ liệu",
-      date: "10:00 15/03/2026",
-      status: "Bản nháp" as const,
-      recipients: [{ group: "DKP1233", count: 132 }],
-    },
-  ];
 
   return (
     <MainContentLayout>
@@ -78,16 +56,8 @@ export const NotificationPage = () => {
       </div>
 
       <div className="flex flex-col gap-2">
-        {notifications.map((note) => (
-          <NotificationItem
-            key={note.id}
-            title={note.title}
-            sender={note.sender}
-            course={note.course}
-            date={note.date}
-            status={note.status}
-            recipients={note.recipients}
-          />
+        {thongBaos.map((note) => (
+          <NotificationItem key={note.id} data={note} />
         ))}
       </div>
     </MainContentLayout>

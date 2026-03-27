@@ -1,10 +1,14 @@
 import { Button, Icon, Input } from "@/components/atomic/atoms";
 import CourseItem from "@/components/atomic/organisms/CourseItem/CourseItem";
+import TestUpload from "@/components/atomic/organisms/TestUpload/TestUpload";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
+import { useNhomHocPhanStudent } from "@/hooks/useNhomHocPhan";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export const CoursePage = () => {
+  const { nhomHocPhans } = useNhomHocPhanStudent(3);
+  console.log(" Manh: ", nhomHocPhans);
   const [isOpenHideClass, setIsOpenHideClass] = useState(false);
   return (
     <MainContentLayout hasFooter={false}>
@@ -31,18 +35,11 @@ export const CoursePage = () => {
         </div>
       </div>
       <div className="flex flex-wrap gap-x-4 gap-y-6 rounded-md px-2 py-2">
-        <Link to={"1"}>
-          <CourseItem />
-        </Link>
-        <Link to={"1"}>
-          <CourseItem />
-        </Link>
-        <Link to={"1"}>
-          <CourseItem />
-        </Link>
-        <Link to={"1"}>
-          <CourseItem />
-        </Link>
+        {nhomHocPhans?.map((item) => (
+          <Link to={`${item.id}`}>
+            <CourseItem data={item} />
+          </Link>
+        ))}
       </div>
 
       <div>
@@ -56,9 +53,10 @@ export const CoursePage = () => {
       </div>
       {isOpenHideClass && (
         <div className="flex flex-wrap gap-x-4 gap-y-6 rounded-md px-2 py-2">
+          {/* <CourseItem />
           <CourseItem />
-          <CourseItem />
-          <CourseItem />
+          <CourseItem /> */}
+          <TestUpload />
         </div>
       )}
     </MainContentLayout>

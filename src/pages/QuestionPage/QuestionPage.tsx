@@ -4,106 +4,41 @@ import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import Tabs from "@/components/atomic/molecules/Tabs/Tabs";
 import AddQuestionForm from "@/components/atomic/organisms/AddQuestionForm/AddQuestionForm";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
-import QuestionItem, {
-  type QuestionData,
-} from "@/components/atomic/molecules/QuestionItem/QuestionItem";
-
-const MOCK_QUESTIONS: QuestionData[] = [
-  {
-    id: "1",
-    difficulty: "Thông hiểu",
-    category: "Lập trình hướng đối tượng/Chương 1",
-    content: "Mã số sinh viên của bạn là gì?",
-    timeAgo: "5 giờ",
-    usageCount: 160,
-    status: "public",
-    answers: [
-      { label: "A", content: "Mã số định danh duy nhất" },
-      { label: "B", content: "Số chứng minh nhân dân", isCorrect: true },
-      { label: "C", content: "Số điện thoại cá nhân" },
-      { label: "D", content: "Họ và tên viết tắt" },
-    ],
-  },
-  {
-    id: "2",
-    difficulty: "Vận dụng",
-    category: "Cấu trúc dữ liệu/Cây nhị phân",
-    content: "Độ phức tạp của thuật toán tìm kiếm trên cây BST là bao nhiêu?",
-    timeAgo: "1 ngày",
-    usageCount: 45,
-    status: "private",
-    answers: [
-      { label: "A", content: "O(n)" },
-      { label: "B", content: "O(1)" },
-      { label: "C", content: "O(log n)", isCorrect: true },
-      { label: "D", content: "O(n log n)" },
-    ],
-  },
-  {
-    id: "3",
-    difficulty: "Nhận biết",
-    category: "ReactJS/Hook",
-    content: "Hook nào dùng để quản lý side effect trong React?",
-    timeAgo: "2 giờ",
-    usageCount: 1200,
-    status: "public",
-    answers: [
-      { label: "A", content: "useState" },
-      { label: "B", content: "useEffect", isCorrect: true },
-      { label: "C", content: "useContext" },
-      { label: "D", content: "useMemo" },
-    ],
-  },
-  {
-    id: "4",
-    difficulty: "Vận dụng cao",
-    category: "Toán cao cấp/Ma trận",
-    content: "Tính định thức của ma trận xoay chiều 4x4 sau...",
-    timeAgo: "12 giờ",
-    usageCount: 12,
-    status: "archive",
-  },
-  {
-    id: "5",
-    difficulty: "Thông hiểu",
-    category: "Mạng máy tính/OSI",
-    content: "Tầng nào trong mô hình OSI chịu trách nhiệm định tuyến?",
-    timeAgo: "3 ngày",
-    usageCount: 89,
-    status: "public",
-    answers: [
-      { label: "A", content: "Physical Layer" },
-      { label: "B", content: "Data Link Layer" },
-      { label: "C", content: "Network Layer", isCorrect: true },
-      { label: "D", content: "Transport Layer" },
-    ],
-  },
-];
+import QuestionItem from "@/components/atomic/molecules/QuestionItem/QuestionItem";
+import { useDoKho } from "@/hooks/useDoKho";
+import type { DoKho, Question, QuestionStatus } from "@/types";
+import { useSubject } from "@/hooks/useSubject";
+import { useQuestions } from "@/hooks/useQuestion";
 
 export const QuestionPage = () => {
-  const [selectedTab, setSelectedTab] = useState("public");
+  const [selectedTab, setSelectedTab] = useState<QuestionStatus>("public");
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterDifficulty, setFilterDifficulty] = useState("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [filterDifficulty, setFilterDifficulty] = useState<DoKho>();
+
+  const { doKhos } = useDoKho();
+  const { subjects } = useSubject();
+  const { questions } = useQuestions();
 
   const filteredQuestions = useMemo(() => {
-    return MOCK_QUESTIONS.filter((q) => {
+    return questions.filter((q: Question) => {
       // 1. Lọc theo Tab (Trạng thái)
       const matchTab = q.status === selectedTab;
 
       // 2. Lọc theo nội dung Search (Không phân biệt hoa thường)
-      const matchSearch = q.content
+      const matchSearch = q.noiDungCauHoi
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
 
       // 3. Lọc theo Độ khó (nếu có chọn)
       const matchDifficulty = filterDifficulty
-        ? q.difficulty === filterDifficulty
+        ? q.do_kho === filterDifficulty
         : true;
 
       return matchTab && matchSearch && matchDifficulty;
     });
-  }, [selectedTab, searchQuery, filterDifficulty]);
+  }, [questions, selectedTab, searchQuery, filterDifficulty]);
 
   const handleAction = (type: string, id: string) => {
     console.log(`Action: ${type} on ID: ${id}`);
@@ -115,7 +50,7 @@ export const QuestionPage = () => {
         <div className="border-b-1 flex items-center justify-between border-other-outlined-border pr-3">
           <Tabs
             value={selectedTab}
-            onChange={setSelectedTab}
+            onChange={(val) => setSelectedTab(val as QuestionStatus)}
             tabs={[
               { value: "public", label: "Công khai" },
               { value: "private", label: "Cá nhân" },
@@ -135,10 +70,10 @@ export const QuestionPage = () => {
           <SelectField
             label="Môn học"
             placeholder="Chọn môn học"
-            options={[
-              { label: "Lập trình React", value: "react" },
-              { label: "Toán cao cấp", value: "math" },
-            ]}
+            options={subjects.map((item) => ({
+              label: item.tenMonHoc,
+              value: item.id,
+            }))}
             onSelect={() => {}}
           />
           <SelectField
@@ -155,13 +90,14 @@ export const QuestionPage = () => {
           <SelectField
             label="Độ khó"
             placeholder="Chọn độ khó"
-            options={[
-              { label: "Nhận biết", value: "Nhận biết" },
-              { label: "Thông hiểu", value: "Thông hiểu" },
-              { label: "Vận dụng", value: "Vận dụng" },
-              { label: "Vận dụng cao", value: "Vận dụng cao" },
-            ]}
-            onSelect={(val) => setFilterDifficulty(val.toString())}
+            options={doKhos.map((item) => ({
+              label: item.tenDoKho,
+              value: item.id,
+            }))}
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            onSelect={(val) => {
+              // setFilterDifficulty();
+            }}
           />
         </div>
         <div className="flex gap-5 px-3 pb-3">
@@ -178,7 +114,7 @@ export const QuestionPage = () => {
             className="shrink-0"
             onClick={() => {
               setSearchQuery("");
-              setFilterDifficulty("");
+              // setFilterDifficulty("");
             }}
           >
             <Icon name="arrowUpDown" />

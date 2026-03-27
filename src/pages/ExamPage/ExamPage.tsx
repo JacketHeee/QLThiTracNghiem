@@ -6,41 +6,12 @@ import { useExamStore } from "@/stores/useExamStore";
 import DynamicTable, {
   type TableColumn,
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
-
-// --- Interface cho dữ liệu bài kiểm tra ---
-interface ExamSchedule {
-  id: string;
-  className: string;
-  examName: string;
-  examDate: string; // Định dạng: YYYY-MM-DD
-  startTime: string; // Định dạng: HH:mm
-  endTime: string; // Định dạng: HH:mm (để giới hạn thời gian kết thúc bài thi)
-  isDone: boolean; // Đã làm hay chưa
-}
-
-// --- Mock Data ---
-const MOCK_EXAMS: ExamSchedule[] = [
-  {
-    id: "1",
-    className: "Lập trình React nâng cao",
-    examName: "Kiểm tra giữa kỳ - Component Pattern",
-    examDate: "2026-03-24",
-    startTime: "08:10", // Thử nghiệm với thời gian thực của bạn
-    endTime: "18:00",
-    isDone: false,
-  },
-  {
-    id: "2",
-    className: "Cơ sở dữ liệu",
-    examName: "Cuối kỳ - Thiết kế DB",
-    examDate: "2026-03-25",
-    startTime: "08:00",
-    endTime: "10:00",
-    isDone: false,
-  },
-];
+import type { DeThi } from "@/types";
+import { useDeThi } from "@/hooks/useDeThi";
+import { checkTimeValid, getTestsStatus, splitDateTime } from "@/utils";
 
 export const ExamPage = () => {
+  const { dethis } = useDeThi();
   const navigate = useNavigate();
   const { startExam } = useExamStore();
   const [now, setNow] = useState(new Date());
@@ -52,32 +23,40 @@ export const ExamPage = () => {
   }, []);
 
   // --- Logic kiểm tra thời gian hợp lệ ---
-  const checkTimeValid = (date: string, start: string, end: string) => {
-    const startDateTime = new Date(`${date}T${start}`);
-    const endDateTime = new Date(`${date}T${end}`);
-    return now >= startDateTime && now <= endDateTime;
-  };
 
   // --- Cấu hình Columns cho DynamicTable ---
-  const columns: TableColumn<ExamSchedule>[] = [
+  const columns: TableColumn<DeThi>[] = [
     {
       title: "STT",
       key: "id",
-      render: (_, item) => MOCK_EXAMS.indexOf(item) + 1,
+      render: (_, item) => dethis.indexOf(item) + 1,
       className: "w-16 text-center",
     },
-    { title: "Tên lớp", key: "className" },
-    { title: "Tên bài kiểm tra", key: "examName" },
-    { title: "Ngày thi", key: "examDate" },
-    { title: "Giờ bắt đầu", key: "startTime" },
+    {
+      title: "Tên lớp",
+      key: "pivot",
+      render: (_, item) => item.monThiId,
+    },
+    { title: "Tên bài kiểm tra", key: "tenDe" },
+    {
+      title: "Ngày thi",
+      key: "thoiGianBatDau",
+      render: (_, item) => splitDateTime(item.thoiGianBatDau).date,
+    },
+    {
+      title: "Giờ bắt đầu",
+      key: "thoiGianBatDau",
+      render: (_, item) => splitDateTime(item.thoiGianBatDau).time,
+    },
   ];
 
-  const handleStart = (item: ExamSchedule) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+  const handleStart = (item: { id: any }) => {
     startExam(); // Kích hoạt thời gian bắt đầu trong Store
     navigate(`/tests/${item.id}/take`);
   };
 
-  const handleViewResult = (item: ExamSchedule) => {
+  const handleViewResult = (item: DeThi) => {
     navigate(`/tests/${item.id}/take/result/latest`);
   };
 
@@ -99,17 +78,20 @@ export const ExamPage = () => {
       <div className="mt-6 flex flex-col gap-2 rounded-md bg-background-body-background p-2 shadow-sm">
         <DynamicTable
           columns={columns}
-          data={MOCK_EXAMS}
+          data={dethis}
           rowKey="id"
           hasColumnActions={true}
           renderActions={(item) => {
             const isValid = checkTimeValid(
-              item.examDate,
-              item.startTime,
-              item.endTime
+              item.thoiGianBatDau,
+              item.thoiGianKetThuc,
+              now
             );
 
-            if (item.isDone) {
+            if (
+              getTestsStatus(item.thoiGianBatDau, item.thoiGianKetThuc)
+                .status === "CLOSED"
+            ) {
               return (
                 <Button
                   variant="text"
@@ -127,7 +109,9 @@ export const ExamPage = () => {
                 color="primary"
                 size="small"
                 disabled={!isValid}
-                onClick={() => handleStart(item)}
+                onClick={() => {
+                  // handleStart(item);
+                }}
                 className={isValid ? "animate-pulse-subtle" : ""}
               >
                 {isValid ? "Bắt đầu ngay" : "Chưa đến giờ"}

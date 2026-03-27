@@ -7,123 +7,76 @@ import DynamicTable, {
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import AddAssignmentForm from "@/components/atomic/organisms/AddAssignmentForm/AddAssignmentForm";
+import { useAssign } from "@/hooks/useAssign";
+import type { Assign } from "@/types";
 
-// Định nghĩa lại Interface cho khớp với ảnh
-interface Assignment {
-  id: number;
-  tenGiangVien: string;
-  maMon: string;
-  monHoc: string;
-}
-
-const columns: TableColumn<Assignment>[] = [
-  { title: "ID", key: "id" },
-  { title: "Tên giảng viên", key: "tenGiangVien" },
-  { title: "Mã môn", key: "maMon" },
-  {
-    title: "Môn học",
-    key: "monHoc",
-  },
-];
-
-const initialAssignments: Assignment[] = [
-  {
-    id: 1,
-    tenGiangVien: "Lê Hoàng An Đình",
-    maMon: "841021",
-    monHoc: "Kiến trúc máy tính",
-  },
-  {
-    id: 2,
-    tenGiangVien: "Lê Hoàng An Đình",
-    maMon: "841058",
-    monHoc: "Hệ điều hành mã nguồn mở",
-  },
-  {
-    id: 3,
-    tenGiangVien: "Lê Hoàng An Đình",
-    maMon: "841059",
-    monHoc: "Lập trình hướng đối tượng",
-  },
-  {
-    id: 4,
-    tenGiangVien: "Trần Nhật Sinh",
-    maMon: "841059",
-    monHoc: "Lập trình hướng đối tượng",
-  },
-  {
-    id: 5,
-    tenGiangVien: "Lê Hoàng An Đình",
-    maMon: "841107",
-    monHoc: "Lập trình Java",
-  },
-  {
-    id: 6,
-    tenGiangVien: "Trần Nhật Sinh",
-    maMon: "841107",
-    monHoc: "Lập trình Java",
-  },
-  {
-    id: 7,
-    tenGiangVien: "Nguyễn Thanh Sang",
-    maMon: "841464",
-    monHoc: "Lập trình web và ứng dụng nâng cao",
-  },
-  {
-    id: 8,
-    tenGiangVien: "Lê Hoàng An Đình",
-    maMon: "841464",
-    monHoc: "Lập trình web và ứng dụng nâng cao",
-  },
-  {
-    id: 9,
-    tenGiangVien: "Hoàng Gia Bảo",
-    maMon: "841464",
-    monHoc: "Lập trình web và ứng dụng nâng cao",
-  },
-  {
-    id: 10,
-    tenGiangVien: "Trần Nhật Sinh",
-    maMon: "841464",
-    monHoc: "Lập trình web và ứng dụng nâng cao",
-  },
-];
 export const AssignmentPage = () => {
+  const { assigns } = useAssign();
+  console.log(assigns);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [assignments, setAssignments] =
-    useState<Assignment[]>(initialAssignments);
+  const [assignments, setAssignments] = useState<Assign[]>();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [editingAssignment, setEditingAssignment] = useState<Assign | null>(
     null
   );
 
+  const columns: TableColumn<Assign>[] = [
+    {
+      title: "Mã môn",
+      key: "monHocId",
+      render: (_, item) => {
+        console.log("Manh: ", item);
+        return item.mon_hoc.maMonHoc || "---";
+      },
+    },
+    {
+      title: "Môn học",
+      key: "mon_hoc",
+      render: (_, item) => item.mon_hoc.tenMonHoc || "---",
+    },
+    {
+      title: "Mã giảng viên",
+      key: "giangVienId",
+      render: (_, item) => item.giang_vien.ma || "---",
+    },
+    {
+      title: "Tên giảng viên",
+      key: "giang_vien",
+      render: (_, item) => item.giang_vien.hoTen || "---",
+    },
+  ];
+
+  console.log("Manh: ", columns);
   const handleOpenAdd = () => {
     setEditingAssignment(null);
     setIsModalOpen(true);
   };
 
-  const handleAction = (action: string, item: Assignment) => {
-    if (action === "edit") {
-      setEditingAssignment(item);
-      setIsModalOpen(true);
-    } else if (action === "remove") {
-      if (
-        confirm(
-          `Bạn có chắc muốn xóa phân công của giảng viên: ${item.tenGiangVien}?`
-        )
-      ) {
-        setAssignments((prev) => prev.filter((s) => s.id !== item.id));
-      }
-    }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleAction = (action: string, item: Assign) => {
+    // if (action === "edit") {
+    //   setEditingAssignment(item);
+    //   setIsModalOpen(true);
+    // } else if (action === "remove") {
+    //   if (
+    //     confirm(
+    //       `Bạn có chắc muốn xóa phân công của giảng viên: ${item.giangVien?.hoTen}?`
+    //     )
+    //   ) {
+    //     setAssignments((prev) => prev.filter((s) => s.giangVienId !== item.giangVienId));
+    //   }
+    // }
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleSave = (data: Assignment) => {
-    if (editingAssignment) {
-      setAssignments((prev) => prev.map((s) => (s.id === data.id ? data : s)));
-    } else {
-      setAssignments((prev) => [...prev, { ...data, id: prev.length + 1 }]);
-    }
+  const handleSave = (data: Assign) => {
+    // if (editingAssignment) {
+    //   setAssignments((prev) => prev.map((s) => (s.giangVienId === data.giangVienId ? data : s)));
+    // } else {
+    //   setAssignments((prev) => [...prev, { ...data, id: prev.length + 1 }]);
+    // }
     setIsModalOpen(false);
   };
 
@@ -174,8 +127,8 @@ export const AssignmentPage = () => {
       <div className="flex flex-col gap-2 rounded-md bg-background-body-background px-2 py-2">
         <DynamicTable
           columns={columns}
-          data={initialAssignments}
-          rowKey="id"
+          data={assigns}
+          rowKey="monHocId"
           hasColumnActions
           onAction={handleAction}
         />
