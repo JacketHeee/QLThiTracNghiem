@@ -1,0 +1,42 @@
+import { Link } from "react-router-dom";
+import { Button, Icon } from "../../atoms"; // Điều chỉnh đường dẫn theo dự án của bạn
+import type { NhomHocPhan } from "@/types";
+
+interface ClassResultItemProps {
+  data: NhomHocPhan;
+  testId: number; // Thêm testId để linh hoạt tạo Link
+}
+
+export const ClassResultItem = ({ data, testId }: ClassResultItemProps) => {
+  return (
+    <div className="flex-bet-center border-t border-other-outlined-border px-10 py-3">
+      {/* Left Section: Group Name */}
+      <div className="flex items-center gap-2">
+        <Icon name="groupUser" size={24} className="text-text-secondary" />
+        <span className="text-body-1-semibold text-text-secondary">
+          {data.tenNhom}
+        </span>
+      </div>
+
+      {/* Right Section: Actions & Info */}
+      <div className="flex items-center gap-5">
+        <Button
+          size={"medium"}
+          className="text-text-secondary underline transition-colors hover:text-primary-main"
+        >
+          {data.siSo} Sinh viên
+        </Button>
+
+        <span className="text-body-2 h-fit rounded-md bg-success-background px-2 py-1 font-medium text-alert-success-content">
+          {data.namHoc}
+        </span>
+
+        <Link to={`/tests/${testId}/result/${data.id}`}>
+          <Button variant={"contained"} color={"success"}>
+            Kết quả
+          </Button>
+        </Link>
+      </div>
+    </div>
+  );
+};

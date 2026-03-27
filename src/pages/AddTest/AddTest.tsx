@@ -4,15 +4,21 @@ import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import { DateTimePicker } from "@/components/atomic/molecules/DateTimePicker/DateTimePicker";
 import GroupInput from "@/components/atomic/molecules/GroupInput/GroupInput";
 import { TextField } from "@/components/atomic/molecules/TextField/TextField";
+import { ChapterMultiSelect } from "@/components/atomic/organisms/ChapterMultiSelect/ChapterMultiSelect";
 import RighSidebar from "@/components/atomic/organisms/RightSidebar/RightSidebar";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
+import { useDoKho } from "@/hooks/useDoKho";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function AddTest() {
+  const { doKhos } = useDoKho();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [selectedChapters, setSelectedChapters] = useState<number[]>([]);
   return (
     <div className="flex flex-1">
       <div className="flex max-h-[90vh] flex-1 overflow-auto">
-        <MainContentLayout classname="max-w-[800px]">
+        <MainContentLayout hasFooter={false} classname="max-w-[800px]">
           <div className="text-h6 rounded-md bg-background-body-background px-5 py-2.5 text-text-secondary">
             Tạo mới đề thi
           </div>
@@ -90,8 +96,19 @@ export default function AddTest() {
               </div>
             </div>
 
+            <ChapterMultiSelect
+              onChange={(ids) => setSelectedChapters(ids)}
+              initialValues={[1, 2]} // Nếu có dữ liệu cũ (Edit mode)
+            />
+
+            <div className="flex gap-2">
+              {doKhos.map((item) => (
+                <TextField label={item.tenDoKho} placeholder="..." />
+              ))}
+            </div>
+
             {/*  */}
-            <div className="flex justify-end gap-2">
+            <div className="sticky bottom-0 flex justify-end gap-2 border-t border-other-outlined-border bg-background-body-background pt-4">
               <Button variant={"outline"}>Quay lại</Button>
               <Link to="add-questions">
                 <Button variant={"contained"} color={"primary"}>

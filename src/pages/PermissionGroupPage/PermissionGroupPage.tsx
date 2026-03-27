@@ -5,7 +5,8 @@ import type { TableColumn } from "@/components/atomic/organisms/DynamicTable/Dyn
 import DynamicTable from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import { PermissionForm } from "@/components/atomic/organisms/PermissionForm/PermissionForm";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
-import type { NhomQuyen, PermissionFormData, PermissionItem } from "@/types";
+import { useRole } from "@/hooks/useRole";
+import type { PermissionFormData, PermissionItem, Role } from "@/types";
 import { useState } from "react";
 
 const getInitialPermissions = (): PermissionItem[] => [
@@ -57,16 +58,11 @@ const getInitialPermissions = (): PermissionItem[] => [
 ];
 
 const totalPages = 5;
-const rawData: NhomQuyen[] = [
-  { nhomQuyenId: 1, tenNhomQuyen: "Admin", soLuongNguoiDung: 5 },
-  { nhomQuyenId: 2, tenNhomQuyen: "Giảng viên", soLuongNguoiDung: 45 },
-  { nhomQuyenId: 3, tenNhomQuyen: "Sinh viên", soLuongNguoiDung: 1200 },
-];
 
-const columns: TableColumn<NhomQuyen>[] = [
+const columns: TableColumn<Role>[] = [
   {
     title: "Mã nhóm",
-    key: "nhomQuyenId",
+    key: "id",
   },
   {
     title: "Tên nhóm quyền",
@@ -75,9 +71,9 @@ const columns: TableColumn<NhomQuyen>[] = [
       <span className="flex items-center gap-2">
         <span
           className={`h-2 w-2 rounded-full ${
-            value === "Admin"
+            value === "admin"
               ? "bg-alert-error-content"
-              : value === "Giảng viên"
+              : value === "teacher"
                 ? "bg-alert-success-content"
                 : "bg-alert-info-content"
           }`}
@@ -88,7 +84,7 @@ const columns: TableColumn<NhomQuyen>[] = [
   },
   {
     title: "Số lượng người dùng",
-    key: "soLuongNguoiDung",
+    key: "total_users",
     className: "text-center",
     render: (value) => (
       <span className="text- text-helper-text rounded-md bg-action-focus px-2.5 py-1">
@@ -100,11 +96,9 @@ const columns: TableColumn<NhomQuyen>[] = [
 export const PermissionGroupPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { roles } = useRole();
 
-  const handleAction = (
-    action: "detail" | "edit" | "remove",
-    item: NhomQuyen
-  ) => {
+  const handleAction = (action: "detail" | "edit" | "remove", item: Role) => {
     console.log(`Đang thực hiện ${action} cho nhóm: ${item.tenNhomQuyen}`);
 
     if (action === "remove") {
@@ -171,8 +165,8 @@ export const PermissionGroupPage = () => {
       <div className="flex flex-col gap-2 rounded-md bg-background-body-background px-2 py-2">
         <DynamicTable
           columns={columns}
-          data={rawData}
-          rowKey="nhomQuyenId" // <--- Chỉ định key định danh ở đây
+          data={roles}
+          rowKey="id" // <--- Chỉ định key định danh ở đây
           hasColumnActions={true}
           onAction={handleAction}
         />

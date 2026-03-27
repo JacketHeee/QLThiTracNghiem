@@ -9,11 +9,13 @@ import MainContentLayout from "@/components/atomic/templates/MainContentLayout/M
 import type { TaiKhoan } from "@/types";
 import { cn } from "@/utils/cn";
 import { UserForm } from "@/components/atomic/organisms/UserForm/UserForm";
+import { useUser } from "@/hooks/useUser";
+import { formatDateTimeVN } from "@/utils";
 
 const columns: TableColumn<TaiKhoan>[] = [
   {
     title: "MSSV",
-    key: "username",
+    key: "ma",
   },
   {
     title: "Họ và tên",
@@ -22,9 +24,9 @@ const columns: TableColumn<TaiKhoan>[] = [
       <div className="flex items-center gap-3">
         {/* Avatar tròn xám */}
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-action-hover text-text-secondary">
-          {item.urlAvartar ? (
+          {item.urlAvatar ? (
             <img
-              src={item.urlAvartar}
+              src={item.urlAvatar}
               alt="avatar"
               className="h-full w-full rounded-full object-cover"
             />
@@ -60,8 +62,8 @@ const columns: TableColumn<TaiKhoan>[] = [
   },
   {
     title: "Ngày tham gia",
-    key: "createdAt",
-    render: (val) => new Date(val).toISOString().split("T")[0],
+    key: "created_at",
+    render: (val) => formatDateTimeVN(val),
   },
   {
     title: "Trạng thái",
@@ -81,50 +83,52 @@ const columns: TableColumn<TaiKhoan>[] = [
   },
 ];
 
-const initialUsers: TaiKhoan[] = [
-  {
-    taiKhoanId: 1,
-    username: "3118410050",
-    hoTen: "Nguyễn Thanh Sang",
-    email: "thanhsang@sgu.edu.vn",
-    laGioiTinhNu: false,
-    ngaySinh: new Date("2023-04-23"),
-    nhomQuyenId: 2,
-    createdAt: new Date("2023-04-24"),
-    isLocked: false,
-    isStudent: false,
-    isDeleted: false,
-  },
-  {
-    taiKhoanId: 2,
-    username: "3118410081",
-    hoTen: "Lê Hoàng An Đình",
-    email: "jackethee@gmail.com",
-    laGioiTinhNu: false,
-    ngaySinh: new Date("2000-05-12"),
-    nhomQuyenId: 2,
-    createdAt: new Date("2023-04-03"),
-    isLocked: false,
-    isStudent: false,
-    isDeleted: false,
-  },
-  {
-    taiKhoanId: 3,
-    username: "3118410132",
-    hoTen: "Nguyễn Viết Hoàng",
-    email: "hoang@gmail.com",
-    laGioiTinhNu: true,
-    ngaySinh: new Date("1990-01-01"),
-    nhomQuyenId: 3,
-    createdAt: new Date("2026-03-03"),
-    isLocked: true,
-    isStudent: true,
-    isDeleted: false,
-  },
-];
+// const initialUsers: TaiKhoan[] = [
+//   {
+//     taiKhoanId: 1,
+//     username: "3118410050",
+//     hoTen: "Nguyễn Thanh Sang",
+//     email: "thanhsang@sgu.edu.vn",
+//     laGioiTinhNu: false,
+//     ngaySinh: new Date("2023-04-23"),
+//     nhomQuyenId: 2,
+//     createdAt: new Date("2023-04-24"),
+//     isLocked: false,
+//     isStudent: false,
+//     isDeleted: false,
+//   },
+//   {
+//     taiKhoanId: 2,
+//     username: "3118410081",
+//     hoTen: "Lê Hoàng An Đình",
+//     email: "jackethee@gmail.com",
+//     laGioiTinhNu: false,
+//     ngaySinh: new Date("2000-05-12"),
+//     nhomQuyenId: 2,
+//     createdAt: new Date("2023-04-03"),
+//     isLocked: false,
+//     isStudent: false,
+//     isDeleted: false,
+//   },
+//   {
+//     taiKhoanId: 3,
+//     username: "3118410132",
+//     hoTen: "Nguyễn Viết Hoàng",
+//     email: "hoang@gmail.com",
+//     laGioiTinhNu: true,
+//     ngaySinh: new Date("1990-01-01"),
+//     nhomQuyenId: 3,
+//     createdAt: new Date("2026-03-03"),
+//     isLocked: true,
+//     isStudent: true,
+//     isDeleted: false,
+//   },
+// ];
 
 export function UserPage() {
-  const [users, setUsers] = useState<TaiKhoan[]>(initialUsers);
+  const { taikhoans } = useUser();
+  const [users, setUsers] = useState<TaiKhoan[]>(taikhoans);
+  console.log(users);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<TaiKhoan | null>(null);
 
@@ -143,9 +147,7 @@ export function UserPage() {
           `Bạn có chắc muốn xóa tài khoản: ${item.hoTen} (${item.username})?`
         )
       ) {
-        setUsers((prev) =>
-          prev.filter((u) => u.taiKhoanId !== item.taiKhoanId)
-        );
+        setUsers((prev) => prev.filter((u) => u.id !== item.id));
       }
     }
   };
@@ -153,9 +155,7 @@ export function UserPage() {
   const handleSave = (data: TaiKhoan) => {
     if (editingUser) {
       // Logic Cập nhật
-      setUsers((prev) =>
-        prev.map((u) => (u.taiKhoanId === data.taiKhoanId ? data : u))
-      );
+      setUsers((prev) => prev.map((u) => (u.id === data.id ? data : u)));
     } else {
       // Logic Thêm mới (Giả lập ID tự tăng)
       const newUser = {
@@ -182,7 +182,7 @@ export function UserPage() {
               { label: "Quản trị", value: 1 },
             ]}
             onSelect={(val) => console.log("Filter role:", val)}
-            defaultIndex={0}
+            // defaultIndex={0}
           />
           <Input
             hasBoder={true}
@@ -220,8 +220,8 @@ export function UserPage() {
       <div className="flex flex-col gap-2 rounded-md bg-background-body-background px-2 py-2">
         <DynamicTable
           columns={columns}
-          data={users}
-          rowKey="taiKhoanId"
+          data={taikhoans}
+          rowKey="ma"
           hasColumnActions
           onAction={handleAction}
         />

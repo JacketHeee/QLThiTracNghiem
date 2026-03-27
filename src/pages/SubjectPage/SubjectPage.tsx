@@ -9,7 +9,7 @@ import MainContentLayout from "@/components/atomic/templates/MainContentLayout/M
 // import { SubjectForm } from "./SubjectForm";
 import { SubjectForm } from "@/components/atomic/organisms/SubjectForm/SubjectForm";
 import type { Subject } from "@/types";
-import { useSubjects } from "@/hooks/useSubject";
+import { useSubject } from "@/hooks/useSubject";
 
 const columns: TableColumn<Subject>[] = [
   { title: "Mã môn", key: "maMonHoc" },
@@ -24,7 +24,7 @@ const columns: TableColumn<Subject>[] = [
 
 export const SubjectPage = () => {
   const { subjects, isLoading, createSubject, updateSubject, deleteSubject } =
-    useSubjects();
+    useSubject();
   // const [subjects, setSubjects] = useState<Subject[]>(initialSubjects);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
@@ -66,20 +66,6 @@ export const SubjectPage = () => {
         <div className="flex justify-between">
           {/* Left: Filter & Search */}
           <div className="flex gap-2">
-            <Button
-              onClick={() =>
-                createSubject({
-                  maMonHoc: "841013",
-                  tenMonHoc: "Lập Trình Web hehe",
-                  soTinChi: 3,
-                  soTietLyThuyet: 30,
-                  soTietThucHanh: 30,
-                  isDeleted: 0,
-                })
-              }
-            >
-              con bof
-            </Button>
             <SelectField
               placeholder="Chọn tiêu chí"
               defaultIndex={0}

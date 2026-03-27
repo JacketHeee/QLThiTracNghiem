@@ -2,9 +2,13 @@ import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import TestItem from "@/components/atomic/organisms/TestItem/TestItem";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
+import { useDeThi } from "@/hooks/useDeThi";
+import { useSubject } from "@/hooks/useSubject";
 import { Link } from "react-router-dom";
 
 export const TestPage = () => {
+  const { dethis } = useDeThi();
+  const { subjects } = useSubject();
   return (
     <MainContentLayout>
       <div className="flex justify-between rounded-md bg-background-body-background px-2 py-2">
@@ -18,7 +22,7 @@ export const TestPage = () => {
               { label: "Đã đóng", value: "chemistry" },
               {
                 label: "Chưa mở",
-                value: "chemistry",
+                value: "hoa",
               },
             ]}
             onSelect={() => {}}
@@ -29,17 +33,12 @@ export const TestPage = () => {
             icon={<Icon name="search" className="text-text-disabled" />}
           />
           <SelectField
+            label="Môn học"
             placeholder="Chọn môn học"
-            options={[
-              { label: "Lập trình hướng đối tượng", value: "math" },
-              { label: "Lập trình web và ứng dụng", value: "physics" },
-              { label: "Cơ sở trí tuệ nhân tạo", value: "chemistry" },
-              {
-                label: "Phân tích thiết kế hướng đối tượng",
-                value: "chemistry",
-              },
-              { label: "Cơ sở dữ liệu", value: "chemistry" },
-            ]}
+            options={subjects.map((item) => ({
+              label: item.tenMonHoc,
+              value: item.id,
+            }))}
             onSelect={() => {}}
           />
         </div>
@@ -59,13 +58,14 @@ export const TestPage = () => {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <TestItem />
-        <TestItem />
-        <TestItem />
-        <TestItem />
-        <TestItem />
-        <TestItem />
-        <TestItem />
+        {dethis.map((item) => (
+          <TestItem
+            key={item.id}
+            data={item}
+            onEdit={(d) => console.log("Edit", d)}
+            onDelete={(d) => console.log("Delete", d)}
+          />
+        ))}
       </div>
     </MainContentLayout>
   );

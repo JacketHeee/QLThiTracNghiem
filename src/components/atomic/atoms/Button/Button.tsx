@@ -12,11 +12,11 @@ const buttonVariants = cva(
       },
       size: {
         small:
-          "px-2 py-1 text-[13px] font-medium leading-[22px] tracking-[0.46px] uppercase-none",
+          "px-1 py-1 text-[13px] font-medium leading-[22px] tracking-[0.46px] uppercase-none",
         medium:
-          "px-3 py-1.5 text-[14px] font-medium leading-[24px] tracking-[0.4px]",
+          "px-2 py-1.5 text-[14px] font-medium leading-[24px] tracking-[0.4px]",
         large:
-          "px-4 py-2 text-[15px] font-medium leading-[26px] tracking-[0.46px]",
+          "px-3 py-2 text-[15px] font-medium leading-[26px] tracking-[0.46px]",
       },
       color: {
         primary: "", // Sẽ xử lý ở compoundVariants
