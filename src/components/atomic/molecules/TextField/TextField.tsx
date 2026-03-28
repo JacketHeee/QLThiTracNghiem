@@ -8,13 +8,13 @@ interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
-  ({ label, error, placeholder = "", classNameParent }) => {
+  ({ label, error, placeholder = "", classNameParent, ...rest }) => {
     return (
       <div
         className={`flex flex-col gap-1 text-text-primary ${classNameParent}`}
       >
         {label && <div className="text-input-text">{label}</div>}
-        <Input placeholder={placeholder} className="!w-full" />
+        <Input placeholder={placeholder} className="!w-full" {...rest} />
         {error && (
           <span className="text-caption mt-0.5 text-alert-error-content">
             {error}

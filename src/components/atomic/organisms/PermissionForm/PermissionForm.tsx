@@ -1,15 +1,78 @@
-import { useState, type FC, type FormEvent } from "react";
+import React, { useEffect, useState, type FC, type FormEvent } from "react";
 import { Button, Icon } from "@/components/atomic/atoms";
 import { cn } from "@/utils/cn";
-import type { PermissionFormData, PermissionItem } from "@/types";
+import type {
+  PermissionFormData,
+  PermissionItem,
+  RoleCreate,
+  RoleDetailItem,
+  RoleUpdate,
+} from "@/types";
 import { TextField } from "../../molecules/TextField/TextField";
 import { Overlay } from "../../molecules/Overlay/Overlay";
+import { useRoleDetail } from "@/hooks/useRole";
+
+const defaultPermissions: PermissionItem[] = [
+  {
+    key: "nguoi_dung",
+    name: "Người dùng",
+    actions: { read: false, create: false, update: false, delete: false },
+  },
+  {
+    key: "hoc_phan",
+    name: "Học phần",
+    actions: { read: false, create: false, update: false, delete: false },
+  },
+  {
+    key: "cau_hoi",
+    name: "Câu hỏi",
+    actions: { read: false, create: false, update: false, delete: false },
+  },
+  {
+    key: "mon_hoc",
+    name: "Môn học",
+    actions: { read: false, create: false, update: false, delete: false },
+  },
+  {
+    key: "chuong",
+    name: "Chương",
+    actions: { read: false, create: false, update: false, delete: false },
+  },
+  {
+    key: "phan_cong",
+    name: "Phân công",
+    actions: { read: false, create: false, update: false, delete: false },
+  },
+  {
+    key: "de_thi",
+    name: "Đề thi",
+    actions: { read: false, create: false, update: false, delete: false },
+  },
+  {
+    key: "nhom_quyen",
+    name: "Nhóm quyền",
+    actions: { read: false, create: false, update: false, delete: false },
+  },
+  {
+    key: "thong_bao",
+    name: "Thông báo",
+    actions: { read: false, create: false, update: false, delete: false },
+  },
+];
+
+const defaultGroupPermission: PermissionFormData = {
+  groupName: "",
+  permissions: defaultPermissions,
+};
 
 interface PermissionFormProps {
-  initialData?: PermissionFormData;
-  onSave: (data: PermissionFormData) => void;
+  mode: "create" | "view" | "update" | "none";
+  id: number | undefined;
+  onSaveCreate: (data: RoleCreate) => void;
+  onSaveUpdate: (id: number, data: RoleUpdate) => void;
   onCancel: () => void;
   className?: string;
+  children?: React.ReactNode;
 }
 
 const permissionCols = [
@@ -19,25 +82,76 @@ const permissionCols = [
   { key: "delete", title: "Xoá" },
 ] as const;
 
+const ConvertRoleDetails = (data: RoleDetailItem[]): PermissionItem[] => {
+  return defaultPermissions.map((perm) => {
+    const found = data.find((item) => item.tenChucNang === perm.key);
+
+    return {
+      key: perm.key,
+      name: perm.name,
+      actions: found
+        ? {
+            read: found.canView,
+            create: found.canCreate,
+            update: found.canUpdate,
+            delete: found.canDelete,
+          }
+        : {
+            read: false,
+            create: false,
+            update: false,
+            delete: false,
+          },
+    };
+  });
+};
+
+const ConvertToRoleRequest = (data: PermissionItem[]): RoleDetailItem[] => {
+  return data
+    .map((perm) => ({
+      tenChucNang: perm.key,
+      canView: perm.actions.read,
+      canCreate: perm.actions.create,
+      canUpdate: perm.actions.update,
+      canDelete: perm.actions.delete,
+    }))
+    .filter(
+      (item) =>
+        item.canView || item.canCreate || item.canUpdate || item.canDelete
+    );
+};
+
 export const PermissionForm: FC<PermissionFormProps> = ({
-  initialData,
-  onSave,
+  mode,
+  id,
+  onSaveCreate,
+  onSaveUpdate,
   onCancel,
   className,
 }) => {
+  //submit
   const [groupName, setGroupName] = useState<string>(
-    initialData?.groupName || ""
+    defaultGroupPermission.groupName
   );
   const [permissions, setPermissions] = useState<PermissionItem[]>(
-    initialData?.permissions || []
+    defaultGroupPermission.permissions || []
   );
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [canTakeExam, setCanTakeExam] = useState<boolean>(
-    initialData?.canTakeExam || false
-  );
-  const [canJoinCourse] = useState<boolean>(
-    initialData?.canJoinCourse || false
-  );
+  //load
+  const { role, isLoading } = useRoleDetail(id);
+
+  // load data lên form
+  useEffect(() => {
+    if (role) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setGroupName(role.tenNhomQuyen);
+      setPermissions(ConvertRoleDetails(role.role_details));
+    }
+  }, [role]);
+
+  // const isCreate = mode === "create";
+  const isView = mode === "view";
+  // const isEdit = mode === "update";
+  // const shouldFetch = !isCreate && !!id;
 
   // Toggle single checkbox state
   const handleCheckboxChange = (
@@ -69,7 +183,21 @@ export const PermissionForm: FC<PermissionFormProps> = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSave({ groupName, permissions, canTakeExam, canJoinCourse });
+    if (mode === "create") {
+      onSaveCreate({
+        tenNhomQuyen: groupName,
+        role_details: ConvertToRoleRequest(permissions),
+      });
+    } else if (mode === "update") {
+      if (!id) {
+        alert("missing id");
+        return;
+      }
+      onSaveUpdate(id, {
+        tenNhomQuyen: groupName,
+        role_details: ConvertToRoleRequest(permissions),
+      });
+    }
   };
 
   return (
@@ -100,7 +228,9 @@ export const PermissionForm: FC<PermissionFormProps> = ({
             label="Tên nhóm quyền"
             placeholder="VD: Giảng viên"
             value={groupName}
-            onChange={(e) => setGroupName(e.target.value)}
+            onChange={(e) => {
+              setGroupName(e.target.value);
+            }}
             required
             className="w-full"
           />
@@ -117,6 +247,7 @@ export const PermissionForm: FC<PermissionFormProps> = ({
                         <button
                           type="button"
                           onClick={() => handleColAllClick(col.key)}
+                          disabled={isView}
                           className="font-semibold uppercase transition-colors hover:text-primary-main focus:outline-none"
                         >
                           {col.title}
@@ -128,29 +259,46 @@ export const PermissionForm: FC<PermissionFormProps> = ({
 
                 {/* Body đồng bộ divide màu border và hover effect */}
                 <tbody className="text-body-2 divide-y divide-other-outlined-border border-b border-other-outlined-border">
-                  {permissions.map((row) => (
-                    <tr
-                      key={row.key}
-                      className="transition-colors hover:bg-action-hover"
-                    >
-                      {/* Cột tên quyền - font-medium tương tự DynamicTable */}
-                      <td className="px-6 py-2">{row.name}</td>
+                  {isLoading
+                    ? defaultPermissions.map((perm, i) => (
+                        <tr key={i}>
+                          {/* Cột tên */}
+                          <td className="px-6 py-2">
+                            <div className="h-4 w-2/3 animate-pulse rounded bg-gray-300"></div>
+                          </td>
 
-                      {/* Các cột checkbox */}
-                      {permissionCols.map((col) => (
-                        <td key={col.key} className="px-6 py-2 text-center">
-                          <input
-                            type="checkbox"
-                            checked={row.actions[col.key]}
-                            onChange={() =>
-                              handleCheckboxChange(row.key, col.key)
-                            }
-                            className="h-4.5 w-4.5 cursor-pointer rounded border-other-input-border accent-primary-main transition-all"
-                          />
-                        </td>
+                          {/* Các cột checkbox skeleton */}
+                          {permissionCols.map((col) => (
+                            <td key={col.key} className="px-6 py-2 text-center">
+                              <div className="mx-auto h-4 w-4 animate-pulse rounded bg-gray-300"></div>
+                            </td>
+                          ))}
+                        </tr>
+                      ))
+                    : permissions.map((row) => (
+                        <tr
+                          key={row.key}
+                          className="transition-colors hover:bg-action-hover"
+                        >
+                          {/* Cột tên quyền - font-medium tương tự DynamicTable */}
+                          <td className="px-6 py-2">{row.name}</td>
+
+                          {/* Các cột checkbox */}
+                          {permissionCols.map((col) => (
+                            <td key={col.key} className="px-6 py-2 text-center">
+                              <input
+                                type="checkbox"
+                                checked={row.actions[col.key]}
+                                onChange={() =>
+                                  handleCheckboxChange(row.key, col.key)
+                                }
+                                disabled={isView}
+                                className="h-4.5 w-4.5 cursor-pointer rounded border-other-input-border accent-primary-main transition-all"
+                              />
+                            </td>
+                          ))}
+                        </tr>
                       ))}
-                    </tr>
-                  ))}
                 </tbody>
               </table>
             </div>
