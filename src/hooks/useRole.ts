@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { roleService } from "@/services/api/role.service";
 
 export const useRole = () => {
@@ -31,5 +31,71 @@ export const useRoleDetail = (id: number | undefined) => {
     isLoading: query.isLoading,
     isFetching: query.isFetching, // Đang lấy lại dữ liệu ngầm
     isError: query.isError,
+  };
+};
+
+// Thêm mới
+export const useCreateRole = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: roleService.create, // API thêm mới
+
+    onSuccess: () => {
+      // Sau khi thêm thành công → gọi lại danh sách roles
+      queryClient.invalidateQueries({ queryKey: ["roles"] });
+    },
+  });
+
+  return {
+    createRole: mutation.mutate, // gọi bình thường
+    createRoleAsync: mutation.mutateAsync, // dùng await nếu cần
+    isCreating: mutation.isPending,
+    isCreateError: mutation.isError,
+    isCreateSuccess: mutation.isSuccess,
+  };
+};
+
+// Sửa
+export const useUpdateRole = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: roleService.update, // API Sửa
+
+    onSuccess: () => {
+      // Sau khi Sửa thành công → gọi lại danh sách roles
+      queryClient.invalidateQueries({ queryKey: ["roles"] });
+    },
+  });
+
+  return {
+    updateRole: mutation.mutate, // gọi bình thường
+    updateRoleAsync: mutation.mutateAsync, // dùng await nếu cần
+    isUpdating: mutation.isPending,
+    isUpdateError: mutation.isError,
+    isUpdateSuccess: mutation.isSuccess,
+  };
+};
+
+// Xóa
+export const useDeleteRole = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: roleService.delete, // API xóa
+
+    onSuccess: () => {
+      // Sau khi xóa thành công → reload danh sách roles
+      queryClient.invalidateQueries({ queryKey: ["roles"] });
+    },
+  });
+
+  return {
+    deleteRole: mutation.mutate, // gọi bình thường
+    deleteRoleAsync: mutation.mutateAsync, // dùng await nếu cần
+    isDeleting: mutation.isPending,
+    isDeleteError: mutation.isError,
+    isDeleteSuccess: mutation.isSuccess,
   };
 };

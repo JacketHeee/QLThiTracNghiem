@@ -60,5 +60,22 @@
   "header": {
     "search": "Tìm kiếm",
     "user": "Người dùng"
+  },
+  "message": {
+    "success": {
+      "create": "Thêm thành công",
+      "update": "Cập nhật thành công",
+      "delete": "Xóa thành công"
+    },
+    "error": {
+      "create": "Thêm thất bại",
+      "update": "Cập nhật thất bại",
+      "delete": "Xóa thất bại"
+    },
+    "validation": {
+      "role": {
+        "empty": "Vui lòng chọn ít nhất 1 quyền"
+      }
+    }
   }
 }

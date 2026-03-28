@@ -113,11 +113,22 @@ export interface Role {
   total_users: number;
 }
 
-export interface RoleDetail {
-  id: number;
+export interface RoleBase {
   tenNhomQuyen: string;
   role_details: RoleDetailItem[];
 }
+
+export type RoleCreate = RoleBase;
+
+export interface RoleResponse extends RoleBase {
+  id: number;
+}
+
+export interface RoleDetail extends RoleBase {
+  id: number;
+}
+
+export type RoleUpdate = Partial<RoleBase>;
 
 export interface RoleDetailItem {
   tenChucNang: string;
@@ -211,3 +222,12 @@ export interface NhomHocPhan {
   mon_hoc: Subject;
   backgroundUrl: "https://picsum.photos/1920/1080?blur=8";
 }
+
+export type BackendErrors = {
+  [key: string]: string[];
+};
+
+export type ErrorResponse = {
+  message?: string;
+  errors: BackendErrors;
+};

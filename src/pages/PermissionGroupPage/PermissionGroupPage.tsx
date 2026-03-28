@@ -5,9 +5,16 @@ import type { TableColumn } from "@/components/atomic/organisms/DynamicTable/Dyn
 import DynamicTable from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import { PermissionForm } from "@/components/atomic/organisms/PermissionForm/PermissionForm";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
-import { useRole } from "@/hooks/useRole";
-import type { PermissionFormData, Role } from "@/types";
+import {
+  useCreateRole,
+  useDeleteRole,
+  useRole,
+  useUpdateRole,
+} from "@/hooks/useRole";
+import type { ErrorResponse, Role, RoleCreate, RoleUpdate } from "@/types";
+import type { AxiosError } from "axios";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const totalPages = 5;
 
@@ -48,7 +55,7 @@ const columns: TableColumn<Role>[] = [
 
 export const PermissionGroupPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  // const [isModalOpen, setIsModalOpen] = useState(false);
+  const { t } = useTranslation();
 
   const defaultModalState = {
     open: false,
@@ -64,6 +71,11 @@ export const PermissionGroupPage = () => {
 
   const { roles } = useRole();
 
+  const { createRoleAsync, isCreating } = useCreateRole();
+  const { updateRoleAsync, isUpdating } = useUpdateRole();
+
+  const { deleteRoleAsync, isDeleting } = useDeleteRole();
+
   const handleAction = (action: "detail" | "edit" | "remove", item: Role) => {
     // console.log(`Đang thực hiện ${action} cho nhóm: ${item.tenNhomQuyen}`);
 
@@ -73,10 +85,11 @@ export const PermissionGroupPage = () => {
         break;
 
       case "edit":
+        openUpdateModal(item.id);
         break;
 
       case "remove":
-        alert(`Xác nhận xóa nhóm: ${item.tenNhomQuyen}`);
+        deleteRole(item);
         break;
 
       default:
@@ -84,22 +97,85 @@ export const PermissionGroupPage = () => {
     }
   };
 
-  const handleSaveGroup = (data: PermissionFormData) => {
-    console.log("Dữ liệu cần gửi lên API:", data);
-    // Gọi API lưu nhóm quyền ở đây...
-    closeModal();
-  };
-
   const closeModal = () => {
     setModalState(defaultModalState);
   };
 
-  const insert = () => {
+  const openInsertModal = () => {
     setModalState({
       open: true,
       mode: "create",
       id: undefined,
     });
+  };
+
+  const openUpdateModal = (id: number) => {
+    setModalState({
+      open: true,
+      mode: "update",
+      id: id,
+    });
+  };
+
+  const insertRole = async (data: RoleCreate) => {
+    if (!validateCreate(data)) return;
+    try {
+      await createRoleAsync(data);
+      alert(t("message.success.create"));
+      closeModal();
+    } catch (error: unknown) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.status === 422) {
+        //lỗi validate backend
+        const errors = err.response?.data?.errors;
+
+        const firstError = Object.values(errors)?.[0];
+
+        if (Array.isArray(firstError)) {
+          alert(firstError[0]);
+        }
+      } else {
+        alert(t("message.error.create"));
+      }
+    }
+  };
+
+  const updateRole = async (id: number, data: RoleUpdate) => {
+    if (!validateUpdate(data)) {
+      return;
+    }
+    try {
+      await updateRoleAsync({ id, data });
+      alert(t("message.success.update"));
+      closeModal();
+    } catch (error: unknown) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.status === 422) {
+        //lỗi validate backend
+        const errors = err.response.data.errors;
+
+        const firstError = Object.values(errors)?.[0];
+
+        if (Array.isArray(firstError)) {
+          alert(firstError[0]);
+        }
+      } else {
+        alert(t("message.error.update"));
+      }
+    }
+  };
+
+  const deleteRole = async (data: Role) => {
+    console.log("xóa ", data.tenNhomQuyen);
+    const isConfirm = window.confirm("Bạn có chắc muốn xóa vai trò này không?");
+    if (!isConfirm) return;
+    try {
+      await deleteRoleAsync(data.id);
+      alert(t("message.success.delete"));
+      closeModal();
+    } catch {
+      alert(t("message.error.delete"));
+    }
   };
 
   const detailRole = (id: number) => {
@@ -110,8 +186,30 @@ export const PermissionGroupPage = () => {
     });
   };
 
+  const validateCreate = (request: RoleCreate): boolean => {
+    if (request.role_details.length === 0) {
+      alert(t("message.validation.role.empty"));
+      return false;
+    }
+    return true;
+  };
+
+  const validateUpdate = (request: RoleUpdate): boolean => {
+    if (request.role_details?.length === 0) {
+      alert(t("message.validation.role.empty"));
+      return false;
+    }
+    return true;
+  };
+
   return (
     <MainContentLayout>
+      {/* Xử lý loading ở đây nhen */}
+      {isCreating && isUpdating && isDeleting && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
+          Loading...
+        </div>
+      )}
       <div className="flex flex-col gap-10 rounded-md bg-background-body-background px-2 py-2">
         <div className="flex justify-between">
           {/* Left: Filter & Search */}
@@ -134,7 +232,11 @@ export const PermissionGroupPage = () => {
 
           {/* Right: Actions */}
           <div className="flex gap-2">
-            <Button variant={"contained"} color={"primary"} onClick={insert}>
+            <Button
+              variant={"contained"}
+              color={"primary"}
+              onClick={openInsertModal}
+            >
               <Icon name="plus" size={20} />
               Tạo nhóm quyền mới
             </Button>
@@ -142,10 +244,11 @@ export const PermissionGroupPage = () => {
               <PermissionForm
                 mode={modalState.mode}
                 id={modalState.id}
-                onSave={handleSaveGroup}
+                onSaveCreate={insertRole}
+                onSaveUpdate={updateRole}
                 onCancel={closeModal}
                 //className="w-[900px] h-[80vh] rounded-xl" // Tuỳ chỉnh kích thước modal ở đây
-              />
+              ></PermissionForm>
             )}
           </div>
         </div>

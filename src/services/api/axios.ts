@@ -7,6 +7,7 @@ const axiosClient = axios.create({
     "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "true", // Bỏ qua trang cảnh báo của ngrok
   },
+  validateStatus: (status) => status >= 200 && status < 300,
 });
 
 // Log để debug xem đang gọi vào đâu

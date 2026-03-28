@@ -1,10 +1,12 @@
-import { useEffect, useState, type FC, type FormEvent } from "react";
+import React, { useEffect, useState, type FC, type FormEvent } from "react";
 import { Button, Icon } from "@/components/atomic/atoms";
 import { cn } from "@/utils/cn";
 import type {
   PermissionFormData,
   PermissionItem,
+  RoleCreate,
   RoleDetailItem,
+  RoleUpdate,
 } from "@/types";
 import { TextField } from "../../molecules/TextField/TextField";
 import { Overlay } from "../../molecules/Overlay/Overlay";
@@ -66,9 +68,11 @@ const defaultGroupPermission: PermissionFormData = {
 interface PermissionFormProps {
   mode: "create" | "view" | "update" | "none";
   id: number | undefined;
-  onSave: (data: PermissionFormData) => void;
+  onSaveCreate: (data: RoleCreate) => void;
+  onSaveUpdate: (id: number, data: RoleUpdate) => void;
   onCancel: () => void;
   className?: string;
+  children?: React.ReactNode;
 }
 
 const permissionCols = [
@@ -102,10 +106,26 @@ const ConvertRoleDetails = (data: RoleDetailItem[]): PermissionItem[] => {
   });
 };
 
+const ConvertToRoleRequest = (data: PermissionItem[]): RoleDetailItem[] => {
+  return data
+    .map((perm) => ({
+      tenChucNang: perm.key,
+      canView: perm.actions.read,
+      canCreate: perm.actions.create,
+      canUpdate: perm.actions.update,
+      canDelete: perm.actions.delete,
+    }))
+    .filter(
+      (item) =>
+        item.canView || item.canCreate || item.canUpdate || item.canDelete
+    );
+};
+
 export const PermissionForm: FC<PermissionFormProps> = ({
   mode,
   id,
-  onSave,
+  onSaveCreate,
+  onSaveUpdate,
   onCancel,
   className,
 }) => {
@@ -124,7 +144,6 @@ export const PermissionForm: FC<PermissionFormProps> = ({
     if (role) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setGroupName(role.tenNhomQuyen);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPermissions(ConvertRoleDetails(role.role_details));
     }
   }, [role]);
@@ -164,7 +183,21 @@ export const PermissionForm: FC<PermissionFormProps> = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSave({ groupName, permissions });
+    if (mode === "create") {
+      onSaveCreate({
+        tenNhomQuyen: groupName,
+        role_details: ConvertToRoleRequest(permissions),
+      });
+    } else if (mode === "update") {
+      if (!id) {
+        alert("missing id");
+        return;
+      }
+      onSaveUpdate(id, {
+        tenNhomQuyen: groupName,
+        role_details: ConvertToRoleRequest(permissions),
+      });
+    }
   };
 
   return (
@@ -195,7 +228,9 @@ export const PermissionForm: FC<PermissionFormProps> = ({
             label="Tên nhóm quyền"
             placeholder="VD: Giảng viên"
             value={groupName}
-            onChange={(e) => setGroupName(e.target.value)}
+            onChange={(e) => {
+              setGroupName(e.target.value);
+            }}
             required
             className="w-full"
           />

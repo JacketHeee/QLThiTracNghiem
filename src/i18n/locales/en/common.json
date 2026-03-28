@@ -60,5 +60,22 @@
   "header": {
     "search": "Search",
     "user": "User"
+  },
+  "message": {
+    "success": {
+      "create": "Created successfully",
+      "update": "Updated successfully",
+      "delete": "Deleted successfully"
+    },
+    "error": {
+      "create": "Create failed",
+      "update": "Update failed",
+      "delete": "Delete failed"
+    },
+    "validation": {
+      "role": {
+        "empty": "Please select at least one permission"
+      }
+    }
   }
 }
