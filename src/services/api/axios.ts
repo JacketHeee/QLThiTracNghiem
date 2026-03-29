@@ -8,19 +8,11 @@ const axiosClient = axios.create({
     "ngrok-skip-browser-warning": "true", // Bỏ qua trang cảnh báo của ngrok
   },
   validateStatus: (status) => status >= 200 && status < 300,
+  withCredentials: true, //dùng cho cookie
 });
 
 // Log để debug xem đang gọi vào đâu
 console.log("Current API Base URL:", axiosClient.defaults.baseURL);
-
-// Tự động đính kèm Token vào Header của mọi request
-axiosClient.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().token; // Lấy token trực tiếp từ store
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
 
 // Xử lý lỗi tập trung (Ví dụ: Token hết hạn -> Logout)
 axiosClient.interceptors.response.use(
@@ -34,3 +26,12 @@ axiosClient.interceptors.response.use(
 );
 
 export default axiosClient;
+
+// Tự động đính kèm Token vào Header của mọi request
+// axiosClient.interceptors.request.use((config) => {
+//   const token = useAuthStore.getState().token; // Lấy token trực tiếp từ store
+//   if (token) {
+//     config.headers.Authorization = `Bearer ${token}`;
+//   }
+//   return config;
+// });

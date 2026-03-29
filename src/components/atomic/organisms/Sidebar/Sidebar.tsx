@@ -3,18 +3,10 @@ import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button, Icon } from "../../atoms";
 import Logo from "../../molecules/Logo/Logo";
+import { useAuthStore } from "@/stores/auth.store";
+import type { RoleDetailItem, SidebarSection } from "@/types";
 
-const SIDEBAR_SECTIONS = [
-  {
-    title: null,
-    items: [
-      {
-        icon: "home",
-        labelKey: "sidebar.overview",
-        to: "/dashboard",
-      },
-    ],
-  },
+const SIDEBAR_SECTIONS_STUDENT: SidebarSection[] = [
   {
     title: "sidebar.sections.student",
     items: [
@@ -22,11 +14,27 @@ const SIDEBAR_SECTIONS = [
         icon: "users",
         labelKey: "sidebar.items.courses",
         to: "/courses",
+        permission: "public",
       },
       {
         icon: "calendar",
         labelKey: "sidebar.items.exams",
         to: "/exams",
+        permission: "public",
+      },
+    ],
+  },
+];
+
+const SIDEBAR_SECTIONS: SidebarSection[] = [
+  {
+    title: null,
+    items: [
+      {
+        icon: "home",
+        labelKey: "sidebar.overview",
+        to: "/dashboard",
+        permission: "public",
       },
     ],
   },
@@ -37,36 +45,43 @@ const SIDEBAR_SECTIONS = [
         icon: "clipboard",
         labelKey: "sidebar.items.courseGroup",
         to: "/course-group",
+        permission: "hoc_phan",
       },
       {
         icon: "question",
         labelKey: "sidebar.items.questions",
         to: "/question",
+        permission: "cau_hoi",
       },
       {
         icon: "user",
         labelKey: "sidebar.items.users",
         to: "/users",
+        permission: "nguoi_dung",
       },
       {
         icon: "folder",
         labelKey: "sidebar.items.subjects",
         to: "/subjects",
+        permission: "mon_hoc",
       },
       {
         icon: "refresh",
         labelKey: "sidebar.items.assignments",
         to: "/assignments",
+        permission: "phan_cong",
       },
       {
         icon: "documentDuplicate",
         labelKey: "sidebar.items.tests",
         to: "/tests",
+        permission: "de_thi",
       },
       {
         icon: "massage",
         labelKey: "sidebar.items.notifications",
         to: "/notifications",
+        permission: "thong_bao",
       },
     ],
   },
@@ -77,14 +92,43 @@ const SIDEBAR_SECTIONS = [
         icon: "groupUser",
         labelKey: "sidebar.items.permissionGroups",
         to: "/permission-groups",
+        permission: "nhom_quyen",
       },
     ],
   },
 ];
 
+const filterRole = (roleDetails: RoleDetailItem[]): SidebarSection[] => {
+  return SIDEBAR_SECTIONS.map((section) => {
+    const filteredItems = section.items.filter((item) => {
+      // Public thì luôn cho xem
+      if (item.permission === "public") return true;
+
+      // Tìm quyền tương ứng
+      const role = roleDetails.find((r) => r.tenChucNang === item.permission);
+
+      // Chỉ hiển thị nếu có quyền xem
+      return role?.canView === true;
+    });
+
+    return {
+      ...section,
+      items: filteredItems,
+    };
+  }).filter((section) => section.items.length > 0); // bỏ section rỗng
+};
+
 export const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { t } = useTranslation();
+  const { user, role } = useAuthStore();
+
+  const userRole =
+    !user && !role
+      ? []
+      : user?.isStudent
+        ? SIDEBAR_SECTIONS_STUDENT
+        : filterRole(role ? role.role_details : []);
 
   return (
     <div
@@ -107,7 +151,7 @@ export const Sidebar = () => {
       <div
         className={`flex flex-1 flex-col pt-0 ${isCollapsed && "justify-center"}`}
       >
-        {SIDEBAR_SECTIONS.map((item, idx) => {
+        {userRole.map((item, idx) => {
           if (!item.title) {
             const child = item.items[0];
             return (

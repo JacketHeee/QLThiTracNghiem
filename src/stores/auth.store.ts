@@ -1,14 +1,14 @@
-import type { TaiKhoan } from "@/types";
+import type { RoleResponse, TaiKhoan } from "@/types";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 type AuthState = {
-  token: string | null;
+  // token: string | null; đổi sang cookie
   user: TaiKhoan | null;
   isAuthenticated: boolean;
-
+  role: RoleResponse | null;
   // Actions
-  setAuth: (token: string, user: TaiKhoan) => void;
+  setAuth: (user: TaiKhoan, role: RoleResponse) => void;
   updateUser: (user: Partial<TaiKhoan>) => void;
   logout: () => void;
 };
@@ -16,15 +16,15 @@ type AuthState = {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      token: null,
       user: null,
       isAuthenticated: false,
+      role: null,
 
       // Đăng nhập thành công: Lưu cả token và user
-      setAuth: (token, user) =>
+      setAuth: (user, role) =>
         set({
-          token,
           user,
+          role,
           isAuthenticated: true,
         }),
 
@@ -37,14 +37,15 @@ export const useAuthStore = create<AuthState>()(
       // Đăng xuất: Xóa sạch dấu vết
       logout: () => {
         set({
-          token: null,
           user: null,
+          role: null,
           isAuthenticated: false,
         });
         // Có thể bổ sung điều hướng về trang Login ở đây nếu không dùng router
         localStorage.removeItem("auth-storage");
       },
     }),
+
     {
       name: "auth-storage", // Tên key trong LocalStorage
       storage: createJSONStorage(() => localStorage),

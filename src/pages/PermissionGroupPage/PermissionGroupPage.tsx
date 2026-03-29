@@ -11,7 +11,14 @@ import {
   useRole,
   useUpdateRole,
 } from "@/hooks/useRole";
-import type { ErrorResponse, Role, RoleCreate, RoleUpdate } from "@/types";
+import { useAuthStore } from "@/stores/auth.store";
+import type {
+  ErrorResponse,
+  Role,
+  RoleCreate,
+  RoleDetailItem,
+  RoleUpdate,
+} from "@/types";
 import type { AxiosError } from "axios";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -53,9 +60,26 @@ const columns: TableColumn<Role>[] = [
   },
 ];
 
+const pageName = "nhom_quyen";
+
 export const PermissionGroupPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const { t } = useTranslation();
+
+  const { role } = useAuthStore();
+  const roleDetails = !role ? [] : role.role_details;
+  const actions = roleDetails
+    .filter((item: RoleDetailItem) => item.tenChucNang === pageName)
+    .flatMap((item) => {
+      const result: string[] = [];
+
+      if (item.canView) result.push("view");
+      if (item.canCreate) result.push("create");
+      if (item.canUpdate) result.push("update");
+      if (item.canDelete) result.push("delete");
+
+      return result;
+    });
 
   const defaultModalState = {
     open: false,
@@ -260,6 +284,7 @@ export const PermissionGroupPage = () => {
           rowKey="id" // <--- Chỉ định key định danh ở đây
           hasColumnActions={true}
           onAction={handleAction}
+          checkActions={actions}
         />
         <Pagination
           currentPage={currentPage}
