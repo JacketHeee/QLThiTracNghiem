@@ -18,6 +18,7 @@ type Props<T> = {
   rowKey?: keyof T;
   hasColumnActions?: boolean;
   renderActions?: (item: T) => ReactNode;
+  checkActions?: string[];
   onAction?: (action: TableAction, item: T) => void;
   className?: string;
   getRowClassName?: (item: T) => string;
@@ -31,6 +32,7 @@ export default function DynamicTable<T>({
   rowKey,
   hasColumnActions,
   renderActions,
+  checkActions,
   onAction,
   className = "",
   getRowClassName,
@@ -93,24 +95,32 @@ export default function DynamicTable<T>({
                             >
                               Chi tiết
                             </Button>
-                            <Button
-                              variant={"text"}
-                              size={"small"}
-                              color={"primary"}
-                              onClick={() => onAction?.("edit", item)}
-                              className="text-nowrap"
-                            >
-                              Sửa
-                            </Button>
-                            <Button
-                              variant={"text"}
-                              size={"small"}
-                              color={"primary"}
-                              onClick={() => onAction?.("remove", item)}
-                              className="text-nowrap"
-                            >
-                              Xóa
-                            </Button>
+
+                            {(!checkActions ||
+                              checkActions.includes("update")) && (
+                              <Button
+                                variant={"text"}
+                                size={"small"}
+                                color={"primary"}
+                                onClick={() => onAction?.("edit", item)}
+                                className="text-nowrap"
+                              >
+                                Sửa
+                              </Button>
+                            )}
+
+                            {(!checkActions ||
+                              checkActions.includes("delete")) && (
+                              <Button
+                                variant={"text"}
+                                size={"small"}
+                                color={"primary"}
+                                onClick={() => onAction?.("remove", item)}
+                                className="text-nowrap"
+                              >
+                                Xóa
+                              </Button>
+                            )}
                           </>
                         )}
                       </div>

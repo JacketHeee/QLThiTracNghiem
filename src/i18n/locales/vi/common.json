@@ -76,6 +76,10 @@
       "role": {
         "empty": "Vui lòng chọn ít nhất 1 quyền"
       }
+    },
+    "login": {
+      "success": "Đăng nhập thành công",
+      "failed": "Đăng nhập thất bại"
     }
   }
 }

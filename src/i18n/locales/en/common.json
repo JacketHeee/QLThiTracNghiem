@@ -76,6 +76,10 @@
       "role": {
         "empty": "Please select at least one permission"
       }
+    },
+    "login": {
+      "success": "Login successful",
+      "failed": "Login failed"
     }
   }
 }

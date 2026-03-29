@@ -231,3 +231,28 @@ export type ErrorResponse = {
   message?: string;
   errors: BackendErrors;
 };
+
+export interface LoginFormSubmit {
+  login: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  original: {
+    access_token: string;
+    me: TaiKhoan;
+    role: RoleResponse;
+  };
+}
+
+export type SidebarItem = {
+  icon: string;
+  labelKey: string;
+  to: string;
+  permission: string;
+};
+
+export type SidebarSection = {
+  title: string | null;
+  items: SidebarItem[];
+};
