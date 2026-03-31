@@ -28,7 +28,7 @@ export default function LoginForm() {
 
     try {
       const res = await loginAsync(data);
-      alert(t("message.login.success"));
+      // alert(t("message.login.success"));
       if (res.original.me.isStudent) {
         navigate("/courses");
       } else {

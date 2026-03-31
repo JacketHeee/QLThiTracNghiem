@@ -138,6 +138,34 @@ export interface RoleDetailItem {
   canDelete: boolean;
 }
 
+export interface UserBase {
+  hoTen: string;
+  email: string;
+  nhomQuyenId: number | null;
+  sdt?: string | null;
+  username: string;
+  ngaySinh: string; // ISO date string
+  laGioiTinhNu: boolean;
+  ggid?: boolean | null;
+  urlAvatar?: string | null;
+  isLocked: boolean;
+  isStudent: boolean;
+}
+
+export interface UserCreate extends UserBase {
+  password: string;
+}
+
+export type UserUpdate = Partial<UserBase>;
+
+export interface UserResponse extends UserBase {
+  id: number;
+}
+
+export interface UserResetPass {
+  newPassword: string;
+}
+
 export interface Assign {
   giangVienId: number;
   monHocId: number;
