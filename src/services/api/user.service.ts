@@ -29,6 +29,9 @@ export const userService = {
   delete: (id: number): Promise<ApiResponse<boolean>> =>
     axiosClient.delete(`/users/${id}`),
 
+  getGvien: (): Promise<ApiResponse<TaiKhoan[]>> =>
+    axiosClient.get(`/users/getgiangvien`),
+
   resetPassword: ({
     id,
     data,
