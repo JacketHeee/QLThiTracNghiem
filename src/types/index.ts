@@ -166,6 +166,11 @@ export interface UserResetPass {
   newPassword: string;
 }
 
+export interface AssignmentRequest {
+  giangVienId: number | null;
+  monHocIds: number[];
+}
+
 export interface Assign {
   giangVienId: number;
   monHocId: number;

@@ -19,6 +19,7 @@ type Props<T> = {
   hasColumnActions?: boolean;
   renderActions?: (item: T) => ReactNode;
   checkActions?: string[];
+  hasView?: boolean;
   onAction?: (action: TableAction, item: T) => void;
   className?: string;
   getRowClassName?: (item: T) => string;
@@ -33,6 +34,7 @@ export default function DynamicTable<T>({
   hasColumnActions,
   renderActions,
   checkActions,
+  hasView = true,
   onAction,
   className = "",
   getRowClassName,
@@ -86,15 +88,17 @@ export default function DynamicTable<T>({
                         ) : (
                           // Mặc định nếu không truyền renderActions
                           <>
-                            <Button
-                              variant={"text"}
-                              size={"small"}
-                              color={"primary"}
-                              onClick={() => onAction?.("detail", item)}
-                              className="text-nowrap"
-                            >
-                              Chi tiết
-                            </Button>
+                            {hasView && (
+                              <Button
+                                variant={"text"}
+                                size={"small"}
+                                color={"primary"}
+                                onClick={() => onAction?.("detail", item)}
+                                className="text-nowrap"
+                              >
+                                Chi tiết
+                              </Button>
+                            )}
 
                             {(!checkActions ||
                               checkActions.includes("update")) && (
