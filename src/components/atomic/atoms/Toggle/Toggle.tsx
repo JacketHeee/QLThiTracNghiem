@@ -7,7 +7,7 @@ interface ToggleProps extends InputHTMLAttributes<HTMLInputElement> {
 export const Toggle = forwardRef<HTMLInputElement, ToggleProps>(
   ({ label, id, ...props }, ref) => {
     return (
-      <div className="group flex cursor-pointer items-center gap-4">
+      <label className="group flex cursor-pointer items-center gap-4">
         <div className="relative">
           <input
             ref={ref}
@@ -19,7 +19,7 @@ export const Toggle = forwardRef<HTMLInputElement, ToggleProps>(
           {/* Đường ray của Toggle */}
           <div className="h-3.5 w-8 rounded-full border border-other-outlined-border bg-action-active transition-colors duration-200 peer-checked:border-action-selected peer-checked:bg-action-selected" />
           {/* Nút tròn di chuyển */}
-          <div className="shadow-2xltransition-transform absolute -top-[3px] left-0 h-5 w-5 rounded-full border border-action-hover bg-background-body-background duration-200 peer-checked:translate-x-5 peer-checked:bg-primary-main" />
+          <div className="absolute -top-[3px] left-0 h-5 w-5 rounded-full border border-action-hover bg-background-body-background shadow-2xl transition-transform duration-200 peer-checked:translate-x-5 peer-checked:bg-primary-main" />
         </div>
         {label && (
           <label
@@ -29,7 +29,7 @@ export const Toggle = forwardRef<HTMLInputElement, ToggleProps>(
             {label}
           </label>
         )}
-      </div>
+      </label>
     );
   }
 );

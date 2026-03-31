@@ -2,51 +2,122 @@ import { useState } from "react";
 import { Button, Icon } from "@/components/atomic/atoms";
 import { TextField } from "@/components/atomic/molecules/TextField/TextField";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
-import type { TaiKhoan } from "@/types";
+import type { TaiKhoan, UserBase, UserCreate, UserUpdate } from "@/types";
 import { Overlay } from "../../molecules/Overlay/Overlay";
 import Tabs from "../../molecules/Tabs/Tabs";
 import { RadioGroup } from "../../molecules/RadioGroup/RadioGroup";
 import { Toggle } from "../../atoms/Toggle/Toggle";
+import { useRole } from "@/hooks/useRole";
 
 interface UserFormProps {
   initialData?: TaiKhoan | null;
-  onSave: (data: TaiKhoan) => void;
+  onSaveCreate: (data: UserCreate) => void;
+  onSaveUpdate: (id: number, data: UserUpdate) => void;
+  onResetPassword: (id: number, password: string) => void;
   onCancel: () => void;
+  mode: string;
 }
 
-export function UserForm({ initialData, onSave, onCancel }: UserFormProps) {
+interface selectionCbxRole {
+  label: string;
+  value: number;
+}
+
+export function UserForm({
+  initialData,
+  onSaveCreate,
+  onSaveUpdate,
+  onResetPassword,
+  onCancel,
+  mode,
+}: UserFormProps) {
   const [selectedTab, setSelectedTab] = useState("manual");
 
-  const [formData, setFormData] = useState<Partial<TaiKhoan>>(
-    initialData ?? {
-      username: "",
-      email: "",
-      hoTen: "",
-      laGioiTinhNu: false,
-      ngaySinh: undefined,
-      nhomQuyenId: 3,
-      isLocked: false,
-    }
-  );
+  const isView = mode === "view";
+  const isUpdate = mode === "update";
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleChange = (field: keyof TaiKhoan, value: any) => {
+  let tabs = [];
+
+  if (isUpdate) {
+    tabs = [{ value: "manual", label: "Sửa" }];
+  } else if (isView) {
+    tabs = [{ value: "manual", label: "Chi Tiết" }];
+  } else {
+    tabs = [
+      { value: "manual", label: "Thêm thủ công" },
+      { value: "file", label: "Thêm từ file" },
+    ];
+  }
+
+  const { roles } = useRole();
+  const roleSelection: selectionCbxRole[] = roles.map((role) => ({
+    label: role.tenNhomQuyen,
+    value: role.id,
+  }));
+
+  const defaultFormData: UserBase = initialData
+    ? {
+        username: initialData.username,
+        email: initialData.email,
+        hoTen: initialData.hoTen,
+        laGioiTinhNu: initialData.laGioiTinhNu,
+        ngaySinh: new Date(initialData.ngaySinh).toISOString().split("T")[0],
+        nhomQuyenId: initialData.nhomQuyenId,
+        isLocked: initialData.isLocked,
+        isStudent: initialData.isStudent,
+      }
+    : {
+        username: "",
+        email: "",
+        hoTen: "",
+        laGioiTinhNu: false,
+        ngaySinh: "",
+        nhomQuyenId: null,
+        isLocked: false,
+        isStudent: true,
+      };
+
+  const [formData, setFormData] = useState<UserBase>(defaultFormData);
+
+  const [passwordField, setPasswordField] = useState("");
+
+  const handleChange = <K extends keyof UserBase>(
+    field: K,
+    value: UserBase[K]
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleChangeIsStudent = <K extends keyof UserBase>(
+    field: K,
+    value: UserBase[K]
+  ) => {
+    handleChange(field, value);
+    if (value) {
+      setFormData((prev) => ({ ...prev, ["nhomQuyenId"]: null }));
+    }
+  };
+
+  const onSave = (form: UserBase) => {
+    if (isUpdate) {
+      const data: UserUpdate = form;
+      if (initialData) {
+        onSaveUpdate(initialData.id, data);
+      }
+    } else {
+      const data: UserCreate = { ...form, password: passwordField };
+      onSaveCreate(data);
+    }
   };
 
   return (
     <Overlay onClose={onCancel}>
       <div className="flex w-[600px] flex-col gap-3 rounded-lg bg-background-paper pb-2">
-        {/* Tabs Header */}
-        {/* Tab */}
         <Tabs
           value={selectedTab}
           onChange={setSelectedTab}
           childClassName="flex-1"
-          tabs={[
-            { value: "manual", label: "Thêm thủ công" },
-            { value: "file", label: "Thêm từ file" },
-          ]}
+          tabs={tabs}
         />
 
         {selectedTab === "manual" ? (
@@ -54,10 +125,11 @@ export function UserForm({ initialData, onSave, onCancel }: UserFormProps) {
             {/* Form Body */}
             <div className="flex max-h-[70vh] flex-col gap-5 overflow-auto px-8 py-0">
               <TextField
-                label="Mã sinh viên"
-                placeholder="Nhập mã sinh viên"
+                label="Tên đăng nhập"
+                placeholder="Nhập tên đăng nhập"
                 value={formData.username}
                 onChange={(e) => handleChange("username", e.target.value)}
+                disabled={isView}
               />
 
               <TextField
@@ -65,6 +137,7 @@ export function UserForm({ initialData, onSave, onCancel }: UserFormProps) {
                 placeholder="Nhập địa chỉ email"
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
+                disabled={isView}
               />
 
               <TextField
@@ -72,6 +145,7 @@ export function UserForm({ initialData, onSave, onCancel }: UserFormProps) {
                 placeholder="Nhập họ và tên"
                 value={formData.hoTen}
                 onChange={(e) => handleChange("hoTen", e.target.value)}
+                disabled={isView}
               />
 
               {/* Giới tính - Custom Radio Style */}
@@ -82,10 +156,12 @@ export function UserForm({ initialData, onSave, onCancel }: UserFormProps) {
                 <RadioGroup
                   name="gender"
                   options={[
-                    { label: "Nam", value: "1" },
-                    { label: "Nữ", value: "1" },
+                    { label: "Nam", value: false },
+                    { label: "Nữ", value: true },
                   ]}
-                  onChange={() => {}}
+                  value={formData.laGioiTinhNu ?? true}
+                  onChange={(value) => handleChange("laGioiTinhNu", value)}
+                  disabled={isView}
                 />
               </div>
 
@@ -98,63 +174,76 @@ export function UserForm({ initialData, onSave, onCancel }: UserFormProps) {
                     ? new Date(formData.ngaySinh).toISOString().split("T")[0]
                     : ""
                 }
-                onChange={(e) =>
-                  handleChange("ngaySinh", new Date(e.target.value))
-                }
+                onChange={(e) => handleChange("ngaySinh", e.target.value)}
+                disabled={isView}
               />
 
-              <div className="flex flex-col gap-1">
-                <span className="text-input-text text-text-primary">
-                  Nhóm quyền
-                </span>
-                <SelectField
-                  classname="w-full"
-                  placeholder="Chọn nhóm quyền"
-                  options={[
-                    { label: "Admin", value: 1 },
-                    { label: "Giảng viên", value: 2 },
-                    { label: "Sinh viên", value: 3 },
-                  ]}
-                  defaultIndex={Number(formData.nhomQuyenId) - 1}
-                  onSelect={(val) => handleChange("nhomQuyenId", val)}
+              {!formData.isStudent && (
+                <div className="flex flex-col gap-1">
+                  <span className="text-input-text text-text-primary">
+                    Nhóm quyền
+                  </span>
+                  <SelectField
+                    classname="w-full"
+                    placeholder="Chọn nhóm quyền"
+                    options={roleSelection}
+                    defaultIndex={Number(formData.nhomQuyenId) - 1}
+                    onSelect={(val) => handleChange("nhomQuyenId", Number(val))}
+                    disabled={isView}
+                  />
+                </div>
+              )}
+
+              {!isView && (
+                <TextField
+                  label="Mật khẩu"
+                  type="password"
+                  placeholder="Nhập mật khẩu"
+                  // Password thường không trả về từ API vì bảo mật
+                  value={passwordField}
+                  onChange={(e) => {
+                    setPasswordField(e.target.value);
+                  }}
+                  disabled={isView}
                 />
-              </div>
-
-              <TextField
-                label="Mật khẩu"
-                type="password"
-                placeholder="Nhập mật khẩu"
-                // Password thường không trả về từ API vì bảo mật
-                onChange={() => {}}
-              />
+              )}
 
               {/* Trạng thái - Switch Style */}
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center gap-2">
                   <span className="text-text-primary">Khóa tài khoản</span>
                   <Toggle
-                    checked={!formData.isLocked}
-                    onChange={(e) =>
-                      handleChange("isLocked", !e.target.checked)
-                    }
+                    checked={formData.isLocked}
+                    onChange={(e) => handleChange("isLocked", e.target.checked)}
+                    disabled={isView}
                   />
                 </div>
 
                 <div className="flex items-center gap-2">
                   <span className="text-text-primary">Là sinh viên</span>
                   <Toggle
-                    checked={!formData.isLocked}
+                    checked={formData.isStudent}
                     onChange={(e) =>
-                      handleChange("isLocked", !e.target.checked)
+                      handleChangeIsStudent("isStudent", e.target.checked)
                     }
+                    disabled={isView}
                   />
                 </div>
               </div>
 
               <div className="flex items-center justify-end py-2">
-                <Button variant={"outline"} color="primary">
-                  Tạo lại mật khẩu
-                </Button>
+                {isUpdate && initialData && (
+                  <Button
+                    variant={"outline"}
+                    color="primary"
+                    disabled={isView}
+                    onClick={() =>
+                      onResetPassword(initialData.id, passwordField)
+                    }
+                  >
+                    Tạo lại mật khẩu
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -169,13 +258,15 @@ export function UserForm({ initialData, onSave, onCancel }: UserFormProps) {
                   Quay lại
                 </Button>
 
-                <Button
-                  variant={"contained"}
-                  color={"primary"}
-                  onClick={() => onSave(formData as TaiKhoan)}
-                >
-                  {initialData ? "Cập nhật" : "Lưu môn học"}
-                </Button>
+                {!isView && (
+                  <Button
+                    variant={"contained"}
+                    color={"primary"}
+                    onClick={() => onSave(formData)}
+                  >
+                    {initialData ? "Cập nhật" : "Lưu"}
+                  </Button>
+                )}
               </div>
             </div>
           </>

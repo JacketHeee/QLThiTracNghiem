@@ -15,6 +15,7 @@ interface SelectFieldProps {
   onSelect: (value: string | number) => void;
   classname?: string;
   defaultIndex?: number;
+  disabled?: boolean;
 }
 
 export default function SelectField({
@@ -24,6 +25,7 @@ export default function SelectField({
   onSelect,
   classname,
   defaultIndex,
+  disabled,
 }: SelectFieldProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [userSelection, setUserSelection] = useState<Option | null>(null);
@@ -66,6 +68,7 @@ export default function SelectField({
       <Button
         variant="text"
         className="!w-full items-center justify-between px-3 py-2 hover:bg-transparent"
+        disabled={disabled}
       >
         <span
           className={cn(
@@ -86,7 +89,7 @@ export default function SelectField({
       </Button>
 
       {/* DROPDOWN MENU */}
-      {isOpen && (
+      {isOpen && !disabled && (
         <>
           {/* Invisible Bridge: Lớp đệm vô hình để nối liền button và menu, chống bug hover */}
           <div className="absolute left-0 top-full h-[6px] w-full" />

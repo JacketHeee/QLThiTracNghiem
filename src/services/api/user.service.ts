@@ -1,4 +1,11 @@
-import type { ApiResponse, TaiKhoan } from "@/types";
+import type {
+  ApiResponse,
+  TaiKhoan,
+  UserCreate,
+  UserResetPass,
+  UserResponse,
+  UserUpdate,
+} from "@/types";
 import axiosClient from "./axios";
 
 export const userService = {
@@ -7,12 +14,27 @@ export const userService = {
   getById: (id: number): Promise<ApiResponse<TaiKhoan>> =>
     axiosClient.get(`/users/${id}`),
 
-  //   create: (data: Omit<Subject, "id">): Promise<ApiResponse<Subject>> =>
-  //     axiosClient.post("/monhocs", data),
+  create: (data: UserCreate): Promise<ApiResponse<UserResponse>> =>
+    axiosClient.post("/users", data),
 
-  //   update: (id: number, data: Partial<Subject>): Promise<ApiResponse<Subject>> =>
-  //     axiosClient.put(`/monhocs/${id}`, data),
+  update: ({
+    id,
+    data,
+  }: {
+    id: number;
+    data: UserUpdate;
+  }): Promise<ApiResponse<UserResponse>> =>
+    axiosClient.put(`/users/${id}`, data),
 
-  //   delete: (id: number): Promise<ApiResponse<boolean>> =>
-  //     axiosClient.delete(`/monhocs/${id}`),
+  delete: (id: number): Promise<ApiResponse<boolean>> =>
+    axiosClient.delete(`/users/${id}`),
+
+  resetPassword: ({
+    id,
+    data,
+  }: {
+    id: number;
+    data: UserResetPass;
+  }): Promise<ApiResponse<boolean>> =>
+    axiosClient.post(`/users/resetpassword/${id}`, data),
 };
