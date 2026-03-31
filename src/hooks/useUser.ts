@@ -4,7 +4,7 @@ import { userService } from "@/services/api/user.service";
 export const useUser = () => {
   // Lấy danh sách
   const query = useQuery({
-    queryKey: ["users"],
+    queryKey: ["users", "all"],
     queryFn: userService.getAll,
     select: (res) => res.data,
   });
@@ -99,5 +99,19 @@ export const useResetPassUser = () => {
     isResetting: mutation.isPending,
     isResetError: mutation.isError,
     isResetSuccess: mutation.isSuccess,
+  };
+};
+
+export const useGetGvien = () => {
+  // Lấy danh sách
+  const query = useQuery({
+    queryKey: ["users", "gvien"],
+    queryFn: userService.getGvien,
+    select: (res) => res.data,
+  });
+
+  return {
+    taikhoans: query.data || [],
+    isLoading: query.isLoading,
   };
 };

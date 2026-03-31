@@ -7,27 +7,27 @@ import DynamicTable, {
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import AddAssignmentForm from "@/components/atomic/organisms/AddAssignmentForm/AddAssignmentForm";
-import { useAssign } from "@/hooks/useAssign";
-import type { Assign } from "@/types";
+import { useAssign, useCreateAssign, useDeleteAssign } from "@/hooks/useAssign";
+import type { Assign, AssignmentRequest, ErrorResponse } from "@/types";
+import { useTranslation } from "react-i18next";
+import type { AxiosError } from "axios";
 
 export const AssignmentPage = () => {
   const { assigns } = useAssign();
-  console.log(assigns);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [assignments, setAssignments] = useState<Assign[]>();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [editingAssignment, setEditingAssignment] = useState<Assign | null>(
-    null
-  );
+
+  const { t } = useTranslation();
+
+  const { createPhanCongAsync, isCreating } = useCreateAssign();
+
+  const { deleteAsync, isDeleting } = useDeleteAssign();
 
   const columns: TableColumn<Assign>[] = [
     {
       title: "Mã môn",
       key: "monHocId",
       render: (_, item) => {
-        console.log("Manh: ", item);
         return item.mon_hoc.maMonHoc || "---";
       },
     },
@@ -39,7 +39,7 @@ export const AssignmentPage = () => {
     {
       title: "Mã giảng viên",
       key: "giangVienId",
-      render: (_, item) => item.giang_vien.ma || "---",
+      render: (_, item) => item.giang_vien.username || "---",
     },
     {
       title: "Tên giảng viên",
@@ -48,41 +48,76 @@ export const AssignmentPage = () => {
     },
   ];
 
-  console.log("Manh: ", columns);
   const handleOpenAdd = () => {
-    setEditingAssignment(null);
     setIsModalOpen(true);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleAction = (action: string, item: Assign) => {
-    // if (action === "edit") {
-    //   setEditingAssignment(item);
-    //   setIsModalOpen(true);
-    // } else if (action === "remove") {
-    //   if (
-    //     confirm(
-    //       `Bạn có chắc muốn xóa phân công của giảng viên: ${item.giangVien?.hoTen}?`
-    //     )
-    //   ) {
-    //     setAssignments((prev) => prev.filter((s) => s.giangVienId !== item.giangVienId));
-    //   }
-    // }
+  const onSave = async (data: AssignmentRequest) => {
+    if (!validateCreate(data)) return;
+    try {
+      await createPhanCongAsync(data);
+      alert(t("message.success.create"));
+      setIsModalOpen(false);
+    } catch (error: unknown) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.status === 422) {
+        //lỗi validate backend
+        const errors = err.response?.data?.errors;
+
+        const firstError = Object.values(errors)?.[0];
+
+        if (Array.isArray(firstError)) {
+          alert(firstError[0]);
+        }
+      } else {
+        alert(t("message.error.create"));
+      }
+    }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleSave = (data: Assign) => {
-    // if (editingAssignment) {
-    //   setAssignments((prev) => prev.map((s) => (s.giangVienId === data.giangVienId ? data : s)));
-    // } else {
-    //   setAssignments((prev) => [...prev, { ...data, id: prev.length + 1 }]);
-    // }
-    setIsModalOpen(false);
+  const handleAction = async (action: string, item: Assign) => {
+    if (
+      confirm(
+        `Bạn có chắc muốn xóa phân công của giảng viên: ${item.giang_vien?.hoTen}?`
+      )
+    ) {
+      try {
+        await deleteAsync({
+          giangVienId: item.giangVienId,
+          monHocId: item.monHocId,
+        });
+        alert(t("message.success.delete"));
+        setIsModalOpen(false);
+      } catch {
+        alert(t("message.error.delete"));
+      }
+    }
+  };
+
+  const validateCreate = (request: AssignmentRequest): boolean => {
+    // Kiểm tra giảng viên
+    if (!request.giangVienId) {
+      alert("Vui lòng chọn giảng viên");
+      return false;
+    }
+    // Kiểm tra danh sách môn học
+    if (!request.monHocIds || request.monHocIds.length === 0) {
+      alert("Vui lòng chọn ít nhất 1 môn học");
+      return false;
+    }
+
+    return true;
   };
 
   return (
     <MainContentLayout>
       {/* Toolbar */}
+      {/* Xử lý loading ở đây nhen */}
+      {(isCreating || isDeleting) && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
+          Loading...
+        </div>
+      )}
       <div className="flex flex-col gap-10 rounded-md bg-background-body-background px-2 py-2">
         <div className="flex justify-between">
           {/* Left: Filter & Search */}
@@ -117,6 +152,8 @@ export const AssignmentPage = () => {
               <AddAssignmentForm
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
+                onSave={onSave}
+                phanCongs={assigns}
               />
             )}
           </div>
@@ -130,7 +167,9 @@ export const AssignmentPage = () => {
           data={assigns}
           rowKey="monHocId"
           hasColumnActions
+          hasView={false}
           onAction={handleAction}
+          checkActions={["delete"]}
         />
         <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
       </div>
