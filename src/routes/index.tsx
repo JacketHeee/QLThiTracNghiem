@@ -29,6 +29,7 @@ import { ExamDoing } from "@/components/atomic/organisms/ExamDoing/ExamDoing";
 import ProtectedRoute from "./ProtectedRoute";
 import TestDetailPage from "@/pages/TestDetailPage/TestDetailPage";
 import TestFormPage from "@/pages/TestFormPage/TestFormPage";
+import ProfilePage from "@/pages/ProfilePage/ProfilePage";
 
 export const router = createBrowserRouter([
   {
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
             element: <MainLayout />,
             children: [
               { path: "/", element: <HomePage /> },
+              { path: "/profile", element: <ProfilePage /> },
               { path: "/dashboard", element: <DashboardPage /> },
               {
                 path: "/courses",
