@@ -1,5 +1,6 @@
 import { cn } from "@/utils/cn";
 import { cva, type VariantProps } from "class-variance-authority";
+import { useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 
 const buttonVariants = cva(
   "group relative text-nowrap flex items-center gap-2 rounded-md transition-colors focus:outline-none disabled:opacity-50 disabled:pointer-events-none",
@@ -164,6 +165,21 @@ export default function Button({
   isToolTipLeft = false,
   ...props
 }: ButtonProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const tooltipRef = useRef<HTMLSpanElement>(null);
+
+  const handleMouseMove = (e: ReactMouseEvent<HTMLButtonElement>) => {
+    if (!tooltip || !tooltipRef.current) return;
+
+    // 3. Xử lý logic isToolTipLeft (nếu muốn)
+    // Nếu isToolTipLeft = true, dịch chuyển tooltip sang trái con trỏ thay vì sang phải
+    const tooltipWidth = tooltipRef.current.offsetWidth || 0;
+    const x = isToolTipLeft ? e.clientX - tooltipWidth - 12 : e.clientX + 12;
+    const y = e.clientY + 12;
+
+    tooltipRef.current.style.left = `${x}px`;
+    tooltipRef.current.style.top = `${y}px`;
+  };
   return (
     <button
       // Khi truyền color vào buttonVariants, giờ đây nó sẽ khớp với kiểu dữ liệu của CVA
@@ -172,18 +188,25 @@ export default function Button({
         `${isButtonIcon && "rounded-full"}`,
         className
       )}
+      onMouseEnter={() => setIsVisible(true)}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => setIsVisible(false)}
       {...props}
     >
       {children}
       {tooltip && (
         <span
+          ref={tooltipRef}
           className={cn(
-            "pointer-events-none absolute z-50 whitespace-nowrap rounded bg-other-tooltip px-3 py-1.5 text-xs text-common-white opacity-0 shadow-md transition-opacity group-hover:opacity-100",
+            "pointer-events-none fixed z-50 whitespace-nowrap rounded bg-other-tooltip px-3 py-1.5 text-xs text-common-white opacity-0 shadow-md transition-opacity group-hover:opacity-100",
             // Logic xử lý vị trí
-            isToolTipLeft
-              ? "right-full mr-3" // Hiện bên trái: cách cạnh trái của button bằng chiều rộng tooltip + margin-right
-              : "left-full ml-3" // Hiện bên phải (Mặc định)
+            isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0" // Hiện bên phải (Mặc định)
           )}
+          style={{
+            left: 0,
+            top: 0,
+            transform: "translate3d(0,0,0)", // Tối ưu GPU
+          }}
         >
           {tooltip}
         </span>
