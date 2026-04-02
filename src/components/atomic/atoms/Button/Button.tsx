@@ -150,6 +150,7 @@ interface ButtonProps
     VariantProps<typeof buttonVariants> {
   tooltip?: string;
   isButtonIcon?: boolean;
+  isToolTipLeft?: boolean;
 }
 
 export default function Button({
@@ -160,6 +161,7 @@ export default function Button({
   tooltip,
   children,
   isButtonIcon,
+  isToolTipLeft = false,
   ...props
 }: ButtonProps) {
   return (
@@ -174,7 +176,15 @@ export default function Button({
     >
       {children}
       {tooltip && (
-        <span className="pointer-events-none absolute left-full z-50 ml-3 whitespace-nowrap rounded bg-other-tooltip px-3 py-1.5 text-xs text-common-white opacity-0 shadow-md transition-opacity group-hover:opacity-100">
+        <span
+          className={cn(
+            "pointer-events-none absolute z-50 whitespace-nowrap rounded bg-other-tooltip px-3 py-1.5 text-xs text-common-white opacity-0 shadow-md transition-opacity group-hover:opacity-100",
+            // Logic xử lý vị trí
+            isToolTipLeft
+              ? "right-full mr-3" // Hiện bên trái: cách cạnh trái của button bằng chiều rộng tooltip + margin-right
+              : "left-full ml-3" // Hiện bên phải (Mặc định)
+          )}
+        >
           {tooltip}
         </span>
       )}

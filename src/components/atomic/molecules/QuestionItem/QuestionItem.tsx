@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button, Icon } from "@/components/atomic/atoms";
 import type { Question } from "@/types";
 import { formatDateTimeVN } from "@/utils";
+import { BodyQuestionItem } from "../BodyQuestionItem/BodyQuestionItem";
 
 interface QuestionItemProps {
   data: Question;
@@ -32,40 +33,7 @@ const QuestionItem = ({
 
       {/* Body */}
       <div className="flex flex-col px-2">
-        <div
-          className={`flex flex-col border-other-outlined-border px-2 py-4 ${showAnswer ? "border-b" : ""}`}
-        >
-          <span className="text-body-1 font-medium text-text-primary">
-            {data.noiDungCauHoi}
-          </span>
-
-          {showAnswer && data.cau_tra_lois && (
-            <div className="mt-4 flex flex-col gap-1">
-              {data.cau_tra_lois.map((ans, idx) => (
-                <div
-                  key={idx}
-                  className={`text-body-1 flex max-w-[700px] items-center justify-between rounded-md px-3 py-2 ${
-                    ans.isCorrectAnswer
-                      ? "bg-action-hover text-text-primary"
-                      : "text-text-secondary"
-                  }`}
-                >
-                  <span>
-                    <strong>{String.fromCharCode(65 + idx)}</strong>.{" "}
-                    {ans.noiDungLuaChon}
-                  </span>
-                  {ans.isCorrectAnswer && (
-                    <Icon
-                      name="success"
-                      size={20}
-                      className="text-alert-success-content"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <BodyQuestionItem data={data} showAnswer={showAnswer} />
 
         {/* Actions */}
         <div className="flex items-center justify-between py-2">

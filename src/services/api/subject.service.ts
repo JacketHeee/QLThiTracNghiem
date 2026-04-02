@@ -2,7 +2,8 @@ import type { ApiResponse, Subject } from "@/types";
 import axiosClient from "./axios";
 
 export const subjectService = {
-  getAll: (): Promise<ApiResponse<Subject[]>> => axiosClient.get("/monhocs"),
+  getAll: (): Promise<ApiResponse<Subject[]>> =>
+    axiosClient.get("/monhocs/get_w_nhp"),
 
   getById: (id: number): Promise<ApiResponse<Subject>> =>
     axiosClient.get(`/monhocs/${id}`),

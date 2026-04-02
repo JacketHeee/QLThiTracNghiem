@@ -2,212 +2,261 @@ import { useState, useMemo } from "react";
 import { Printer } from "lucide-react";
 import { Button, Icon } from "@/components/atomic/atoms";
 import QuestionCard from "@/components/atomic/molecules/QuestionCard/QuestionCard";
-import { getTextProgress, getTextProgressColor } from "@/utils";
+import {
+  calculateDuration,
+  getTextProgress,
+  getTextProgressColor,
+} from "@/utils";
 import Tabs from "../../molecules/Tabs/Tabs";
+import { useDeThiStore } from "@/stores/useDeThi.store";
+import { useExamStore } from "@/stores/useExamStore";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/stores/auth.store";
 
-interface ExamResultContentProps {
-  examTitle: string;
-  userName: string;
-  score: number;
-  totalPoints: number;
-  percentage: number;
-  duration: string;
-  dateStarted: string;
-  dateFinished: string;
-  attemptId?: string;
-  violationCount: number;
+export default function ExamResultContent() {
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  questions: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  userAnswers: Record<string, any>;
-  onBackToDashboard: () => void;
-  textMainAction?: string;
-}
+  // 1. Kết nối Stores
+  const { currentExam, answers, mode } = useExamStore();
+  const { testData } = useDeThiStore();
 
-export default function ExamResultContent({
-  examTitle,
-  userName,
-  score,
-  totalPoints,
-  percentage,
-  duration,
-  dateStarted,
-  dateFinished,
-  attemptId,
-  violationCount,
-  questions,
-  userAnswers,
-  onBackToDashboard,
-  textMainAction,
-}: ExamResultContentProps) {
+  const isPreview = mode === "PREVIEW";
+  const config = testData?.cau_hinh_thi;
+
   const [showDetail, setShowDetail] = useState(false);
   const [selectedTab, setSelectedTab] = useState<"all" | "success" | "error">(
     "all"
   );
 
-  // Logic lọc câu hỏi (đã sửa lỗi TypeError sort)
-  const filteredQuestions = useMemo(() => {
-    return questions.filter((q) => {
-      const uAns = userAnswers[q.id];
-      let isCorrect = false;
+  // 2. Tính toán các chỉ số (Dựa trên dữ liệu từ currentExam trong Store)
+  const stats = useMemo(() => {
+    if (!currentExam) return null;
+    return {
+      score: currentExam.tongDiem || 0,
+      totalPoints: 10,
+      percentage: Math.round(((currentExam.tongDiem || 0) / 10) * 100),
+      durationText: calculateDuration(
+        currentExam.thoiGianBatDau,
+        currentExam.thoiGianNopBai
+      ),
+      violationCount: currentExam.logBaiLam?.soLanChuyenTab || 0,
+      dateStarted: currentExam.thoiGianBatDau
+        ? new Date(currentExam.thoiGianBatDau).toLocaleString()
+        : "N/A",
+      dateFinished: currentExam.thoiGianNopBai
+        ? new Date(currentExam.thoiGianNopBai).toLocaleString()
+        : "N/A",
+    };
+  }, [currentExam]);
 
-      if (Array.isArray(q.correctAnswer)) {
-        const uArr = Array.isArray(uAns) ? [...uAns] : [];
-        const cArr = [...q.correctAnswer];
-        isCorrect =
-          uArr.length === cArr.length &&
-          uArr.sort().join(",") === cArr.sort().join(",");
-      } else {
-        isCorrect = uAns === q.correctAnswer;
-      }
+  // 3. Logic lọc câu hỏi review
+  const filteredQuestions = useMemo(() => {
+    // Kiểm tra an toàn ngay đầu hàm
+    const cauHois = testData?.cau_hois;
+    if (!cauHois || !currentExam) return [];
+
+    return cauHois.filter((q) => {
+      // Tìm chi tiết bài làm của câu hỏi hiện tại
+      const detail = currentExam.chitiet_bailams?.find(
+        (d) => d.cauHoiId === q.id
+      );
+      const isCorrect = detail?.isCorrectChooser || false;
 
       if (selectedTab === "success") return isCorrect;
       if (selectedTab === "error") return !isCorrect;
       return true;
     });
-  }, [selectedTab, questions, userAnswers]);
+    // Đưa testData (cả object) và currentExam vào đây
+  }, [selectedTab, testData, currentExam]);
+
+  // Guard: Tránh crash nếu chưa có dữ liệu bài làm
+  if (!currentExam || !stats)
+    return <div className="p-10 text-center">Đang tải kết quả...</div>;
+
+  const handleBackHome = () => {
+    if (isPreview) {
+      navigate(-2); // Nếu là preview thường mở tab mới, hoặc điều hướng về trang quản trị
+    } else {
+      navigate("/");
+    } // Hoặc dashboard route của bạn
+  };
 
   return (
     <div className="w-[668px] max-w-[668px] space-y-6">
+      {/* Thông báo chế độ Preview */}
+      {isPreview && (
+        <div className="bg-primary-main/10 border-primary-main/20 rounded-lg border p-3 text-center font-medium text-primary-main">
+          Bạn đang xem trước kết quả ở chế độ Admin
+        </div>
+      )}
       {/* 1. Card Kết quả chính (Overview) */}
       <div className="flex items-center overflow-hidden rounded-lg bg-background-body-background shadow-custom">
         <div className="flex-1 px-8 py-6">
           <h1 className="text-h5 mb-2 font-bold text-text-primary">
-            {examTitle}
+            {testData?.tenDe}
           </h1>
           <div className="text-body-2 mb-6 flex items-center gap-2">
             <span className="flex items-center">
-              <Icon name="user" size={16} className="mr-1" /> {userName}
+              <Icon name="user" size={16} className="mr-1" /> {user?.hoTen}
             </span>
             <Button size="small" color="primary" onClick={() => window.print()}>
               <Printer size={14} /> In trang này
             </Button>
           </div>
           <div className="space-y-4">
-            {[
-              {
-                label: "Điểm số:",
-                value: `${score} / ${totalPoints}`,
-                highlight: true,
-              },
-              { label: "Thời gian làm bài:", value: duration },
-              { label: "Bắt đầu lúc:", value: dateStarted },
-              { label: "Kết thúc lúc:", value: dateFinished },
-              { label: "Mã lượt thi:", value: attemptId || "N/A" },
-            ].map((item, idx) => (
-              <div key={idx} className="text-body-2 flex items-center">
-                <span className="w-32 font-bold text-text-secondary">
-                  {item.label}
-                </span>
-                <span
-                  className={`rounded px-2 py-0.5 ${item.highlight ? "bg-warning-background font-medium text-text-primary" : "text-text-secondary"}`}
-                >
-                  {item.value}
-                </span>
+            {config?.showScore || isPreview ? (
+              <InfoRow
+                label="Điểm số:"
+                value={`${stats.score} / ${stats.totalPoints}`}
+                highlight
+              />
+            ) : (
+              <div className="text-body-2 italic text-text-disabled">
+                Điểm số được ẩn theo cấu hình đề thi.
               </div>
-            ))}
+            )}
+            {/* Thêm dòng này ở đây */}
+            <InfoRow label="Thời gian làm:" value={stats.durationText} />
+            <InfoRow label="Bắt đầu lúc:" value={stats.dateStarted} />
+            <InfoRow label="Kết thúc lúc:" value={stats.dateFinished} />
             <div className="text-body-2 flex items-center">
               <span className="w-32 font-bold text-text-secondary">
                 Số lần vi phạm:
               </span>
               <span
-                className={`rounded px-2 py-0.5 ${violationCount > 0 ? "bg-error-background text-alert-error-content" : "bg-action-hover text-text-disabled"}`}
+                className={`rounded px-2 py-0.5 ${stats.violationCount > 0 ? "bg-error-background text-alert-error-content" : "bg-action-hover text-text-disabled"}`}
               >
-                {violationCount} / 3
+                {stats.violationCount} /{" "}
+                {testData?.cau_hinh_thi?.tabSwitchLimit || 3}
               </span>
             </div>
           </div>
         </div>
-        <div
-          className={`bg-action-hover/20 flex min-h-[280px] w-64 flex-col items-center justify-center p-8 ${getTextProgressColor(percentage)}`}
-        >
-          <div className="relative flex items-center justify-center">
-            <svg className="h-32 w-32 -rotate-90 transform">
-              <circle
-                cx="64"
-                cy="64"
-                r="58"
-                stroke="currentColor"
-                strokeWidth="8"
-                fill="transparent"
-                className="text-gray-100"
-              />
-              <circle
-                cx="64"
-                cy="64"
-                r="58"
-                stroke="currentColor"
-                strokeWidth="8"
-                fill="transparent"
-                strokeDasharray={364.4}
-                strokeDashoffset={364.4 - (364.4 * percentage) / 100}
-                className="transition-all duration-1000"
-              />
-            </svg>
-            <span className="absolute text-3xl font-bold">{percentage}%</span>
-          </div>
-          <p className="mt-4 font-bold uppercase tracking-wider">
-            {getTextProgress(percentage)}
-          </p>
-        </div>
-      </div>
-
-      {/* 3. Section Chi tiết câu hỏi (Ẩn/Hiện) */}
-      {showDetail && (
-        <div
-          id="details-section"
-          className="overflow-hidden rounded-xl border border-other-outlined-border bg-background-body-background shadow-custom"
-        >
-          <div className="bg-white px-6 pt-4">
-            <Tabs
-              className="border-b border-other-outlined-border"
-              small={true}
-              value={selectedTab}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              onChange={(val) => setSelectedTab(val as any)}
-              tabs={[
-                { value: "all", label: `Tất cả (${questions.length})` },
-                { value: "success", label: "Câu trả lời đúng" },
-                { value: "error", label: "Câu trả lời sai" },
-              ]}
-            />
-          </div>
-          <div className="divide-y divide-other-outlined-border bg-white">
-            {filteredQuestions.length > 0 ? (
-              filteredQuestions.map((q, idx) => (
-                <QuestionCard
-                  key={q.id}
-                  question={q}
-                  index={idx}
-                  totalQuestions={questions.length}
-                  userAnswer={userAnswers[q.id]}
-                  isReviewMode={true}
-                  isFlatMode={true}
+        {config?.showScore && (
+          <div
+            className={`bg-action-hover/20 flex min-h-[280px] w-64 flex-col items-center justify-center p-8 ${getTextProgressColor(stats.percentage)}`}
+          >
+            <div className="relative flex items-center justify-center">
+              <svg className="h-32 w-32 -rotate-90 transform">
+                <circle
+                  cx="64"
+                  cy="64"
+                  r="58"
+                  stroke="currentColor"
+                  strokeWidth="8"
+                  fill="transparent"
+                  className="text-gray-100"
                 />
-              ))
-            ) : (
-              <div className="py-20 text-center text-text-disabled">
-                Không tìm thấy câu hỏi nào phù hợp.
-              </div>
-            )}
+                <circle
+                  cx="64"
+                  cy="64"
+                  r="58"
+                  stroke="currentColor"
+                  strokeWidth="8"
+                  fill="transparent"
+                  strokeDasharray={364.4}
+                  strokeDashoffset={364.4 - (364.4 * stats.percentage) / 100}
+                  className="transition-all duration-1000"
+                />
+              </svg>
+              <span className="absolute text-3xl font-bold">
+                {stats.percentage}%
+              </span>
+            </div>
+            <p className="mt-4 font-bold uppercase tracking-wider">
+              {getTextProgress(stats.percentage)}
+            </p>
           </div>
+        )}
+      </div>
+      {/* 3. Section Chi tiết câu hỏi (Ẩn/Hiện) */}
+      {config?.showDetailResults || isPreview ? (
+        showDetail && (
+          <div
+            id="details-section"
+            className="overflow-hidden rounded-xl border border-other-outlined-border bg-background-body-background shadow-custom"
+          >
+            <div className="bg-white px-6 pt-4">
+              <Tabs
+                small
+                value={selectedTab}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                onChange={(val) => setSelectedTab(val as any)}
+                tabs={[
+                  {
+                    value: "all",
+                    label: `Tất cả (${testData?.cau_hois?.length || 0})`,
+                  },
+                  { value: "success", label: "Câu đúng" },
+                  { value: "error", label: "Câu sai" },
+                ]}
+              />
+            </div>
+            <div className="divide-y divide-other-outlined-border bg-white">
+              {filteredQuestions.length > 0 ? (
+                filteredQuestions.map((q, idx) => (
+                  <QuestionCard
+                    key={q.id}
+                    question={q}
+                    index={
+                      testData?.cau_hois?.findIndex(
+                        (orig) => orig.id === q.id
+                      ) ?? idx
+                    }
+                    totalQuestions={testData?.cau_hois?.length || 0}
+                    userAnswer={answers[q.id]}
+                    isReviewMode={true}
+                    isFlatMode={true}
+                  />
+                ))
+              ) : (
+                <div className="py-20 text-center text-text-disabled">
+                  Không có dữ liệu phù hợp.
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      ) : (
+        <div className="rounded-lg border border-dashed bg-gray-50 p-6 text-center text-text-secondary">
+          Xem chi tiết đáp án đã bị khóa cho bài thi này.
         </div>
       )}
-
       {/* 2. Nút hành động */}
       <div className="flex justify-end gap-4 pt-2">
-        <Button variant="outline" onClick={onBackToDashboard}>
-          {textMainAction ?? " Về trang chủ"}
+        <Button variant="outline" onClick={handleBackHome}>
+          {isPreview ? "Thoát chế độ demo" : "Về trang chủ"}
         </Button>
-        <Button
-          color="primary"
-          variant="contained"
-          onClick={() => setShowDetail(!showDetail)}
-        >
-          {showDetail ? "Ẩn chi tiết đáp án" : "Xem chi tiết đáp án"}
-        </Button>
+        {config?.showDetailResults && (
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={() => setShowDetail(!showDetail)}
+          >
+            {showDetail ? "Ẩn chi tiết đáp án" : "Xem chi tiết đáp án"}
+          </Button>
+        )}
       </div>
     </div>
   );
 }
+
+const InfoRow = ({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) => (
+  <div className="text-body-2 flex items-center">
+    <span className="w-32 font-bold text-text-secondary">{label}</span>
+    <span
+      className={`rounded px-2 py-0.5 ${highlight ? "bg-warning-background font-medium text-text-primary" : "text-text-secondary"}`}
+    >
+      {value}
+    </span>
+  </div>
+);

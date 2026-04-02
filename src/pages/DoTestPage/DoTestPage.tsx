@@ -34,7 +34,7 @@ export default function DoTestPage() {
       {mode === "PREVIEW" && (
         <footer className="fixed bottom-4 left-1/2 flex w-full max-w-[520px] -translate-x-1/2 items-center justify-between gap-2 rounded-md bg-background-extra-bg p-2 text-primary-contrast">
           <span className="text-caption border-r border-primary-contrast px-2 text-primary-main">
-            CHẾ ĐỘ XEM TRƯỚC
+            CHẾ ĐỘ DEMO
           </span>
           <div className="item-center flex flex-1">
             <span className="text-caption">

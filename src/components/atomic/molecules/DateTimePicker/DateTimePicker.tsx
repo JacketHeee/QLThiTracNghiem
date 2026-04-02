@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { format } from "date-fns";
 import { DayPicker } from "react-day-picker";
-import { Clock } from "lucide-react";
 import "react-day-picker/dist/style.css";
-import { Input } from "../../atoms";
+import Input from "../../atoms/Input/Input";
+import { formatFullDateTimeVN } from "@/utils";
+import TimePicker from "../TimePicker/TimePicker";
+import { vi } from "react-day-picker/locale";
 
 interface DateTimePickerProps {
   selected?: Date;
@@ -11,6 +12,7 @@ interface DateTimePickerProps {
   label?: string;
   placeHolder?: string;
   classNameParent?: string;
+  disabled?: boolean;
 }
 
 export const DateTimePicker = ({
@@ -19,14 +21,34 @@ export const DateTimePicker = ({
   label,
   placeHolder,
   classNameParent,
+  disabled = false,
 }: DateTimePickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!selected) return;
-    const [hours, minutes] = e.target.value.split(":").map(Number);
-    const newDate = new Date(selected);
-    newDate.setHours(hours, minutes);
+  // Xử lý thay đổi giờ
+  const handleTimeChange = (h: number, m: number) => {
+    if (disabled) return;
+    const newDate = selected ? new Date(selected) : new Date();
+    newDate.setHours(h, m, 0, 0);
+    onSelect(newDate);
+  };
+
+  // Xử lý chọn ngày từ DayPicker
+  const handleDaySelect = (date: Date | undefined) => {
+    if (disabled || !date) {
+      if (!disabled) onSelect(undefined);
+      return;
+    }
+
+    const newDate = new Date(date);
+    if (selected) {
+      // Nếu đã có ngày/giờ trước đó, giữ nguyên giờ cũ
+      newDate.setHours(selected.getHours(), selected.getMinutes(), 0, 0);
+    } else {
+      // Nếu là lần đầu chọn ngày, mặc định 12:00
+      newDate.setHours(12, 0, 0, 0);
+    }
+
     onSelect(newDate);
   };
 
@@ -34,36 +56,44 @@ export const DateTimePicker = ({
     <div
       className={`relative flex w-full flex-col gap-1 text-text-secondary ${classNameParent}`}
     >
-      {label && <div className="text-input-text">{label}</div>}
+      {label && <div className="text-input-text font-medium">{label}</div>}
+
       <Input
         readOnly
-        value={selected ? format(selected, "PPP - HH:mm") : ""}
+        disabled={disabled}
+        value={selected ? formatFullDateTimeVN(selected.toISOString()) : ""}
         onClick={() => setIsOpen(!isOpen)}
-        placeholder={`${placeHolder}`}
+        placeholder={placeHolder}
         className="w-full cursor-pointer"
+        // Thêm icon lịch nếu cần (tùy vào component Input của bạn)
+        // icon={<Calendar size={18} />}
       />
 
       {isOpen && (
-        <div className="absolute top-full z-50 mt-2 w-fit rounded-lg border bg-white p-4 shadow-xl">
-          <DayPicker
-            mode="single"
-            selected={selected}
-            onSelect={(date) => {
-              if (date && !selected) date.setHours(12, 0); // Default time
-              onSelect(date);
-            }}
+        <>
+          {/* Lớp phủ (Backdrop) ẩn để click ra ngoài thì đóng bảng */}
+          <div
+            className="fixed inset-0 z-40 h-screen w-screen"
+            onClick={() => setIsOpen(false)}
           />
 
-          <div className="mt-2 flex items-center gap-2 border-t pt-3">
-            <Clock size={20} className="text-text-secondary" />
-            <Input
-              type="time"
-              className="w-full"
-              value={selected ? format(selected, "HH:mm") : "12:00"}
-              onChange={handleTimeChange}
+          <div
+            className="absolute top-full z-50 mt-2 w-fit rounded-lg border border-other-outlined-border bg-white p-4 shadow-xl duration-200 animate-in fade-in zoom-in-95"
+            onClick={(e) => e.stopPropagation()} // Ngăn sự kiện nổi bọt làm đóng bảng khi thao tác bên trong
+          >
+            <DayPicker
+              locale={vi}
+              mode="single"
+              selected={selected}
+              onSelect={handleDaySelect}
+              // Có thể thêm modifiers để hiển thị đẹp hơn
+              className="m-0"
             />
+
+            {/* 2. Chọn Giờ (Molecule tự viết) */}
+            <TimePicker selected={selected} onChange={handleTimeChange} />
           </div>
-        </div>
+        </>
       )}
     </div>
   );

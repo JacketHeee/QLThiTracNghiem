@@ -210,25 +210,20 @@ export function UserForm({
 
               {/* Trạng thái - Switch Style */}
               <div className="flex items-center justify-between py-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-text-primary">Khóa tài khoản</span>
-                  <Toggle
-                    checked={formData.isLocked}
-                    onChange={(e) => handleChange("isLocked", e.target.checked)}
-                    disabled={isView}
-                  />
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-text-primary">Là sinh viên</span>
-                  <Toggle
-                    checked={formData.isStudent}
-                    onChange={(e) =>
-                      handleChangeIsStudent("isStudent", e.target.checked)
-                    }
-                    disabled={isView}
-                  />
-                </div>
+                <Toggle
+                  label="Khóa tài khoản"
+                  checked={formData.isLocked}
+                  onChange={(e) => handleChange("isLocked", e.target.checked)}
+                  disabled={isView}
+                />
+                <Toggle
+                  label="Là sinh viên?"
+                  checked={formData.isStudent}
+                  onChange={(e) =>
+                    handleChangeIsStudent("isStudent", e.target.checked)
+                  }
+                  disabled={isView}
+                />
               </div>
 
               <div className="flex items-center justify-end py-2">
