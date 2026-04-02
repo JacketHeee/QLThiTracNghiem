@@ -30,8 +30,16 @@ export const useSubject = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["subjects"] }),
   });
 
+  //Lấy với nhóm học phần
+  const queryWithGroup = useQuery({
+    queryKey: ["subjects", "group"],
+    queryFn: subjectService.getAllWithGroup,
+    select: (res) => res.data,
+  });
+
   return {
     subjects: query.data || [],
+    subjectsWithGroup: queryWithGroup.data || [],
     isLoading: query.isLoading,
     createSubject: createMutation.mutate,
     updateSubject: updateMutation.mutate,

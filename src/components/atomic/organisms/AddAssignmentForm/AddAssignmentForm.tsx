@@ -28,8 +28,6 @@ export default function AddAssignmentForm({
   const [selectedTab, setSelectedTab] = useState("handmade");
   const { subjects } = useSubject();
 
-  console.log("phan cong ", phanCongs);
-
   // Định nghĩa cột cho bảng trong Modal (thêm cột checkbox "Chọn")
   const modalColumns: TableColumn<Subject>[] = [
     {

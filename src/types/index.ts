@@ -58,6 +58,10 @@ export interface Subject {
   nhom_hoc_phans: NhomHocPhan[];
 }
 
+export interface SubjectWithGroup extends Subject {
+  nhom_hoc_phans: NhomHocPhan[];
+}
+
 export interface DoKho {
   id: number;
   tenDoKho: string;
@@ -218,22 +222,36 @@ export interface StatusResult {
   status: DeThiStatus;
 }
 
+export interface ThongBaoBase {
+  tieuDe: string;
+  noiDung: string;
+  nguoiGuiId: number;
+}
+
+export interface ThongBaoCreate extends ThongBaoBase {
+  nhomHocPhanIds: number[];
+}
+
+export type ThongBaoUpdate = Partial<ThongBaoCreate>;
+
+export interface ThongBaoResponse extends ThongBaoBase {
+  id: number;
+  nhom_hoc_phans: NhomHocPhan[];
+  thoiGianGui: string;
+  uuTien: PriorityLevel;
+  status: boolean;
+  nguoi_gui: TaiKhoan;
+}
+
 export interface ThongBao {
   id: number;
   tieuDe: string;
   noiDung: string;
-  /** Chuỗi định dạng ISO 8601 (Ví dụ: "2026-03-25T06:15:49.000000Z") */
   thoiGianGui: string;
-  /** * Mức độ ưu tiên:
-   * 1: Thấp, 2: Trung bình, 3: Cao (Tùy theo quy định của bạn)
-   */
   uuTien: PriorityLevel;
-  /** Trạng thái hiển thị hoặc đã đọc */
   status: boolean;
   nguoiGuiId: number;
-
-  // Relations (Nếu bạn fetch kèm thông tin người gửi)
-  nguoiGui?: TaiKhoan;
+  nguoi_gui: TaiKhoan;
 }
 
 // Gợi ý thêm Type cho các mức độ ưu tiên để dễ dùng trong Code

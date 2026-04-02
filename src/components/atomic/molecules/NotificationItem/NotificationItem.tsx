@@ -1,14 +1,22 @@
 import { Button, Icon } from "@/components/atomic/atoms";
-import type { ThongBao } from "@/types";
+import type { ThongBaoResponse } from "@/types";
 import { formatDateTimeVN } from "@/utils";
 import { Link } from "react-router-dom";
 
 interface INotificationItemProps {
-  data: ThongBao;
+  data: ThongBaoResponse;
   recipients?: { group: string; count: number }[];
+  onView?: (id: number) => void;
+  onEdit?: (id: number) => void;
+  onDelete?: (id: number) => void;
 }
 
-export default function NotificationItem({ data }: INotificationItemProps) {
+export default function NotificationItem({
+  data,
+  onView,
+  onEdit,
+  onDelete,
+}: INotificationItemProps) {
   return (
     <div className="flex flex-col rounded-md bg-background-body-background">
       {/* header */}
@@ -24,9 +32,15 @@ export default function NotificationItem({ data }: INotificationItemProps) {
         </span>
 
         <div className="flex gap-2">
-          <Button color={"primary"}>Xem chi tiết</Button>
-          <Button color={"primary"}>Sửa</Button>
-          <Button color={"primary"}>Xóa</Button>
+          <Button color={"primary"} onClick={() => onView?.(data.id)}>
+            Xem chi tiết
+          </Button>
+          <Button color={"primary"} onClick={() => onEdit?.(data.id)}>
+            Sửa
+          </Button>
+          <Button color={"primary"} onClick={() => onDelete?.(data.id)}>
+            Xóa
+          </Button>
         </div>
       </div>
 
@@ -50,14 +64,14 @@ export default function NotificationItem({ data }: INotificationItemProps) {
             <span className="text-body-1">Giao cho học phần:</span>
             <span className="text-body-1-semibold text">
               {" "}
-              Lập trình hướng đối tượng
+              {data?.nhom_hoc_phans?.[0]?.mon_hoc?.tenMonHoc ?? ""}
             </span>
           </div>
           <div className="flex items-center gap-1">
             <Icon name="clock" size={20} />
             <span className="text-body-1">
-              Ngày tạo: {formatDateTimeVN(data.thoiGianGui)} • Người gửi:
-              {data.nguoiGuiId}
+              Ngày tạo: {formatDateTimeVN(data.thoiGianGui)} • Người gửi:{" "}
+              {data.nguoi_gui.hoTen}
               <span className="text-body-1 font-medium">{""}</span>
             </span>
           </div>
