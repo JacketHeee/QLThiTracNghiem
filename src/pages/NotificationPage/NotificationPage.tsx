@@ -227,7 +227,6 @@ export const NotificationPage = () => {
       <div className="flex flex-col gap-2">
         {thongBaos.map((note) => (
           <NotificationItem
-            key={note.id}
             data={note}
             onView={(id) => detailTB(id)}
             onEdit={(id) => openUpdateModal(id)}

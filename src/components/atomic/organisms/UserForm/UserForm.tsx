@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Button, Icon } from "@/components/atomic/atoms";
 import { TextField } from "@/components/atomic/molecules/TextField/TextField";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
@@ -36,18 +36,14 @@ export function UserForm({
   const isView = mode === "view";
   const isUpdate = mode === "update";
 
-  let tabs = [];
-
-  if (isUpdate) {
-    tabs = [{ value: "manual", label: "Sửa" }];
-  } else if (isView) {
-    tabs = [{ value: "manual", label: "Chi Tiết" }];
-  } else {
-    tabs = [
-      { value: "manual", label: "Thêm thủ công" },
-      { value: "file", label: "Thêm từ file" },
-    ];
-  }
+  const tabs = isUpdate
+    ? [{ value: "manual", label: "Sửa" }]
+    : isView
+      ? [{ value: "manual", label: "Chi Tiết" }]
+      : [
+          { value: "manual", label: "Thêm thủ công" },
+          { value: "file", label: "Thêm từ file" },
+        ];
 
   const { roles } = useRole();
   const roleSelection: selectionCbxRole[] = roles.map((role) => ({
@@ -61,7 +57,9 @@ export function UserForm({
         email: initialData.email,
         hoTen: initialData.hoTen,
         laGioiTinhNu: initialData.laGioiTinhNu,
-        ngaySinh: new Date(initialData.ngaySinh).toISOString().split("T")[0],
+        ngaySinh: initialData.ngaySinh
+          ? new Date(initialData.ngaySinh).toISOString().split("T")[0]
+          : "",
         nhomQuyenId: initialData.nhomQuyenId,
         isLocked: initialData.isLocked,
         isStudent: initialData.isStudent,
@@ -78,7 +76,6 @@ export function UserForm({
       };
 
   const [formData, setFormData] = useState<UserBase>(defaultFormData);
-
   const [passwordField, setPasswordField] = useState("");
 
   const handleChange = <K extends keyof UserBase>(
@@ -88,31 +85,32 @@ export function UserForm({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleChangeIsStudent = <K extends keyof UserBase>(
-    field: K,
-    value: UserBase[K]
-  ) => {
-    handleChange(field, value);
-    if (value) {
-      setFormData((prev) => ({ ...prev, ["nhomQuyenId"]: null }));
-    }
+  const handleChangeIsStudent = (value: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      isStudent: value,
+      nhomQuyenId: value ? null : prev.nhomQuyenId,
+    }));
   };
 
-  const onSave = (form: UserBase) => {
+  // Xử lý submit form
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (isView) return;
+
     if (isUpdate) {
-      const data: UserUpdate = form;
       if (initialData) {
-        onSaveUpdate(initialData.id, data);
+        onSaveUpdate(initialData.id, formData as UserUpdate);
       }
     } else {
-      const data: UserCreate = { ...form, password: passwordField };
+      const data: UserCreate = { ...formData, password: passwordField };
       onSaveCreate(data);
     }
   };
 
   return (
     <Overlay onClose={onCancel}>
-      <div className="flex w-[600px] flex-col gap-3 rounded-lg bg-background-paper pb-2">
+      <div className="flex w-[600px] flex-col gap-3 rounded-lg bg-background-paper pb-2 shadow-2xl">
         <Tabs
           value={selectedTab}
           onChange={setSelectedTab}
@@ -121,19 +119,20 @@ export function UserForm({
         />
 
         {selectedTab === "manual" ? (
-          <>
+          <form onSubmit={handleSubmit} className="flex flex-col">
             {/* Form Body */}
-            <div className="flex max-h-[70vh] flex-col gap-5 overflow-auto px-8 py-0">
+            <div className="flex max-h-[70vh] flex-col gap-5 overflow-auto px-8 py-4">
               <TextField
                 label="Tên đăng nhập"
                 placeholder="Nhập tên đăng nhập"
                 value={formData.username}
                 onChange={(e) => handleChange("username", e.target.value)}
-                disabled={isView}
+                disabled={isView || isUpdate}
               />
 
               <TextField
                 label="Email"
+                type="email"
                 placeholder="Nhập địa chỉ email"
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
@@ -148,9 +147,8 @@ export function UserForm({
                 disabled={isView}
               />
 
-              {/* Giới tính - Custom Radio Style */}
-              <div className="flex gap-4">
-                <span className="text-input-text text-text-primary">
+              <div className="flex items-center gap-4">
+                <span className="text-body-2 font-medium text-text-primary">
                   Giới tính
                 </span>
                 <RadioGroup
@@ -159,7 +157,7 @@ export function UserForm({
                     { label: "Nam", value: false },
                     { label: "Nữ", value: true },
                   ]}
-                  value={formData.laGioiTinhNu ?? true}
+                  value={formData.laGioiTinhNu}
                   onChange={(value) => handleChange("laGioiTinhNu", value)}
                   disabled={isView}
                 />
@@ -168,26 +166,23 @@ export function UserForm({
               <TextField
                 label="Ngày sinh"
                 type="date"
-                placeholder="Ngày sinh"
-                value={
-                  formData.ngaySinh
-                    ? new Date(formData.ngaySinh).toISOString().split("T")[0]
-                    : ""
-                }
+                value={formData.ngaySinh}
                 onChange={(e) => handleChange("ngaySinh", e.target.value)}
                 disabled={isView}
               />
 
               {!formData.isStudent && (
                 <div className="flex flex-col gap-1">
-                  <span className="text-input-text text-text-primary">
+                  <span className="text-body-2 font-medium text-text-primary">
                     Nhóm quyền
                   </span>
                   <SelectField
                     classname="w-full"
                     placeholder="Chọn nhóm quyền"
                     options={roleSelection}
-                    defaultIndex={Number(formData.nhomQuyenId) - 1}
+                    defaultIndex={roleSelection.findIndex(
+                      (r) => r.value === formData.nhomQuyenId
+                    )}
                     onSelect={(val) => handleChange("nhomQuyenId", Number(val))}
                     disabled={isView}
                   />
@@ -196,20 +191,19 @@ export function UserForm({
 
               {!isView && (
                 <TextField
-                  label="Mật khẩu"
+                  label={
+                    isUpdate
+                      ? "Mật khẩu mới (Để trống nếu không đổi)"
+                      : "Mật khẩu"
+                  }
                   type="password"
                   placeholder="Nhập mật khẩu"
-                  // Password thường không trả về từ API vì bảo mật
                   value={passwordField}
-                  onChange={(e) => {
-                    setPasswordField(e.target.value);
-                  }}
-                  disabled={isView}
+                  onChange={(e) => setPasswordField(e.target.value)}
                 />
               )}
 
-              {/* Trạng thái - Switch Style */}
-              <div className="flex items-center justify-between py-2">
+              <div className="mt-2 flex items-center justify-between border-t border-other-outlined-border py-2 pt-4">
                 <Toggle
                   label="Khóa tài khoản"
                   checked={formData.isLocked}
@@ -219,59 +213,52 @@ export function UserForm({
                 <Toggle
                   label="Là sinh viên?"
                   checked={formData.isStudent}
-                  onChange={(e) =>
-                    handleChangeIsStudent("isStudent", e.target.checked)
-                  }
+                  onChange={(e) => handleChangeIsStudent(e.target.checked)}
                   disabled={isView}
                 />
               </div>
 
-              <div className="flex items-center justify-end py-2">
-                {isUpdate && initialData && (
+              {isUpdate && initialData && !isView && (
+                <div className="flex items-center justify-end">
                   <Button
+                    type="button"
                     variant={"outline"}
                     color="primary"
-                    disabled={isView}
                     onClick={() =>
                       onResetPassword(initialData.id, passwordField)
                     }
                   >
-                    Tạo lại mật khẩu
+                    Tạo lại mật khẩu nhanh
                   </Button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
-            {/* Action */}
-            <div className="flex justify-end px-5 py-2">
-              <div className="flex gap-2">
-                <Button
-                  variant={"outline"}
-                  color={"standard"}
-                  onClick={onCancel}
-                >
-                  Quay lại
+            {/* Action Footer */}
+            <div className="flex justify-end gap-2 border-t border-other-outlined-border px-8 py-4">
+              <Button
+                type="button"
+                variant={"outline"}
+                color={"standard"}
+                onClick={onCancel}
+              >
+                Quay lại
+              </Button>
+
+              {!isView && (
+                <Button type="submit" variant={"contained"} color={"primary"}>
+                  {isUpdate ? "Cập nhật" : "Lưu tài khoản"}
                 </Button>
-
-                {!isView && (
-                  <Button
-                    variant={"contained"}
-                    color={"primary"}
-                    onClick={() => onSave(formData)}
-                  >
-                    {initialData ? "Cập nhật" : "Lưu"}
-                  </Button>
-                )}
-              </div>
+              )}
             </div>
-          </>
+          </form>
         ) : (
           <div className="flex h-64 flex-col items-center justify-center gap-4 px-6">
             <Icon name="upload" size={48} className="text-text-disabled" />
             <p className="text-text-secondary">
               Kéo thả file vào đây hoặc nhấn để chọn file
             </p>
-            <Button variant="outline" color="primary">
+            <Button type="button" variant="outline" color="primary">
               Chọn file Excel
             </Button>
           </div>

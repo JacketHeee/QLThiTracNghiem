@@ -45,7 +45,7 @@ export default function SelectField({
   return (
     <div
       className={cn(
-        "group relative flex flex-col rounded-md border ...",
+        "group relative flex min-w-[150px] flex-1 flex-col rounded-md border border-other-outlined-border",
         disabled &&
           "bg-action-disabledBackground pointer-events-none opacity-70", // Xử lý mode View
         classname
@@ -66,7 +66,7 @@ export default function SelectField({
 
       <Button
         variant="text"
-        className="!w-full items-center justify-between px-3 py-2 hover:bg-transparent"
+        className="!w-full items-center justify-between bg-background-body-background px-3 py-2.5"
         disabled={disabled}
       >
         <span
@@ -100,7 +100,7 @@ export default function SelectField({
                   key={index}
                   onClick={() => handleOptionClick(opt)}
                   className={cn(
-                    "cursor-pointer px-4 py-2.5 text-[14px] transition-colors hover:bg-action-hover",
+                    "cursor-pointer px-4 py-3 text-[14px] transition-colors hover:bg-action-hover",
                     selectedOption?.value === opt.value
                       ? "bg-action-selected font-medium text-primary-main"
                       : "text-text-primary"

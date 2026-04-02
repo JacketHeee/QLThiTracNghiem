@@ -109,6 +109,7 @@ export const SubjectPage = () => {
         <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
         {isModalOpen && (
           <SubjectForm
+            key={editingSubject?.id}
             initialData={editingSubject}
             onSave={handleSave}
             onCancel={() => {

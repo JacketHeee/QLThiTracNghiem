@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, type FormEvent } from "react";
 import { Button, Icon } from "@/components/atomic/atoms";
 import { TextField } from "@/components/atomic/molecules/TextField/TextField";
 import type { Subject } from "@/types";
@@ -15,27 +15,11 @@ export function SubjectForm({
   onSave,
   onCancel,
 }: SubjectFormProps) {
-  const [formData, setFormData] = useState<Subject>({
-    id: 0,
-    maMonHoc: "",
-    tenMonHoc: "",
-    soTinChi: 0,
-    soTietLyThuyet: 0,
-    soTietThucHanh: 0,
-    isDeleted: 0,
-  });
-
-  const [errors, setErrors] = useState<Partial<Record<keyof Subject, string>>>(
-    {}
-  );
-
-  // Reset formData mỗi khi initialData thay đổi (rất quan trọng)
-  useEffect(() => {
-    if (initialData) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormData(initialData);
-    } else {
-      setFormData({
+  // KHẮC PHỤC: Khởi tạo state trực tiếp từ initialData.
+  // Để state này cập nhật khi initialData thay đổi, hãy truyền key={initialData.id} khi gọi component này.
+  const [formData, setFormData] = useState<Subject>(
+    initialData ??
+      ({
         id: 0,
         maMonHoc: "",
         tenMonHoc: "",
@@ -43,10 +27,12 @@ export function SubjectForm({
         soTietLyThuyet: 0,
         soTietThucHanh: 0,
         isDeleted: 0,
-      });
-    }
-    setErrors({}); // Reset lỗi khi mở form mới
-  }, [initialData]);
+      } as Subject)
+  );
+
+  const [errors, setErrors] = useState<Partial<Record<keyof Subject, string>>>(
+    {}
+  );
 
   const handleChange = (field: keyof Subject, value: string | number) => {
     setFormData((prev) => ({
@@ -54,47 +40,47 @@ export function SubjectForm({
       [field]: value,
     }));
 
-    // Xóa lỗi nếu có khi người dùng đang sửa
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
-  const handleValidateAndSave = () => {
-    console.log("Manh - Form Data trước khi lưu:", formData);
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
 
-    // Validate cơ bản
+    const newErrors: Partial<Record<keyof Subject, string>> = {};
+
     if (!formData.tenMonHoc?.trim()) {
-      setErrors((prev) => ({
-        ...prev,
-        tenMonHoc: "Tên môn học không được để trống",
-      }));
-      alert("Vui lòng nhập Tên môn học");
-      return;
+      newErrors.tenMonHoc = "Tên môn học không được để trống";
     }
 
     if (!formData.maMonHoc?.trim()) {
-      setErrors((prev) => ({
-        ...prev,
-        maMonHoc: "Mã môn học không được để trống",
-      }));
-      alert("Vui lòng nhập Mã môn học");
+      newErrors.maMonHoc = "Mã môn học không được để trống";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      const firstError = Object.values(newErrors)[0];
+      alert(firstError);
       return;
     }
 
-    // Gọi onSave để lưu dữ liệu
     onSave(formData);
   };
 
   return (
     <Overlay onClose={onCancel}>
-      <div className="flex w-[500px] flex-col overflow-hidden rounded-xl bg-background-paper shadow-2xl duration-200 animate-in fade-in zoom-in-95">
+      <form
+        onSubmit={handleSubmit}
+        className="flex w-[500px] flex-col overflow-hidden rounded-xl bg-background-paper shadow-2xl duration-200 animate-in fade-in zoom-in-95"
+      >
         {/* Header */}
-        <div className="flex-bet-center border-b border-other-divider px-6 py-2">
+        <div className="flex items-center justify-between border-b border-other-divider px-6 py-2">
           <h6 className="text-body-1 font-bold text-text-primary">
             {initialData ? "Cập nhật môn học" : "Thêm môn học mới"}
           </h6>
           <Button
+            type="button"
             variant="text"
             size="small"
             onClick={onCancel}
@@ -112,7 +98,6 @@ export function SubjectForm({
             value={formData.tenMonHoc}
             onChange={(e) => handleChange("tenMonHoc", e.target.value)}
             error={errors.tenMonHoc}
-            required
           />
 
           <div className="grid grid-cols-2 gap-2">
@@ -121,9 +106,8 @@ export function SubjectForm({
               placeholder="Ví dụ: 841010"
               value={formData.maMonHoc}
               onChange={(e) => handleChange("maMonHoc", e.target.value)}
-              disabled={!!initialData} // Không cho sửa mã khi đang edit
+              disabled={!!initialData}
               error={errors.maMonHoc}
-              required
             />
 
             <TextField
@@ -163,20 +147,21 @@ export function SubjectForm({
         {/* Action Buttons */}
         <div className="flex justify-end border-t border-other-divider px-5 py-2">
           <div className="flex gap-2">
-            <Button variant={"outline"} color={"standard"} onClick={onCancel}>
+            <Button
+              type="button"
+              variant={"outline"}
+              color={"standard"}
+              onClick={onCancel}
+            >
               Quay lại
             </Button>
 
-            <Button
-              variant={"contained"}
-              color={"primary"}
-              onClick={handleValidateAndSave}
-            >
+            <Button type="submit" variant={"contained"} color={"primary"}>
               {initialData ? "Cập nhật" : "Lưu môn học"}
             </Button>
           </div>
         </div>
-      </div>
+      </form>
     </Overlay>
   );
 }
