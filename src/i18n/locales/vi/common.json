@@ -54,7 +54,8 @@
       "assignments": "Phân công",
       "tests": "Đề kiểm tra",
       "notifications": "Thông báo",
-      "permissionGroups": "Nhóm quyền"
+      "permissionGroups": "Nhóm quyền",
+      "difficultyLevel": "Độ khó"
     }
   },
   "header": {
