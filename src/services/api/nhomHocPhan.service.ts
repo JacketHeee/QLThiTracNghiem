@@ -1,7 +1,7 @@
 import type {
   ApiResponse,
   NhomHocPhan,
-  NhomHocPhanThongBao,
+  NhomHocPhanThongBaoDeThi,
   TaiKhoan,
 } from "@/types";
 import axiosClient from "./axios";
@@ -25,8 +25,8 @@ export const nhomHocPhanService = {
   //   delete: (id: number): Promise<ApiResponse<boolean>> =>
   //     axiosClient.delete(`/monhocs/${id}`),
 
-  getWithThongBao: (
+  getWithThongBaoDeThi: (
     nhomHocPhanId: number
-  ): Promise<ApiResponse<NhomHocPhanThongBao>> =>
-    axiosClient.get(`/nhomhocphans/w_tbao/${nhomHocPhanId}`),
+  ): Promise<ApiResponse<NhomHocPhanThongBaoDeThi>> =>
+    axiosClient.get(`/nhomhocphans/w_tbao_dekiemtra/${nhomHocPhanId}`),
 };

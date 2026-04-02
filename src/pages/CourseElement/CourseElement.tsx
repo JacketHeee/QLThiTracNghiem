@@ -48,94 +48,94 @@ const MOCK_QUESTIONS = [
 
 // Mock mảng Thông báo (ThongBao[])
 // Mock mảng Thông báo (ThongBao[]) với nội dung chi tiết
-const MOCK_THONG_BAOS: ThongBao[] = [
-  {
-    id: 101,
-    tieuDe: "📢 Nhắc nhở: Nộp báo cáo tiến độ đồ án & Cập nhật link GitHub",
-    noiDung:
-      "Chào các nhóm, thầy nhắc lại hạn chót cập nhật file báo cáo tiến độ và link repository GitHub trên Google Drive là 23h59 tối nay. \n\nNội dung báo cáo cần bao gồm: \n1. Các tính năng đã hoàn thiện (Frontend/Backend). \n2. Danh sách các bug còn tồn đồn. \n3. Kế hoạch chi tiết cho tuần tiếp theo. \n\nSau thời gian này hệ thống sẽ tự động khóa quyền chỉnh sửa để thầy bắt đầu chấm điểm thành phần. Các nhóm gặp khó khăn về kỹ thuật vui lòng nhắn tin trực tiếp cho thầy trước 17h chiều nay.",
-    thoiGianGui: "2026-04-03T08:00:00.000Z",
-    uuTien: 1,
-    status: true,
-    nguoiGuiId: 1,
-    nguoi_gui: {
-      hoTen: "Nguyen Thanh Sang",
-      urlAvatar: null,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any,
-  },
-  {
-    id: 102,
-    tieuDe:
-      "📚 Tài liệu chuyên sâu: Next.js 15, Server Components & App Router Patterns",
-    noiDung:
-      "Thầy vừa cập nhật bộ tài liệu tham khảo cho Chương 4: Xây dựng kiến trúc Web hiện đại. \n\nTài liệu bao gồm: \n- Ebook 'Mastering Next.js 15' (Bản tóm tắt tiếng Việt). \n- Video hướng dẫn cấu hình Middleware và Authentication với NextAuth. \n- Source code mẫu áp dụng Clean Architecture và Atomic Design cho dự án thực tế. \n\nCác bạn lưu ý đọc kỹ phần 'Streaming & Suspense' vì đây sẽ là nội dung chính trong buổi thực hành Lab 05 vào thứ 5 tới. Ngoài ra, hãy chuẩn bị sẵn môi trường Node.js phiên bản 20 trở lên để tránh lỗi khi cài đặt các package mới.",
-    thoiGianGui: "2026-04-01T14:30:00.000Z",
-    uuTien: 2,
-    status: true,
-    nguoiGuiId: 1,
-    nguoi_gui: {
-      hoTen: "Nguyen Thanh Sang",
-      urlAvatar: null,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any,
-  },
-  {
-    id: 103,
-    tieuDe: "🛠️ Thông báo: Bảo trì hệ thống Lab Online",
-    noiDung:
-      "Hệ thống máy chủ thực hành (Lab Online) sẽ tạm dừng hoạt động để bảo trì và nâng cấp cấu hình từ 02h00 đến 05h00 sáng ngày 05/04/2026. \n\nTrong thời gian này, các bạn sẽ không thể truy cập vào cơ sở dữ liệu dùng chung và các API test. Sau khi nâng cấp, hệ thống sẽ hỗ trợ thêm Docker Compose giúp các bạn triển khai microservices dễ dàng hơn. Rất xin lỗi vì sự bất tiện này.",
-    thoiGianGui: "2026-03-28T22:00:00.000Z",
-    uuTien: 3,
-    status: true,
-    nguoiGuiId: 1,
-    nguoi_gui: {
-      hoTen: "Hệ thống Quản lý",
-      urlAvatar: null,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any,
-  },
-];
+// const MOCK_THONG_BAOS: ThongBao[] = [
+//   {
+//     id: 101,
+//     tieuDe: "📢 Nhắc nhở: Nộp báo cáo tiến độ đồ án & Cập nhật link GitHub",
+//     noiDung:
+//       "Chào các nhóm, thầy nhắc lại hạn chót cập nhật file báo cáo tiến độ và link repository GitHub trên Google Drive là 23h59 tối nay. \n\nNội dung báo cáo cần bao gồm: \n1. Các tính năng đã hoàn thiện (Frontend/Backend). \n2. Danh sách các bug còn tồn đồn. \n3. Kế hoạch chi tiết cho tuần tiếp theo. \n\nSau thời gian này hệ thống sẽ tự động khóa quyền chỉnh sửa để thầy bắt đầu chấm điểm thành phần. Các nhóm gặp khó khăn về kỹ thuật vui lòng nhắn tin trực tiếp cho thầy trước 17h chiều nay.",
+//     thoiGianGui: "2026-04-03T08:00:00.000Z",
+//     uuTien: 1,
+//     status: true,
+//     nguoiGuiId: 1,
+//     nguoi_gui: {
+//       hoTen: "Nguyen Thanh Sang",
+//       urlAvatar: null,
+//       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//     } as any,
+//   },
+//   {
+//     id: 102,
+//     tieuDe:
+//       "📚 Tài liệu chuyên sâu: Next.js 15, Server Components & App Router Patterns",
+//     noiDung:
+//       "Thầy vừa cập nhật bộ tài liệu tham khảo cho Chương 4: Xây dựng kiến trúc Web hiện đại. \n\nTài liệu bao gồm: \n- Ebook 'Mastering Next.js 15' (Bản tóm tắt tiếng Việt). \n- Video hướng dẫn cấu hình Middleware và Authentication với NextAuth. \n- Source code mẫu áp dụng Clean Architecture và Atomic Design cho dự án thực tế. \n\nCác bạn lưu ý đọc kỹ phần 'Streaming & Suspense' vì đây sẽ là nội dung chính trong buổi thực hành Lab 05 vào thứ 5 tới. Ngoài ra, hãy chuẩn bị sẵn môi trường Node.js phiên bản 20 trở lên để tránh lỗi khi cài đặt các package mới.",
+//     thoiGianGui: "2026-04-01T14:30:00.000Z",
+//     uuTien: 2,
+//     status: true,
+//     nguoiGuiId: 1,
+//     nguoi_gui: {
+//       hoTen: "Nguyen Thanh Sang",
+//       urlAvatar: null,
+//       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//     } as any,
+//   },
+//   {
+//     id: 103,
+//     tieuDe: "🛠️ Thông báo: Bảo trì hệ thống Lab Online",
+//     noiDung:
+//       "Hệ thống máy chủ thực hành (Lab Online) sẽ tạm dừng hoạt động để bảo trì và nâng cấp cấu hình từ 02h00 đến 05h00 sáng ngày 05/04/2026. \n\nTrong thời gian này, các bạn sẽ không thể truy cập vào cơ sở dữ liệu dùng chung và các API test. Sau khi nâng cấp, hệ thống sẽ hỗ trợ thêm Docker Compose giúp các bạn triển khai microservices dễ dàng hơn. Rất xin lỗi vì sự bất tiện này.",
+//     thoiGianGui: "2026-03-28T22:00:00.000Z",
+//     uuTien: 3,
+//     status: true,
+//     nguoiGuiId: 1,
+//     nguoi_gui: {
+//       hoTen: "Hệ thống Quản lý",
+//       urlAvatar: null,
+//       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//     } as any,
+//   },
+// ];
 
 // Mock mảng Đề thi (DeThi[])
-const MOCK_DE_THIS: DeThi[] = [
-  {
-    id: 501,
-    tenDe: "Kiểm tra 15p: React Hooks & State",
-    thoiGianLamBai: 15,
-    created_at: "2026-04-02T09:00:00.000Z", // Nằm giữa 2 thông báo trên
-    monThiId: 1,
-    nguoiTaoId: 1,
-    thoiGianBatDau: "2026-04-02T09:00:00.000Z",
-    thoiGianKetThuc: "2026-04-02T10:00:00.000Z",
-    isDeleted: false,
-    updated_at: "2026-04-02T09:00:00.000Z",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mon_thi: { tenMonHoc: "Lập trình Web nâng cao" } as any,
-    cau_hois: [],
-    nhom_hoc_phans: [],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cau_hinh_thi: {} as any,
-  },
-  {
-    id: 502,
-    tenDe: "Bài tập về nhà: Tailwind CSS Layout",
-    thoiGianLamBai: 45,
-    created_at: "2026-03-30T10:00:00.000Z", // Cũ nhất
-    monThiId: 1,
-    nguoiTaoId: 1,
-    thoiGianBatDau: "2026-03-30T10:00:00.000Z",
-    thoiGianKetThuc: "2026-03-31T10:00:00.000Z",
-    isDeleted: false,
-    updated_at: "2026-03-30T10:00:00.000Z",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mon_thi: { tenMonHoc: "Lập trình Web nâng cao" } as any,
-    cau_hois: [],
-    nhom_hoc_phans: [],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cau_hinh_thi: {} as any,
-  },
-];
+// const MOCK_DE_THIS: DeThi[] = [
+//   {
+//     id: 501,
+//     tenDe: "Kiểm tra 15p: React Hooks & State",
+//     thoiGianLamBai: 15,
+//     created_at: "2026-04-02T09:00:00.000Z", // Nằm giữa 2 thông báo trên
+//     monThiId: 1,
+//     nguoiTaoId: 1,
+//     thoiGianBatDau: "2026-04-02T09:00:00.000Z",
+//     thoiGianKetThuc: "2026-04-02T10:00:00.000Z",
+//     isDeleted: false,
+//     updated_at: "2026-04-02T09:00:00.000Z",
+//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//     mon_thi: { tenMonHoc: "Lập trình Web nâng cao" } as any,
+//     cau_hois: [],
+//     nhom_hoc_phans: [],
+//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//     cau_hinh_thi: {} as any,
+//   },
+//   {
+//     id: 502,
+//     tenDe: "Bài tập về nhà: Tailwind CSS Layout",
+//     thoiGianLamBai: 45,
+//     created_at: "2026-03-30T10:00:00.000Z", // Cũ nhất
+//     monThiId: 1,
+//     nguoiTaoId: 1,
+//     thoiGianBatDau: "2026-03-30T10:00:00.000Z",
+//     thoiGianKetThuc: "2026-03-31T10:00:00.000Z",
+//     isDeleted: false,
+//     updated_at: "2026-03-30T10:00:00.000Z",
+//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//     mon_thi: { tenMonHoc: "Lập trình Web nâng cao" } as any,
+//     cau_hois: [],
+//     nhom_hoc_phans: [],
+//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//     cau_hinh_thi: {} as any,
+//   },
+// ];
 
 export default function CourseElement() {
   const [selectedTab, setSelectedTab] = useState("news");
@@ -145,7 +145,8 @@ export default function CourseElement() {
 
   const { id } = useParams();
   const { nhomHocPhan } = useGetNhomWithThongBao(Number(id));
-  // const thongBaos = nhomHocPhan ? nhomHocPhan.thong_baos : null;
+  const thongBaos = nhomHocPhan ? nhomHocPhan.thong_baos : null;
+  const deThis = nhomHocPhan ? nhomHocPhan.de_this : null;
 
   console.log("id", id);
   console.log("nhomHocPhan", nhomHocPhan);
@@ -291,10 +292,11 @@ export default function CourseElement() {
     },
   ];
 
+  // eslint-disable-next-line
   const combinedFeed = useMemo(() => {
     // Lưu ý: Mạnh có thể thay MOCK_THONG_BAOS bằng nhomHocPhan?.thong_baos khi API sẵn sàng
-    const rawThongBaos = MOCK_THONG_BAOS || [];
-    const rawDeThis = MOCK_DE_THIS || [];
+    const rawThongBaos = thongBaos || [];
+    const rawDeThis = deThis || [];
 
     const merged = [
       ...rawThongBaos.map((item) => ({

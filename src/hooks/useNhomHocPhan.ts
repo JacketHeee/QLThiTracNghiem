@@ -35,7 +35,7 @@ export const useNhomHocPhanStudent = (studentId: number) => {
 export const useGetNhomWithThongBao = (id: number) => {
   const query = useQuery({
     queryKey: ["nhomhocphan", "thongbaos", id],
-    queryFn: () => nhomHocPhanService.getWithThongBao(id),
+    queryFn: () => nhomHocPhanService.getWithThongBaoDeThi(id),
     select: (res) => res.data,
   });
 
