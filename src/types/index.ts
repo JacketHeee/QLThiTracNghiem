@@ -280,6 +280,12 @@ export interface NhomHocPhan {
   backgroundUrl: "https://picsum.photos/1920/1080?blur=8";
 }
 
+export interface NhomHocPhanThongBao {
+  id: number;
+  tenNhom: string;
+  thong_baos: ThongBao[];
+}
+
 export type BackendErrors = {
   [key: string]: string[];
 };

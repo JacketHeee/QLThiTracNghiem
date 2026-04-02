@@ -10,7 +10,7 @@ interface CourseItemProps {
 }
 
 export default function CourseItem({
-  data,
+  data, //
   className = "",
   onClick,
 }: CourseItemProps) {

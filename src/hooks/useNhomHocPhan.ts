@@ -31,3 +31,16 @@ export const useNhomHocPhanStudent = (studentId: number) => {
     refetch: query.refetch,
   };
 };
+
+export const useGetNhomWithThongBao = (id: number) => {
+  const query = useQuery({
+    queryKey: ["nhomhocphan", "thongbaos", id],
+    queryFn: () => nhomHocPhanService.getWithThongBao(id),
+    select: (res) => res.data,
+  });
+
+  return {
+    nhomHocPhan: query.data || null,
+    isLoading: query.isLoading,
+  };
+};
