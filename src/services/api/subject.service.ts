@@ -1,4 +1,4 @@
-import type { ApiResponse, Subject } from "@/types";
+import type { ApiResponse, Subject, SubjectWithGroup } from "@/types";
 import axiosClient from "./axios";
 
 export const subjectService = {
@@ -16,4 +16,7 @@ export const subjectService = {
 
   delete: (id: number): Promise<ApiResponse<boolean>> =>
     axiosClient.delete(`/monhocs/${id}`),
+
+  getAllWithGroup: (): Promise<ApiResponse<SubjectWithGroup[]>> =>
+    axiosClient.get("/monhocs/get_w_nhp"),
 };
