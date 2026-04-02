@@ -81,5 +81,91 @@
       "success": "Login successful",
       "failed": "Login failed"
     }
+  },
+  "courseGroup": {
+    "status": {
+      "active": "Teaching",
+      "hidden": "Hidden",
+      "label": "Status"
+    },
+    "search": "Search...",
+    "addGroup": "Add Group",
+    "noGroupsFound": "No matching groups found.",
+    "confirmDeleteGroup": "Are you sure you want to delete this group?",
+    "loadingGroups": "Loading groups list...",
+    "studentList": "Student list",
+    "editInfo": "Edit information",
+    "showGroup": "Show again",
+    "hideGroup": "Hide group",
+    "deleteGroup": "Delete group",
+    "classSizeLabel": "Class size:",
+    "form": {
+      "updateTitle": "Update group information",
+      "addTitle": "Add group",
+      "close": "Close",
+      "groupName": "Group name",
+      "groupNamePlaceholder": "Enter group name",
+      "note": "Note",
+      "notePlaceholder": "Enter note",
+      "inviteCode": "Invite code",
+      "inviteCodePlaceholder": "Enter invite code",
+      "classSize": "Class size",
+      "classSizePlaceholder": "Enter class size",
+      "subject": "Subject",
+      "subjectPlaceholder": "Select subject",
+      "lecturer": "Lecturer",
+      "lecturerPlaceholder": "Select lecturer",
+      "academicYear": "Academic year",
+      "academicYearPlaceholder": "Enter academic year",
+      "semester": "Semester",
+      "semesterPlaceholder": "Enter semester (1 or 2)",
+      "save": "Save",
+      "update": "Update",
+      "validation": {
+        "groupNameRequired": "Group name cannot be empty",
+        "groupNameMaxLength": "Group name cannot exceed 255 characters",
+        "inviteCodeMaxLength": "Invite code cannot exceed 50 characters",
+        "classSizePositive": "Class size must be a positive number",
+        "subjectRequired": "Please select a subject",
+        "academicYearPositive": "Academic year must be a positive number",
+        "semesterInvalid": "Semester must be 1 or 2",
+        "lecturerRequired": "Please select a lecturer"
+      }
+    }
+  },
+  "courseGroupStudent": {
+    "searchStudents": "Search students",
+    "exportList": "Export list",
+    "exportGrades": "Export grades",
+    "addStudent": "Add student",
+    "classSize": "Class size",
+    "confirmRemoveStudent": "Are you sure you want to remove this student from the group?",
+    "delete": "Delete",
+    "table": {
+      "stt": "No.",
+      "fullName": "Full name",
+      "studentCode": "Student code",
+      "gender": "Gender",
+      "dateOfBirth": "Date of birth"
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female"
+    },
+    "form": {
+      "manualAdd": "Manual add",
+      "joinByInvite": "Join by invite code",
+      "importExcel": "Import Excel file",
+      "studentCode": "Student code",
+      "studentCodePlaceholder": "Enter student code",
+      "addStudent": "Add student",
+      "copy": "Copy",
+      "generateNewCode": "Generate new code",
+      "content": "Content",
+      "chooseFile": "Choose file",
+      "noFileSelected": "No file selected",
+      "formatInstruction": "Please format users correctly.",
+      "addToSystem": "Add to system"
+    }
   }
 }

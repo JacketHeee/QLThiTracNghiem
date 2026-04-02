@@ -58,10 +58,6 @@ export interface Subject {
   nhom_hoc_phans: NhomHocPhan[];
 }
 
-export interface SubjectWithGroup extends Subject {
-  nhom_hoc_phans: NhomHocPhan[];
-}
-
 export interface DoKho {
   id: number;
   tenDoKho: string;
@@ -257,27 +253,10 @@ export interface ThongBao {
 // Gợi ý thêm Type cho các mức độ ưu tiên để dễ dùng trong Code
 export type PriorityLevel = 1 | 2 | 3;
 
-export interface NhomHocPhan {
-  id: number;
-  tenNhom: string;
+export interface NhomHocPhanJoinGroup {
+  sinhVienId: number;
+  nhomHocPhanId: number;
   maMoi: string;
-  siSo: number;
-  notes: string;
-  hocKy: number;
-  namHoc: number;
-  giangVienId: number;
-  isHide: number;
-  isDeleted: number;
-  monHocId: number;
-  // Dữ liệu quan hệ Many-to-Many
-  pivot: {
-    sinhVienId: number;
-    nhomHocPhanId: number;
-  };
-  // Dữ liệu lồng (Eager Loading từ Backend)
-  giang_vien: TaiKhoan;
-  mon_hoc: Subject;
-  backgroundUrl: "https://picsum.photos/1920/1080?blur=8";
 }
 
 export type BackendErrors = {
@@ -313,6 +292,67 @@ export type SidebarSection = {
   title: string | null;
   items: SidebarItem[];
 };
+export interface StudentRecord {
+  id: number;
+  stt: number;
+  fullName: string;
+  email: string;
+  studentCode: string;
+  gender: string;
+  dateOfBirth: string;
+  avatarUrl: string;
+}
+
+export interface NhomHocPhan {
+  id: number;
+  tenNhom: string;
+  maMoi: string;
+  siSo: number | null;
+  notes: string | null;
+  hocKy: number;
+  namHoc: number;
+  giangVienId: number | null;
+  isHide: boolean;
+  isDeleted: boolean;
+  monHocId: number;
+  created_at?: string;
+  updated_at?: string;
+  // Dữ liệu quan hệ Many-to-Many (có thể không luôn có)
+  pivot?: {
+    sinhVienId: number;
+    nhomHocPhanId: number;
+  };
+  // Dữ liệu lồng (Eager Loading từ Backend)
+  // giang_vien: TaiKhoan;
+  // mon_hoc: Subject;
+  // backgroundUrl: "https://picsum.photos/1920/1080?blur=8";
+  giang_vien?: TaiKhoan;
+  mon_hoc?: Subject;
+  backgroundUrl?: string;
+}
+
+export interface NhomHocPhanBase {
+  monHocId: number;
+  tenNhom: string;
+  maMoi: string;
+  siSo: number | null;
+  notes: string | null;
+  hocKy: number;
+  namHoc: number;
+  giangVienId: number | null;
+  isHide: boolean;
+  isDeleted: boolean;
+}
+
+export type NhomHocPhanCreate = NhomHocPhanBase;
+
+export type NhomHocPhanUpdate = Partial<
+  Pick<NhomHocPhanBase, "tenNhom" | "notes" | "giangVienId" | "isHide">
+>;
+
+export interface NhomHocPhanSinhViensResponse {
+  sinhViens: TaiKhoan[];
+}
 export interface CauHinhThi {
   cauHinhId: number;
   deThiId: number;
@@ -333,7 +373,7 @@ export interface CauHinhThi {
 
 export interface Option {
   label: string;
-  value: number;
+  value: number | string;
 }
 
 export type ExamStatus = "DANG_LAM" | "TAM_LUU" | "DA_NOP" | "BI_HUY"; // Bạn có thể thêm các status khác nếu có

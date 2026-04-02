@@ -8,7 +8,7 @@ interface SelectFieldProps {
   label?: string;
   placeholder: string;
   options: Option[];
-  onSelect: (value: number) => void;
+  onSelect: (value: number | string) => void;
   classname?: string;
   defaultIndex?: number;
   // Bổ sung value để nhận giá trị mặc định từ API

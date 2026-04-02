@@ -82,5 +82,91 @@
       "success": "Đăng nhập thành công",
       "failed": "Đăng nhập thất bại"
     }
+  },
+  "courseGroup": {
+    "status": {
+      "active": "Đang giảng dạy",
+      "hidden": "Đã ẩn",
+      "label": "Trạng thái"
+    },
+    "search": "Tìm kiếm...",
+    "addGroup": "Thêm nhóm",
+    "noGroupsFound": "Không tìm thấy nhóm phù hợp.",
+    "confirmDeleteGroup": "Bạn có chắc chắn muốn xóa nhóm này?",
+    "loadingGroups": "Đang tải danh sách nhóm...",
+    "studentList": "Danh sách sinh viên",
+    "editInfo": "Sửa thông tin",
+    "showGroup": "Hiển thị lại",
+    "hideGroup": "Ẩn nhóm",
+    "deleteGroup": "Xóa nhóm",
+    "classSizeLabel": "Sĩ số:",
+    "form": {
+      "updateTitle": "Cập nhật thông tin nhóm",
+      "addTitle": "Thêm nhóm",
+      "close": "Đóng",
+      "groupName": "Tên nhóm",
+      "groupNamePlaceholder": "Nhập tên nhóm",
+      "note": "Ghi chú",
+      "notePlaceholder": "Nhập ghi chú",
+      "inviteCode": "Mã mời",
+      "inviteCodePlaceholder": "Nhập mã mời",
+      "classSize": "Sĩ số",
+      "classSizePlaceholder": "Nhập sĩ số",
+      "subject": "Môn học",
+      "subjectPlaceholder": "Chọn môn học",
+      "lecturer": "Giảng viên",
+      "lecturerPlaceholder": "Chọn giảng viên",
+      "academicYear": "Năm học",
+      "academicYearPlaceholder": "Nhập năm học",
+      "semester": "Học kỳ",
+      "semesterPlaceholder": "Nhập học kỳ (1 hoặc 2)",
+      "save": "Lưu",
+      "update": "Cập nhật",
+      "validation": {
+        "groupNameRequired": "Tên nhóm không được để trống",
+        "groupNameMaxLength": "Tên nhóm không được vượt quá 255 ký tự",
+        "inviteCodeMaxLength": "Mã mời không được vượt quá 50 ký tự",
+        "classSizePositive": "Sĩ số phải là số dương",
+        "subjectRequired": "Vui lòng chọn môn học",
+        "academicYearPositive": "Năm học phải là số dương",
+        "semesterInvalid": "Học kỳ phải là 1 hoặc 2",
+        "lecturerRequired": "Vui lòng chọn giảng viên"
+      }
+    }
+  },
+  "courseGroupStudent": {
+    "searchStudents": "Tìm kiếm sinh viên",
+    "exportList": "Xuất danh sách",
+    "exportGrades": "Xuất bảng điểm",
+    "addStudent": "Thêm sinh viên",
+    "classSize": "Sĩ số",
+    "confirmRemoveStudent": "Bạn có chắc chắn muốn xóa sinh viên này khỏi nhóm?",
+    "delete": "Xóa",
+    "table": {
+      "stt": "STT",
+      "fullName": "Họ và tên",
+      "studentCode": "Mã sinh viên",
+      "gender": "Giới tính",
+      "dateOfBirth": "Ngày sinh"
+    },
+    "gender": {
+      "male": "Nam",
+      "female": "Nữ"
+    },
+    "form": {
+      "manualAdd": "Thêm thủ công",
+      "joinByInvite": "Tham gia bằng mã mời",
+      "importExcel": "Nhập file excel",
+      "studentCode": "Mã sinh viên",
+      "studentCodePlaceholder": "Nhập mã sinh viên",
+      "addStudent": "Thêm sinh viên",
+      "copy": "Sao chép",
+      "generateNewCode": "Tạo mã mới",
+      "content": "Nội dung",
+      "chooseFile": "Chọn tệp",
+      "noFileSelected": "Không có tệp được chọn",
+      "formatInstruction": "Vui lòng soạn người dùng theo đúng định dạng.",
+      "addToSystem": "Thêm vào hệ thống"
+    }
   }
 }
