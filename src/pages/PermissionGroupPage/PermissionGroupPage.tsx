@@ -266,6 +266,7 @@ export const PermissionGroupPage = () => {
             </Button>
             {modalState.open && (
               <PermissionForm
+                key={modalState.id}
                 mode={modalState.mode}
                 id={modalState.id}
                 onSaveCreate={insertRole}

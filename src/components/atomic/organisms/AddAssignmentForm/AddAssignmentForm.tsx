@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Overlay } from "../../molecules/Overlay/Overlay";
 import Tabs from "../../molecules/Tabs/Tabs";
 import SelectField from "../../atoms/Select/SelectField";
@@ -27,20 +27,31 @@ export default function AddAssignmentForm({
 }: AddAssignmentFormProps) {
   const [selectedTab, setSelectedTab] = useState("handmade");
   const { subjects } = useSubject();
+  const { taikhoans } = useGetGvien();
 
-  // Định nghĩa cột cho bảng trong Modal (thêm cột checkbox "Chọn")
+  const [formData, setFormData] = useState<AssignmentRequest>({
+    giangVienId: null,
+    monHocIds: [],
+  });
+
+  if (!isOpen) return null;
+
+  const selections = taikhoans.map((item) => ({
+    label: item.hoTen,
+    value: item.id,
+  }));
+
+  // Định nghĩa cột cho bảng
   const modalColumns: TableColumn<Subject>[] = [
     {
       title: "",
-      key: "id", // Dùng tạm key ID
+      key: "id",
       className: "w-10",
-      // Chèn checkbox vào HEADER
       headerRender: () => <Checkbox />,
-      // Chèn checkbox vào từng DÒNG
       render: (value) => (
         <Checkbox
-          checked={formData.monHocIds.includes(value)}
-          onChange={(e) => handleCheck(value, e.target.checked)}
+          checked={formData.monHocIds.includes(Number(value))}
+          onChange={(e) => handleCheck(Number(value), e.target.checked)}
         />
       ),
     },
@@ -60,60 +71,43 @@ export default function AddAssignmentForm({
   ];
 
   const handleCheck = (idSelected: number, checked: boolean) => {
-    if (checked) {
-      setFormData((prev) => ({
-        ...prev,
-        monHocIds: [...prev.monHocIds, idSelected],
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        monHocIds: prev.monHocIds.filter((id) => id !== idSelected),
-      }));
-    }
-  };
-
-  const defaultFormData: AssignmentRequest = {
-    giangVienId: null,
-    monHocIds: [],
-  };
-  const { taikhoans } = useGetGvien();
-
-  const selections = taikhoans.map((item) => ({
-    label: item.hoTen,
-    value: item.id,
-  }));
-
-  const [formData, setFormData] = useState<AssignmentRequest>(defaultFormData);
-
-  const handleSave = () => {
-    onSave(formData);
+    setFormData((prev) => ({
+      ...prev,
+      monHocIds: checked
+        ? [...prev.monHocIds, idSelected]
+        : prev.monHocIds.filter((id) => id !== idSelected),
+    }));
   };
 
   const handleSelectGiangVien = (value: string | number) => {
     const giangVienId = typeof value === "number" ? value : Number(value);
 
-    setFormData((prev) => ({
-      ...prev,
-      giangVienId,
-    }));
-
-    // Lọc các môn học đã được phân công cho giảng viên này
-    const monHocIds = phanCongs
+    // Lọc các môn học đã được phân công cho giảng viên này từ danh sách phanCongs truyền vào
+    const activeMonHocIds = phanCongs
       .filter((item) => item.giangVienId === giangVienId)
       .map((item) => item.monHocId);
 
-    setFormData((prev) => ({
-      ...prev,
-      monHocIds,
-    }));
+    setFormData({
+      giangVienId,
+      monHocIds: activeMonHocIds,
+    });
   };
 
-  if (!isOpen) return null;
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!formData.giangVienId) {
+      alert("Vui lòng chọn giảng viên trước khi lưu!");
+      return;
+    }
+    onSave(formData);
+  };
 
   return (
     <Overlay onClose={onClose}>
-      <div className="flex w-[1100px] flex-col gap-4 rounded-lg bg-background-paper pb-4 shadow-xl">
+      <form
+        onSubmit={handleSubmit}
+        className="flex w-[1100px] flex-col gap-4 rounded-lg bg-background-paper pb-4 shadow-xl"
+      >
         {/* Header Tab */}
         <div className="border-b border-other-outlined-border">
           <Tabs
@@ -148,22 +142,34 @@ export default function AddAssignmentForm({
           </div>
 
           {/* Section: Bảng môn học */}
-          <DynamicTable columns={modalColumns} data={subjects} rowKey="id" />
+          <div className="flex-1 overflow-auto">
+            <DynamicTable columns={modalColumns} data={subjects} rowKey="id" />
+          </div>
 
           {/* Pagination */}
           <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
 
           {/* Footer Actions */}
           <div className="flex justify-end gap-3 border-t border-other-outlined-border pt-4">
-            <Button variant="outline" color="standard" onClick={onClose}>
+            <Button
+              type="button"
+              variant="outline"
+              color="standard"
+              onClick={onClose}
+            >
               Hủy bỏ
             </Button>
-            <Button variant="contained" color="primary" onClick={handleSave}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={!formData.giangVienId}
+            >
               Lưu phân công
             </Button>
           </div>
         </div>
-      </div>
+      </form>
     </Overlay>
   );
 }

@@ -71,6 +71,7 @@ export default function Pagination({
                 size="small"
                 onClick={() => !isEllipsis && onPageChange(page as number)}
                 disabled={isEllipsis}
+                className="px-3"
               >
                 {page}
               </Button>

@@ -231,7 +231,6 @@ export const PermissionForm: FC<PermissionFormProps> = ({
             onChange={(e) => {
               setGroupName(e.target.value);
             }}
-            required
             className="w-full"
           />
 
