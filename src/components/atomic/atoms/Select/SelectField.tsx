@@ -1,21 +1,19 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Button from "../Button/Button";
 import Icon from "../Icon/Icon";
 import { cn } from "@/utils/cn";
-
-interface Option {
-  label: string;
-  value: string | number;
-}
+import type { Option } from "@/types";
 
 interface SelectFieldProps {
   label?: string;
   placeholder: string;
   options: Option[];
-  onSelect: (value: string | number) => void;
+  onSelect: (value: number) => void;
   classname?: string;
   defaultIndex?: number;
-  disabled?: boolean;
+  // Bổ sung value để nhận giá trị mặc định từ API
+  value?: number;
+  disabled?: boolean; // Thêm disabled cho mode View
 }
 
 export default function SelectField({
@@ -24,18 +22,21 @@ export default function SelectField({
   options,
   onSelect,
   classname,
-  defaultIndex,
+  value, // Giá trị từ API
   disabled,
 }: SelectFieldProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [userSelection, setUserSelection] = useState<Option | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // LOGIC MỚI:
+  // 1. Ưu tiên user tự chọn tay
+  // 2. Nếu không, tìm trong options cái nào có value trùng với prop value
+  // 3. Nếu không thấy, mới dùng placeholder
   const selectedOption =
-    userSelection ??
-    (defaultIndex !== undefined ? options[defaultIndex] : null);
+    userSelection ?? options.find((opt) => opt.value === value) ?? null;
 
   const handleOptionClick = (option: Option) => {
+    if (disabled) return;
     setUserSelection(option);
     onSelect(option.value);
     setIsOpen(false);
@@ -43,15 +44,13 @@ export default function SelectField({
 
   return (
     <div
-      ref={dropdownRef}
       className={cn(
-        "group relative flex flex-col rounded-md border border-other-outlined-border bg-background-body-background",
-        "w-full min-w-[80px] transition-all",
-        isOpen && "border-primary-main shadow-sm", // Highlight viền khi đang mở
+        "group relative flex flex-col rounded-md border ...",
+        disabled &&
+          "bg-action-disabledBackground pointer-events-none opacity-70", // Xử lý mode View
         classname
       )}
-      // Sử dụng MouseEnter/Leave trên container tổng
-      onMouseEnter={() => setIsOpen(true)}
+      onMouseEnter={() => !disabled && setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
     >
       {label && (

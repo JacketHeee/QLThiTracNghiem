@@ -10,14 +10,14 @@ interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
   ({ label, id, classnameLabel, classnameParent, ...props }, ref) => {
     return (
-      <div
+      <label // Đổi div thành label
         className={`group flex cursor-pointer items-center gap-2 ${classnameParent}`}
       >
         <div className="relative flex items-center">
           <input
             ref={ref}
             type="checkbox"
-            id={id}
+            id={id} // Vẫn giữ id nếu cần dùng cho việc khác
             className="peer h-4 w-4 cursor-pointer appearance-none rounded border border-text-secondary transition-all checked:border-primary-main checked:bg-primary-main"
             {...props}
           />
@@ -26,17 +26,15 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             strokeWidth={3}
           />
         </div>
+
         {label && (
-          <label
-            htmlFor={id}
+          <span // Đổi label thành span để tránh lồng thẻ label (invalid HTML)
             className={`text-body-2 cursor-pointer select-none text-text-primary ${classnameLabel}`}
           >
             {label}
-          </label>
+          </span>
         )}
-      </div>
+      </label>
     );
   }
 );
-
-Checkbox.displayName = "Checkbox";

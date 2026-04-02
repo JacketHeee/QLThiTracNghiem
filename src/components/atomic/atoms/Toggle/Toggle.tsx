@@ -1,35 +1,59 @@
+import { cn } from "@/utils/cn";
 import { forwardRef, type InputHTMLAttributes } from "react";
 
-interface ToggleProps extends InputHTMLAttributes<HTMLInputElement> {
+interface ToggleProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "type"
+> {
   label?: string;
 }
 
 export const Toggle = forwardRef<HTMLInputElement, ToggleProps>(
-  ({ label, id, ...props }, ref) => {
+  ({ label, id, disabled, className, checked, onChange, ...props }, ref) => {
+    const internalId =
+      id || `toggle-${label?.replace(/\s+/g, "-").toLowerCase()}`;
+
     return (
-      <label className="group flex cursor-pointer items-center gap-4">
-        <div className="relative">
-          <input
-            ref={ref}
-            type="checkbox"
-            id={id}
-            className="peer sr-only"
-            {...props}
-          />
-          {/* Đường ray của Toggle */}
-          <div className="h-3.5 w-8 rounded-full border border-other-outlined-border bg-action-active transition-colors duration-200 peer-checked:border-action-selected peer-checked:bg-action-selected" />
-          {/* Nút tròn di chuyển */}
-          <div className="absolute -top-[3px] left-0 h-5 w-5 rounded-full border border-action-hover bg-background-body-background shadow-2xl transition-transform duration-200 peer-checked:translate-x-5 peer-checked:bg-primary-main" />
-        </div>
+      <div
+        className={cn(
+          "flex items-center justify-between gap-4 py-1",
+          disabled && "cursor-not-allowed opacity-50",
+          className
+        )}
+      >
         {label && (
           <label
-            htmlFor={id}
-            className="text-body-1 cursor-pointer select-none text-text-secondary"
+            htmlFor={internalId}
+            className="text-body-2 cursor-pointer select-none text-text-secondary"
           >
             {label}
           </label>
         )}
-      </label>
+
+        <label
+          className={cn(
+            "relative inline-flex items-center",
+            disabled ? "cursor-not-allowed" : "cursor-pointer"
+          )}
+        >
+          <input
+            ref={ref}
+            type="checkbox"
+            id={internalId}
+            checked={checked}
+            onChange={onChange}
+            disabled={disabled}
+            className="peer sr-only"
+            {...props}
+          />
+
+          {/* Đường ray (Track) */}
+          <div className="peer-checked:bg-primary-main/30 h-4 w-9 rounded-full bg-other-outlined-border transition-colors duration-200" />
+
+          {/* Nút tròn (Thumb) */}
+          <div className="absolute left-0 h-5 w-5 rounded-full border border-other-outlined-border bg-white shadow-sm transition-transform duration-200 peer-checked:translate-x-4 peer-checked:border-primary-main peer-checked:bg-primary-main" />
+        </label>
+      </div>
     );
   }
 );

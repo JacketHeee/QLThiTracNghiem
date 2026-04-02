@@ -19,8 +19,6 @@ import { TestPage } from "@/pages/TestPage/TestPage";
 import { NotificationPage } from "@/pages/NotificationPage/NotificationPage";
 import { PermissionGroupPage } from "@/pages/PermissionGroupPage/PermissionGroupPage";
 import TestDesignSystem from "@/pages/TestDesignSystem/TestDesignSystem";
-import TestPageDetail from "@/pages/TestPageDetail/TestPageDetail";
-import AddTest from "@/pages/AddTest/AddTest";
 import AddQuestionTestPage from "@/pages/AddQuestionTestPage/AddQuestionTestPage";
 import CourseElement from "@/pages/CourseElement/CourseElement";
 import ResultPage from "@/pages/ResultPage/ResultPage";
@@ -29,6 +27,8 @@ import ResultDoTestPage from "@/pages/ResultDoTestPage/ResultDoTestPage";
 import { ExamInstruction } from "@/components/atomic/organisms/ExamInstruction/ExamInstruction";
 import { ExamDoing } from "@/components/atomic/organisms/ExamDoing/ExamDoing";
 import ProtectedRoute from "./ProtectedRoute";
+import TestDetailPage from "@/pages/TestDetailPage/TestDetailPage";
+import TestFormPage from "@/pages/TestFormPage/TestFormPage";
 
 export const router = createBrowserRouter([
   {
@@ -63,8 +63,28 @@ export const router = createBrowserRouter([
                   {
                     path: ":id",
                     children: [
-                      { index: true, element: <TestPageDetail /> },
+                      { index: true, element: <TestDetailPage /> },
                       { path: "result/:id", element: <ResultPage /> },
+                      {
+                        path: "edit",
+                        children: [
+                          { index: true, element: <TestFormPage /> }, // Xem thông tin chung
+                          {
+                            path: "questions",
+                            element: <AddQuestionTestPage />,
+                          }, // Xem danh sách câu hỏi
+                        ],
+                      },
+                      {
+                        path: "view",
+                        children: [
+                          { index: true, element: <TestFormPage /> }, // Xem thông tin chung
+                          {
+                            path: "questions",
+                            element: <AddQuestionTestPage />,
+                          }, // Xem danh sách câu hỏi
+                        ],
+                      },
                       {
                         path: "take",
                         element: <DoTestPage />,
@@ -82,9 +102,9 @@ export const router = createBrowserRouter([
                   {
                     path: "add",
                     children: [
-                      { index: true, element: <AddTest /> },
+                      { index: true, element: <TestFormPage /> },
                       {
-                        path: "add-questions",
+                        path: "questions",
                         element: <AddQuestionTestPage />,
                       },
                     ],

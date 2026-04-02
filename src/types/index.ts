@@ -54,6 +54,8 @@ export interface Subject {
   soTietLyThuyet: number;
   soTietThucHanh: number;
   isDeleted: number;
+
+  nhom_hoc_phans: NhomHocPhan[];
 }
 
 export interface DoKho {
@@ -202,6 +204,10 @@ export interface DeThi {
   };
 
   nhom_hoc_phans: NhomHocPhan[];
+
+  cau_hois: Question[];
+
+  cau_hinh_thi: CauHinhThi;
 }
 
 // Nếu bạn muốn định nghĩa trạng thái đề thi (kết hợp với utils trước đó)
@@ -289,3 +295,80 @@ export type SidebarSection = {
   title: string | null;
   items: SidebarItem[];
 };
+export interface CauHinhThi {
+  cauHinhId: number;
+  deThiId: number;
+  hasMonitoring: boolean;
+  allowCopy: boolean;
+  allowPrint: boolean;
+  isEnableResume: boolean;
+  shuffleQuestions: boolean;
+  shuffleAnswers: boolean;
+  showScore: boolean;
+  showDetailResults: boolean;
+  isLimitSwitchTab: boolean;
+  tabSwitchLimit: number;
+  messageOnWarning: string; // Có thể null theo JSON của bạn
+  created_at?: string; // ISO Date string
+  updated_at?: string; // ISO Date string
+}
+
+export interface Option {
+  label: string;
+  value: number;
+}
+
+export type ExamStatus = "DANG_LAM" | "TAM_LUU" | "DA_NOP" | "BI_HUY"; // Bạn có thể thêm các status khác nếu có
+
+export interface BaiThi {
+  id: number;
+  thoiGianBatDau?: string; // ISO String
+  thoiGianNopBai?: string | null; // ISO String hoặc null nếu chưa nộp
+  tongDiem: number | null; // null nếu chưa chấm
+  soCauDung: number | null; // null nếu chưa có kết quả
+  status: ExamStatus;
+  created_at?: string;
+  updated_at?: string;
+  thiSinhId: number;
+  thiSinh?: TaiKhoan;
+  deThiId: number;
+  deThi?: DeThi;
+  chitiet_bailams: ChiTietBaiLam[];
+  logBaiLam?: LogBaiLam;
+}
+
+export interface ChiTietBaiLam {
+  baiLamId: number;
+  cauHoiId: number;
+  dapAnId: number | null; // ID của đáp án sinh viên chọn
+  isCorrectChooser: boolean; // Server sẽ update cái này khi nộp bài
+  diem: number;
+  updateAt: string;
+}
+
+export interface LogBaiLam {
+  logId: number;
+  baiLamId: number;
+  soLanChuyenTab: number;
+  createdAt: string; //iso string
+}
+
+export interface CreateDeThiPayload {
+  monThiId: number;
+  nguoiTaoId: number;
+  tenDe: string;
+  thoiGianBatDau: string; // Định dạng "YYYY-MM-DD HH:mm:ss"
+  thoiGianKetThuc: string;
+  thoiGianLamBai: number;
+  nhomHocPhanIds: number[]; // Khác với NhomHocPhan[]
+  cauHois: {
+    id: number;
+    thuTu: number;
+    diem: number;
+  }[];
+  // Lưu ý: Tên trường phải khớp với JSON là "cauHinh"
+  cauHinh: Omit<
+    CauHinhThi,
+    "cauHinhId" | "deThiId" | "created_at" | "updated_at"
+  >;
+}

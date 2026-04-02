@@ -14,8 +14,8 @@ export default function LoginForm() {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const [loginData, setLoginData] = useState("");
-  const [pass, setPass] = useState("");
+  const [loginData, setLoginData] = useState("admin");
+  const [pass, setPass] = useState("admin");
 
   const { loginAsync, isLoadingLogin } = useLogin();
 

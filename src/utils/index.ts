@@ -1,4 +1,4 @@
-import type { StatusResult } from "@/types";
+import type { CreateDeThiPayload, DeThi, StatusResult } from "@/types";
 
 //export all
 export const getProgressColor = (percent: number) => {
@@ -122,6 +122,16 @@ export const getTestsStatus = (
   return { label: "Đã đóng", status: "CLOSED" };
 };
 
+export const getVariantDeThiWithStatus = (status: string) => {
+  switch (status) {
+    case "UPCOMING":
+      return "success";
+    case "OPENING":
+      return "warning";
+    case "CLOSED":
+      return "error";
+  }
+};
 // utils/time.ts
 export const checkTimeValid = (
   startTime: string,
@@ -201,4 +211,144 @@ export const getRandomBackground = (): string => {
   const baseUrl = `https://picsum.photos/400/200`;
 
   return `${baseUrl}?blur=7&random=${seed}`;
+};
+
+/**
+ * Chuyển đổi số phút thành định dạng HH:mm:ss
+ * @param minutes Số phút cần chuyển đổi (ví dụ: 70)
+ * @returns Chuỗi định dạng "HH:mm:ss" (ví dụ: "01:10:00")
+ */
+export const formatMinutesToTime = (minutes: number): string => {
+  if (isNaN(minutes) || minutes < 0) return "00:00:00";
+
+  const hours = Math.floor(minutes / 60);
+  const mins = Math.floor(minutes % 60);
+  const secs = 0; // Vì đầu vào chỉ có phút nên giây mặc định là 0
+
+  const hh = String(hours).padStart(2, "0");
+  const mm = String(mins).padStart(2, "0");
+  const ss = String(secs).padStart(2, "0");
+
+  return `${hh}:${mm}:${ss}`;
+};
+
+/**
+ * Chuyển đổi ISOString thành định dạng HH:mm
+ * @param isoString Chuỗi ISO (e.g., "2026-04-01T09:00:00Z")
+ * @returns Chuỗi "HH:mm" (e.g., "09:00")
+ */
+export const formatIsoToTime = (
+  isoString: string | undefined | null
+): string => {
+  if (!isoString) return "--:--";
+
+  const date = new Date(isoString);
+
+  // Kiểm tra xem chuỗi có phải là ngày hợp lệ không
+  if (isNaN(date.getTime())) return "--:--";
+
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+
+  return `${hours}:${minutes}`;
+};
+
+export const shuffleArray = <T>(array: T[]): T[] => {
+  return [...array].sort(() => Math.random() - 0.5);
+};
+
+/**
+ * Tính toán khoảng cách giữa hai mốc thời gian và trả về chuỗi định dạng linh hoạt
+ * @param start - Thời gian bắt đầu (ISO String hoặc Timestamp)
+ * @param end - Thời gian kết thúc (ISO String hoặc Timestamp)
+ * @example
+ * - 0 phút 45 giây -> "45 giây"
+ * - 5 phút 0 giây -> "5 phút"
+ * - 5 phút 10 giây -> "5 phút 10 giây"
+ */
+export const calculateDuration = (
+  start: string | number | Date | undefined | null,
+  end: string | number | Date | undefined | null
+): string => {
+  if (!start || !end) return "N/A";
+
+  const startTime = new Date(start).getTime();
+  const endTime = new Date(end).getTime();
+  const durationMs = endTime - startTime;
+
+  if (durationMs <= 0) return "0 giây";
+
+  const totalSeconds = Math.floor(durationMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  const parts: string[] = [];
+
+  // Chỉ thêm phút nếu > 0
+  if (minutes > 0) {
+    parts.push(`${minutes} phút`);
+  }
+
+  // Chỉ thêm giây nếu > 0 HOẶC khi cả phút và giây đều bằng 0 (đã xử lý ở trên)
+  if (seconds > 0) {
+    parts.push(`${seconds} giây`);
+  }
+
+  // Trường hợp đặc biệt: Nếu phút > 0 nhưng giây = 0, parts sẽ chỉ có ["X phút"]
+  // Kết quả trả về sẽ là "X phút" (đẹp hơn "X phút 00 giây")
+  return parts.join(" ");
+};
+
+/**
+ * Mapper: Chuyển BaiThi -> CreateDeThiPayload
+ * Giữ nguyên định dạng ISO String cho thời gian.
+ */
+export const mapDeThiToCreatePayload = (
+  baiThi: DeThi
+): CreateDeThiPayload | null => {
+  const source = baiThi;
+
+  if (!source) return null;
+
+  const totalQuestions = source.cau_hois.length;
+
+  // Tính điểm mỗi câu (Làm tròn 2 chữ số thập phân)
+  const scorePerQuestion = Math.round((10 / totalQuestions) * 100) / 100;
+
+  // Tính điểm cho câu cuối cùng để tổng luôn là 10.0
+  const lastQuestionScore =
+    Math.round((10 - scorePerQuestion * (totalQuestions - 1)) * 100) / 100;
+
+  return {
+    monThiId: source.mon_thi.id,
+    nguoiTaoId: source.nguoiTaoId || 3,
+    tenDe: source.tenDe,
+    // Giữ nguyên ISO String
+    thoiGianBatDau: source.thoiGianBatDau,
+    thoiGianKetThuc: source.thoiGianKetThuc,
+    thoiGianLamBai: source.thoiGianLamBai,
+
+    nhomHocPhanIds: source.nhom_hoc_phans?.map((nhom) => nhom.id) || [],
+
+    cauHois: source.cau_hois.map((q, index) => ({
+      id: q.id,
+      thuTu: index + 1,
+      diem: index === totalQuestions - 1 ? lastQuestionScore : scorePerQuestion,
+    })),
+
+    cauHinh: {
+      hasMonitoring: source.cau_hinh_thi?.hasMonitoring ?? false,
+      allowCopy: source.cau_hinh_thi?.allowCopy ?? false,
+      allowPrint: source.cau_hinh_thi?.allowPrint ?? false,
+      isEnableResume: source.cau_hinh_thi?.isEnableResume ?? false,
+      shuffleQuestions: source.cau_hinh_thi?.shuffleQuestions ?? true,
+      shuffleAnswers: source.cau_hinh_thi?.shuffleAnswers ?? true,
+      showScore: source.cau_hinh_thi?.showScore ?? true,
+      showDetailResults: source.cau_hinh_thi?.showDetailResults ?? true,
+      isLimitSwitchTab: source.cau_hinh_thi?.isLimitSwitchTab ?? false,
+      tabSwitchLimit: source.cau_hinh_thi?.tabSwitchLimit ?? 0,
+      messageOnWarning:
+        source.cau_hinh_thi?.messageOnWarning ?? "Bạn đã vi phạm quy chế thi!",
+    },
+  };
 };

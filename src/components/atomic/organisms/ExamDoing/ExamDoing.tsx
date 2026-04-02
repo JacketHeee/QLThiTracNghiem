@@ -1,94 +1,218 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Logo from "../../molecules/Logo/Logo";
 import { Button, Icon } from "../../atoms";
 import { useExamStore } from "@/stores/useExamStore";
 import { useState, useEffect, useRef } from "react";
 import { AlertTriangle, ShieldAlert, List, Maximize2 } from "lucide-react";
 import QuestionCard from "../../molecules/QuestionCard/QuestionCard";
-
-const MOCK_QUESTIONS = [
-  {
-    id: "q1",
-    text: "Những thuộc tính nào sau đây thuộc về mô hình hộp (Box Model) trong CSS? (Chọn nhiều đáp án)",
-    options: ["color", "margin", "padding", "display"],
-    type: "multiple",
-  },
-  {
-    id: "q2",
-    text: "Thẻ nào được sử dụng để tạo một liên kết (hyperlink) trong HTML?",
-    options: ["<link>", "<a>", "<html>", "<href>"],
-    type: "single",
-  },
-  {
-    id: "q2",
-    text: "Thẻ nào được sử dụng để tạo một liên kết (hyperlink) trong HTML?",
-    options: ["<link>", "<a>", "<html>", "<href>"],
-    type: "single",
-  },
-  {
-    id: "q2",
-    text: "Thẻ nào được sử dụng để tạo một liên kết (hyperlink) trong HTML?",
-    options: ["<link>", "<a>", "<html>", "<href>"],
-    type: "single",
-  },
-];
+import { useDeThiStore } from "@/stores/useDeThi.store";
+import type { Question } from "@/types";
+import { shuffleArray } from "@/utils";
+import { useAuthStore } from "@/stores/auth.store";
 
 export const ExamDoing = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+
+  // 1. Kết nối Final Store
   const {
+    currentExam,
     answers,
     updateAnswer,
-    violationCount,
     addViolation,
     finishExam,
-    startTime,
+    startExam,
   } = useExamStore();
 
-  const [timeLeft, setTimeLeft] = useState(600);
+  const { user } = useAuthStore();
+
+  const { testData } = useDeThiStore();
+  // State mới để lưu danh sách câu hỏi đã qua xử lý đảo
+  const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
+
+  // Lấy số lần vi phạm từ Store
+  const violationCount = currentExam?.logBaiLam?.soLanChuyenTab || 0;
+
+  const [timeLeft, setTimeLeft] = useState(
+    (testData?.thoiGianLamBai || 0) * 60
+  );
   const [showWarning, setShowWarning] = useState(false);
   const [showKicked, setShowKicked] = useState(false);
   const isTabOut = useRef(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isMouseOut, setIsMouseOut] = useState(false);
 
-  // 1. Guard & Timer
   useEffect(() => {
-    if (!startTime) navigate(`/tests/${id}/take`, { replace: true });
-    const timer = setInterval(
-      () => setTimeLeft((p) => (p > 0 ? p - 1 : 0)),
-      1000
-    );
-    // eslint-disable-next-line react-hooks/immutability
-    if (timeLeft === 0) handleFinish();
+    const config = testData?.cau_hinh_thi;
+
+    // CHỈ CHẠY NẾU CÓ CẤU HÌNH GIÁM SÁT
+    if (config?.hasMonitoring) {
+      const enterFullscreen = async () => {
+        try {
+          if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+          }
+        } catch (err) {
+          console.error("Không thể bật chế độ toàn màn hình:", err);
+        }
+      };
+
+      enterFullscreen();
+
+      // (Tùy chọn) Chặn phím Esc hoặc cảnh báo khi thoát Fullscreen
+      const handleFullscreenChange = () => {
+        if (!document.fullscreenElement) {
+          // Nếu người dùng thoát Fullscreen khi đang bị giám sát:
+          // Bạn có thể hiện Modal bắt buộc quay lại hoặc tính là 1 lần vi phạm
+          setShowWarning(true);
+        }
+      };
+
+      document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+      return () => {
+        document.removeEventListener(
+          "fullscreenchange",
+          handleFullscreenChange
+        );
+      };
+    }
+  }, [testData?.cau_hinh_thi]);
+
+  // 1. Guard & Timer & Start Exam
+  useEffect(() => {
+    // Nếu chưa có dữ liệu bài làm hoặc đã nộp, đá về trang hướng dẫn
+    if (!currentExam || currentExam.status === "DA_NOP") {
+      navigate(`/tests/${testData?.id}/take`, { replace: true });
+      return;
+    }
+    // --- LOGIC ĐẢO DỮ LIỆU ---
+    const config = testData?.cau_hinh_thi;
+    let finalQuestions = testData?.cau_hois ? [...testData.cau_hois] : [];
+
+    // 1. Đảo câu hỏi
+    if (config?.shuffleQuestions) {
+      finalQuestions = shuffleArray(finalQuestions);
+    }
+
+    // 2. Đảo đáp án trong từng câu hỏi
+    if (config?.shuffleAnswers) {
+      finalQuestions = finalQuestions.map((q) => ({
+        ...q,
+        cau_tra_lois: shuffleArray(q.cau_tra_lois),
+      }));
+    }
+
+    setShuffledQuestions(finalQuestions);
+
+    // Ghi nhận thời gian bắt đầu làm bài vào Store
+    startExam();
+
+    const timer = setInterval(() => {
+      setTimeLeft((p) => {
+        if (p <= 1) {
+          clearInterval(timer);
+          handleFinish(); // Hết giờ tự động nộp
+          return 0;
+        }
+        return p - 1;
+      });
+    }, 1000);
+
     return () => clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startTime, timeLeft, id, navigate]);
+  }, []);
 
   // 2. Anti-cheat Logic
   useEffect(() => {
+    const config = testData?.cau_hinh_thi;
+
+    // Nếu không yêu cầu giám sát hoặc giới hạn tab thì không chạy logic này
+    if (!config?.hasMonitoring && !config?.isLimitSwitchTab) return;
+
     const handleAction = () => {
       if (document.hidden || !document.hasFocus()) {
         isTabOut.current = true;
       } else if (isTabOut.current) {
         isTabOut.current = false;
-        addViolation();
-        if (violationCount + 1 >= 3) setShowKicked(true);
-        else setShowWarning(true);
+
+        // Chỉ cộng vi phạm nếu có bật tính năng giới hạn tab
+        if (config.isLimitSwitchTab) {
+          addViolation();
+          const limit = config.tabSwitchLimit || 3;
+
+          if (violationCount + 1 >= limit) {
+            setShowKicked(true);
+          } else {
+            setShowWarning(true);
+          }
+        }
       }
     };
+
     window.addEventListener("visibilitychange", handleAction);
     window.addEventListener("focus", handleAction);
     return () => {
       window.removeEventListener("visibilitychange", handleAction);
       window.removeEventListener("focus", handleAction);
     };
-  }, [violationCount, addViolation]);
+  }, [violationCount, addViolation, testData?.cau_hinh_thi]);
 
+  useEffect(() => {
+    const config = testData?.cau_hinh_thi;
+
+    // Nếu allowCopy là false (nghĩa là đang BẬT chế độ chặn)
+    if (config?.allowCopy === false) {
+      const handlePrevent = (e: Event) => {
+        e.preventDefault();
+        // Tùy chọn: Hiển thị một toast thông báo "Hành động này bị cấm"
+      };
+
+      // 1. Chặn Chuột phải (Context Menu)
+      document.addEventListener("contextmenu", handlePrevent);
+
+      // 2. Chặn Copy & Paste
+      document.addEventListener("copy", handlePrevent);
+      document.addEventListener("paste", handlePrevent);
+
+      // 3. Chặn các tổ hợp phím tắt (Ctrl+C, Ctrl+V, Ctrl+P, F12, v.v.)
+      const handleKeyDown = (e: KeyboardEvent) => {
+        const isControl = e.ctrlKey || e.metaKey; // metaKey cho Macbook
+
+        if (
+          (isControl &&
+            ["c", "v", "p", "s", "u"].includes(e.key.toLowerCase())) ||
+          e.key === "F12"
+        ) {
+          e.preventDefault();
+        }
+      };
+      document.addEventListener("keydown", handleKeyDown);
+
+      // 4. Chặn Print (Sử dụng CSS để ẩn nội dung khi in)
+      const style = document.createElement("style");
+      style.innerHTML = "@media print { body { display: none !important; } }";
+      document.head.appendChild(style);
+
+      // Cleanup khi unmount
+      return () => {
+        document.removeEventListener("contextmenu", handlePrevent);
+        document.removeEventListener("copy", handlePrevent);
+        document.removeEventListener("paste", handlePrevent);
+        document.removeEventListener("keydown", handleKeyDown);
+        document.head.removeChild(style);
+      };
+    }
+  }, [testData?.cau_hinh_thi]);
+
+  // 3. Xử lý Nộp bài
   const handleFinish = () => {
-    finishExam();
+    // Gọi hàm finishExam từ Store, truyền questions để tự động tính điểm hệ 10
+    finishExam(testData?.cau_hois || []);
+
     if (document.fullscreenElement) document.exitFullscreen();
-    navigate(`/tests/${id}/take/result/attempt-${Date.now()}`, {
+
+    // Điều hướng sang trang kết quả
+    navigate(`/tests/${testData?.id}/take/result/${currentExam?.id}`, {
       replace: true,
     });
   };
@@ -110,11 +234,11 @@ export const ExamDoing = () => {
       >
         <div className="w-full max-w-[668px]">
           {/* 2. Title */}
-          <h1 className="text-h5 pb-3">Kiểm tra kiến thức cơ bản HTML & CSS</h1>
+          <h1 className="text-h5 pb-3">{testData?.tenDe}</h1>
 
           <div className="text-body-2 mb-6 flex items-center gap-2">
             <Icon name="user" />
-            <span>Nguyễn Hùng Mạnh</span>
+            <span>{user?.hoTen}</span>
           </div>
 
           {/* 3. Status Bar (Timer & Actions) */}
@@ -151,21 +275,21 @@ export const ExamDoing = () => {
 
           {/* 4. Questions List */}
           <div className="space-y-8">
-            {MOCK_QUESTIONS.map((q, idx) => (
+            {shuffledQuestions.map((q, idx) => (
               <QuestionCard
                 key={q.id}
                 question={q}
                 index={idx}
-                totalQuestions={MOCK_QUESTIONS.length}
+                totalQuestions={shuffledQuestions.length}
                 userAnswer={answers[q.id]}
-                onAnswerChange={updateAnswer}
+                onAnswerChange={updateAnswer} // Truyền thẳng hàm từ Store vào
               />
             ))}
           </div>
 
           {/* 5. Finish Button */}
-          <div className="mb-20 mt-12 flex justify-between">
-            <Button variant={"outline"}>Câu trước</Button>
+          <div className="mb-20 mt-12 flex justify-end">
+            {/* <Button variant={"outline"}>Câu trước</Button> */}
             <Button color="primary" variant="contained" onClick={handleFinish}>
               Nộp bài
             </Button>
@@ -190,12 +314,14 @@ export const ExamDoing = () => {
       {/* 6. Modals & Popups */}
       {showKicked ? (
         <ViolationModal
+          maxCount={testData?.cau_hinh_thi?.tabSwitchLimit || 999}
           type="kicked"
           count={violationCount}
           onConfirm={handleFinish}
         />
       ) : showWarning ? (
         <ViolationModal
+          maxCount={testData?.cau_hinh_thi?.tabSwitchLimit || 999}
           type="warning"
           count={violationCount}
           onConfirm={() => setShowWarning(false)}
@@ -208,10 +334,16 @@ export const ExamDoing = () => {
 interface ViolationModalProps {
   type: "warning" | "kicked";
   count: number;
+  maxCount: number;
   onConfirm: () => void;
 }
 
-const ViolationModal = ({ type, count, onConfirm }: ViolationModalProps) => {
+const ViolationModal = ({
+  type,
+  count,
+  onConfirm,
+  maxCount,
+}: ViolationModalProps) => {
   const isKicked = type === "kicked";
 
   return (
@@ -239,7 +371,7 @@ const ViolationModal = ({ type, count, onConfirm }: ViolationModalProps) => {
         <p className="text-body-2 mb-8 text-text-secondary">
           {isKicked
             ? "Bạn đã vi phạm quá 3 lần quy chế thoát màn hình. Hệ thống tự động nộp bài."
-            : `Bạn vừa rời khỏi màn hình thi. Vi phạm: ${count}/3`}
+            : `Bạn vừa rời khỏi màn hình thi. Vi phạm: ${count}/${maxCount}`}
         </p>
 
         {/* Nút bấm */}

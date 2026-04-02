@@ -1,14 +1,14 @@
 import { Bookmark, CheckCircle2, XCircle } from "lucide-react";
 import { RadioButton } from "../../atoms/RadioButton/RadioButton";
+import type { Question } from "@/types";
 
 interface QuestionCardProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  question: any;
+  question: Question;
   index: number;
   totalQuestions: number;
-  userAnswer?: string | string[];
+  userAnswer: number | null; // Store lưu ID hoặc null
   isReviewMode?: boolean;
-  onAnswerChange?: (questionId: string, option: string) => void;
+  onAnswerChange?: (questionId: number, answerId: number) => void;
   isFlatMode?: boolean;
 }
 
@@ -21,13 +21,6 @@ export default function QuestionCard({
   onAnswerChange,
   isFlatMode = false,
 }: QuestionCardProps) {
-  const checkCorrect = (opt: string) => {
-    if (Array.isArray(question.correctAnswer)) {
-      return question.correctAnswer.includes(opt);
-    }
-    return opt === question.correctAnswer;
-  };
-
   return (
     <div
       className={`overflow-hidden border-other-outlined-border text-text-secondary ${!isFlatMode ? "rounded-xl border bg-background-body-background shadow-custom" : "border-b"}`}
@@ -38,7 +31,7 @@ export default function QuestionCard({
           className={`flex items-center justify-between border-b border-other-outlined-border bg-action-hover px-6 py-4`}
         >
           <span className="text-body-1 font-bold text-text-primary">
-            Câu hỏi {index + 1} trong {totalQuestions}
+            Câu hỏi {index + 1} / {totalQuestions}
           </span>
           <div className="flex items-center gap-4">
             {!isReviewMode && (
@@ -53,57 +46,65 @@ export default function QuestionCard({
 
       <div className="text-body-2 p-8">
         <p className="mb-6 font-medium leading-relaxed text-text-primary">
-          <span className="font-bold">
-            Câu hỏi {index + 1} trong {totalQuestions}:
-          </span>{" "}
-          {question.text}
+          <span className="font-bold"></span> {question.noiDungCauHoi}
         </p>
 
         <div className="space-y-2">
-          {question.options.map((opt: string, i: number) => {
-            const isSelected = Array.isArray(userAnswer)
-              ? userAnswer.includes(opt)
-              : userAnswer === opt;
+          {question.cau_tra_lois.map((opt, i) => {
+            const isSelected = opt.id === userAnswer;
+            const isCorrectOpt = opt.isCorrectAnswer;
 
-            const isCorrectOpt = checkCorrect(opt);
-
-            // Xác định màu nền cho từng option trong chế độ Review
+            // --- Logic hiển thị màu sắc khi Review ---
             let rowStyle = "";
+            let textStyle = "text-text-secondary";
+
             if (isReviewMode) {
+              if (isCorrectOpt) {
+                // Đáp án đúng luôn có màu xanh nhẹ
+                rowStyle = "bg-green-50 border border-green-200";
+                textStyle = "text-green-700 font-bold";
+              } else if (isSelected && !isCorrectOpt) {
+                // Mạnh chọn sai -> Màu đỏ nhẹ
+                rowStyle = "bg-red-50 border border-red-200";
+                textStyle = "text-red-700 font-bold";
+              }
+            } else {
+              // Chế độ đang làm bài
               if (isSelected) {
-                rowStyle = "bg-action-hover"; // Màu đỏ cho đáp án sai người dùng chọn
+                rowStyle = "bg-primary-50 border border-primary-200";
+                textStyle = "text-primary-main font-bold";
+              } else {
+                rowStyle = "hover:bg-action-hover border border-transparent";
               }
             }
 
             return (
               <div
-                key={opt}
+                key={opt.id}
                 className={`group -ml-2 flex items-center justify-between rounded-lg p-3 transition-all ${rowStyle} ${
                   !isReviewMode
                     ? "cursor-pointer hover:bg-action-hover"
                     : "cursor-default"
                 }`}
                 onClick={() =>
-                  !isReviewMode && onAnswerChange?.(question.id, opt)
+                  !isReviewMode && onAnswerChange?.(question.id, opt.id)
                 }
               >
                 <div className="flex items-center gap-4">
                   <RadioButton
-                    name={question.id}
+                    name={question.id.toString()}
                     checked={isSelected}
                     disabled={isReviewMode} // Không cho click khi đang xem kết quả
                     onChange={() =>
-                      !isReviewMode && onAnswerChange?.(question.id, opt)
+                      !isReviewMode && onAnswerChange?.(question.id, opt.id)
                     }
                   />
 
-                  <span
-                    className={`${isSelected ? "font-bold text-text-primary" : "text-text-secondary"}`}
-                  >
+                  <span className={textStyle}>
                     <span className="mr-1 font-bold uppercase">
                       {String.fromCharCode(65 + i)}.
                     </span>
-                    {opt}
+                    {opt.noiDungLuaChon}
                   </span>
                 </div>
 

@@ -17,12 +17,12 @@ export const TestPage = () => {
           <SelectField
             placeholder="Tất cả"
             options={[
-              { label: "Tất cả", value: "math" },
-              { label: "Đang mở", value: "physics" },
-              { label: "Đã đóng", value: "chemistry" },
+              { label: "Tất cả", value: 1 },
+              { label: "Đang mở", value: 2 },
+              { label: "Đã đóng", value: 3 },
               {
                 label: "Chưa mở",
-                value: "hoa",
+                value: 4,
               },
             ]}
             onSelect={() => {}}
@@ -59,12 +59,7 @@ export const TestPage = () => {
       </div>
       <div className="flex flex-col gap-2">
         {dethis.map((item) => (
-          <TestItem
-            key={item.id}
-            data={item}
-            onEdit={(d) => console.log("Edit", d)}
-            onDelete={(d) => console.log("Delete", d)}
-          />
+          <TestItem key={item.id} data={item} />
         ))}
       </div>
     </MainContentLayout>
