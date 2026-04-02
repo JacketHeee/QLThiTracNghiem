@@ -30,6 +30,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import TestDetailPage from "@/pages/TestDetailPage/TestDetailPage";
 import TestFormPage from "@/pages/TestFormPage/TestFormPage";
 import ProfilePage from "@/pages/ProfilePage/ProfilePage";
+import DifficultyLevelPage from "@/pages/DifficultyLevelPage/DifficultyLevelPage";
 
 export const router = createBrowserRouter([
   {
@@ -44,6 +45,7 @@ export const router = createBrowserRouter([
             children: [
               { path: "/", element: <HomePage /> },
               { path: "/profile", element: <ProfilePage /> },
+              { path: "/difficulty-level", element: <DifficultyLevelPage /> },
               { path: "/dashboard", element: <DashboardPage /> },
               {
                 path: "/courses",
