@@ -11,6 +11,7 @@ import ErrorBoundaryTestPage from "@/pages/ErrorBoundaryTestPage/ErrorBoundaryTe
 import { CoursePage } from "@/pages/CoursePage/CoursePage";
 import { ExamPage } from "@/pages/ExamPage/ExamPage";
 import { CourseGroupPage } from "@/pages/CourseGroupPage/CourseGroupPage";
+import { CourseGroupStudentPage } from "@/pages/CourseGroupStudentPage/CourseGroupStudentPage";
 import { QuestionPage } from "@/pages/QuestionPage/QuestionPage";
 import { UserPage } from "@/pages/UserPage/UserPage";
 import { SubjectPage } from "@/pages/SubjectPage/SubjectPage";
@@ -51,7 +52,16 @@ export const router = createBrowserRouter([
                 ],
               },
               { path: "/exams", element: <ExamPage /> },
-              { path: "/course-group", element: <CourseGroupPage /> },
+              {
+                path: "/course-group",
+                children: [
+                  { index: true, element: <CourseGroupPage /> },
+                  {
+                    path: ":courseId/groups/:groupId/students",
+                    element: <CourseGroupStudentPage />,
+                  },
+                ],
+              },
               { path: "/question", element: <QuestionPage /> },
               { path: "/users", element: <UserPage /> },
               { path: "/subjects", element: <SubjectPage /> },

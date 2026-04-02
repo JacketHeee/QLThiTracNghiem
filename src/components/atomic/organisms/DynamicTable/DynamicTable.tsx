@@ -60,7 +60,6 @@ export default function DynamicTable<T>({
         <tbody className="divide-y divide-other-outlined-border border-b border-other-outlined-border">
           {data.length > 0 ? (
             data.map((item, rowIndex) => {
-              // Sử dụng rowKey nếu có, nếu không dùng rowIndex
               const uniqueKey = rowKey ? String(item[rowKey]) : rowIndex;
 
               return (
@@ -79,14 +78,12 @@ export default function DynamicTable<T>({
                     </td>
                   ))}
 
-                  {/* Render Actions nếu có */}
                   {hasColumnActions && (
                     <td className="px-6 py-4">
                       <div className="flex justify-center gap-1">
                         {renderActions ? (
                           renderActions(item)
                         ) : (
-                          // Mặc định nếu không truyền renderActions
                           <>
                             {hasView && (
                               <Button
