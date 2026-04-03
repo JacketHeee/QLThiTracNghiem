@@ -24,6 +24,12 @@ export interface PermissionFormData {
   permissions: PermissionItem[];
 }
 
+export interface ChangePassForm {
+  currentPassword: string;
+  newPassword: string;
+  newPassword_confirmation: string;
+}
+
 export interface TaiKhoan {
   id: number;
   ma: string;
