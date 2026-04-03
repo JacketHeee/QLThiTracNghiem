@@ -9,6 +9,7 @@ interface INotificationItemProps {
   onView?: (id: number) => void;
   onEdit?: (id: number) => void;
   onDelete?: (id: number) => void;
+  actions: string[];
 }
 
 export default function NotificationItem({
@@ -16,6 +17,7 @@ export default function NotificationItem({
   onView,
   onEdit,
   onDelete,
+  actions,
 }: INotificationItemProps) {
   return (
     <div className="flex flex-col rounded-md bg-background-body-background">
@@ -35,12 +37,16 @@ export default function NotificationItem({
           <Button color={"primary"} onClick={() => onView?.(data.id)}>
             Xem chi tiết
           </Button>
-          <Button color={"primary"} onClick={() => onEdit?.(data.id)}>
-            Sửa
-          </Button>
-          <Button color={"primary"} onClick={() => onDelete?.(data.id)}>
-            Xóa
-          </Button>
+          {actions.includes("update") && (
+            <Button color={"primary"} onClick={() => onEdit?.(data.id)}>
+              Sửa
+            </Button>
+          )}
+          {actions.includes("delete") && (
+            <Button color={"primary"} onClick={() => onDelete?.(data.id)}>
+              Xóa
+            </Button>
+          )}
         </div>
       </div>
 

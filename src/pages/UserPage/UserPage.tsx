@@ -6,7 +6,13 @@ import DynamicTable, {
   type TableColumn,
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
-import type { TaiKhoan, UserUpdate, UserCreate, UserResetPass } from "@/types";
+import type {
+  TaiKhoan,
+  UserUpdate,
+  UserCreate,
+  UserResetPass,
+  RoleDetailItem,
+} from "@/types";
 import { cn } from "@/utils/cn";
 import { UserForm } from "@/components/atomic/organisms/UserForm/UserForm";
 import {
@@ -20,6 +26,7 @@ import { formatDateTimeVN } from "@/utils";
 import { useTranslation } from "react-i18next";
 import type { AxiosError } from "axios";
 import type { ErrorResponse } from "@/types";
+import { useAuthStore } from "@/stores/auth.store";
 
 const columns: TableColumn<TaiKhoan>[] = [
   {
@@ -102,6 +109,23 @@ export function UserPage() {
 
   const { deleteUserAsync, isDeleting } = useDeleteUser();
   const { resetPasswordUserAsync, isResetting } = useResetPassUser();
+
+  const pageName = "nguoi_dung";
+
+  const { role } = useAuthStore();
+  const roleDetails = !role ? [] : role.role_details;
+  const actions = roleDetails
+    .filter((item: RoleDetailItem) => item.tenChucNang === pageName)
+    .flatMap((item) => {
+      const result: string[] = [];
+
+      if (item.canView) result.push("view");
+      if (item.canCreate) result.push("create");
+      if (item.canUpdate) result.push("update");
+      if (item.canDelete) result.push("delete");
+
+      return result;
+    });
 
   const defaultModalState = {
     open: false,
@@ -442,14 +466,17 @@ export function UserPage() {
             <Icon name="arrowUpDown" />
           </Button>
 
-          <Button
-            variant={"contained"}
-            color={"primary"}
-            onClick={handleOpenAdd}
-          >
-            <Icon name="plus" size={20} />
-            Tạo tài khoản mới
-          </Button>
+          {actions.includes("create") && (
+            <Button
+              variant={"contained"}
+              color={"primary"}
+              onClick={handleOpenAdd}
+            >
+              <Icon name="plus" size={20} />
+              Tạo tài khoản mới
+            </Button>
+          )}
+
           {/* User Form Modal */}
           {modalState.open && (
             <UserForm
@@ -472,6 +499,7 @@ export function UserPage() {
           rowKey="ma"
           hasColumnActions
           onAction={handleAction}
+          checkActions={actions}
         />
         <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
       </div>

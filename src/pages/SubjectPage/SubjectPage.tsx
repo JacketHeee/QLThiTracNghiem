@@ -8,11 +8,29 @@ import DynamicTable, {
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import { SubjectForm } from "@/components/atomic/organisms/SubjectForm/SubjectForm";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
+import type { RoleDetailItem, Subject } from "@/types";
 import { useSubject } from "@/hooks/useSubject";
-import type { Subject } from "@/types";
+import { useAuthStore } from "@/stores/auth.store";
 
 export const SubjectPage = () => {
   const { t } = useTranslation("common");
+
+  const pageName = "mon_hoc";
+
+  const { role } = useAuthStore();
+  const roleDetails = !role ? [] : role.role_details;
+  const actions = roleDetails
+    .filter((item: RoleDetailItem) => item.tenChucNang === pageName)
+    .flatMap((item) => {
+      const result: string[] = [];
+
+      if (item.canView) result.push("view");
+      if (item.canCreate) result.push("create");
+      if (item.canUpdate) result.push("update");
+      if (item.canDelete) result.push("delete");
+
+      return result;
+    });
   const { subjects, isLoading, createSubject, updateSubject, deleteSubject } =
     useSubject();
 
@@ -137,14 +155,16 @@ export const SubjectPage = () => {
 
           {/* Right: Actions */}
           <div className="flex gap-2">
-            <Button
-              variant={"contained"}
-              color={"primary"}
-              onClick={handleOpenAdd}
-            >
-              <Icon name="plus" size={20} />
-              {t("subjectPage.addNew")}
-            </Button>
+            {actions.includes("create") && (
+              <Button
+                variant={"contained"}
+                color={"primary"}
+                onClick={handleOpenAdd}
+              >
+                <Icon name="plus" size={20} />
+                {t("subjectPage.addNew")}
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -158,6 +178,7 @@ export const SubjectPage = () => {
           hasColumnActions
           onAction={handleAction}
           isLoading={isLoading}
+          checkActions={actions}
         />
         <Pagination
           currentPage={currentPage}

@@ -9,6 +9,7 @@ interface QuestionItemProps {
   onEdit?: (data: Question) => void;
   onDelete?: (data: Question) => void;
   onAddToBank?: (data: Question) => void;
+  actions: string[];
 }
 
 const QuestionItem = ({
@@ -16,6 +17,7 @@ const QuestionItem = ({
   onEdit,
   onDelete,
   onAddToBank,
+  actions,
 }: QuestionItemProps) => {
   const [showAnswer, setShowAnswer] = useState(false);
 
@@ -45,20 +47,26 @@ const QuestionItem = ({
             >
               {showAnswer ? "Ẩn đáp án" : "Hiển thị đáp án"}
             </Button>
-            <Button
-              variant="text"
-              color="primary"
-              onClick={() => onEdit?.(data)}
-            >
-              Sửa
-            </Button>
-            <Button
-              variant="text"
-              color="primary"
-              onClick={() => onDelete?.(data)}
-            >
-              Xóa
-            </Button>
+            {actions.includes("update") && (
+              <Button
+                variant="text"
+                color="primary"
+                onClick={() => onEdit?.(data)}
+              >
+                Sửa
+              </Button>
+            )}
+
+            {actions.includes("delete") && (
+              <Button
+                variant="text"
+                color="primary"
+                onClick={() => onDelete?.(data)}
+              >
+                Xóa
+              </Button>
+            )}
+
             <Button
               variant="text"
               color="primary"

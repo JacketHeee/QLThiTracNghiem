@@ -13,6 +13,7 @@ import type {
   ErrorResponse,
   Question,
   QuestionStatus,
+  RoleDetailItem,
 } from "@/types";
 import { useSubject } from "@/hooks/useSubject";
 import {
@@ -36,6 +37,23 @@ export const QuestionPage = () => {
   const { updateCauHoi, isUpdating } = useUpdateCauHoi();
   const { deleteCauHoi, isDeleting } = useDeleteCauHoi();
   const { t } = useTranslation();
+
+  const pageName = "cau_hoi";
+
+  const { role } = useAuthStore();
+  const roleDetails = !role ? [] : role.role_details;
+  const actions = roleDetails
+    .filter((item: RoleDetailItem) => item.tenChucNang === pageName)
+    .flatMap((item) => {
+      const result: string[] = [];
+
+      if (item.canView) result.push("view");
+      if (item.canCreate) result.push("create");
+      if (item.canUpdate) result.push("update");
+      if (item.canDelete) result.push("delete");
+
+      return result;
+    });
 
   const defaultModalState = {
     open: false,
@@ -247,13 +265,15 @@ export const QuestionPage = () => {
               { value: "archive", label: "Lưu trữ" },
             ]}
           />
-          <Button
-            onClick={() => openInsertModal()}
-            variant="contained"
-            color="primary"
-          >
-            Thêm câu hỏi <Icon name="arrowDown" />
-          </Button>
+          {actions.includes("create") && (
+            <Button
+              onClick={() => openInsertModal()}
+              variant="contained"
+              color="primary"
+            >
+              Thêm câu hỏi <Icon name="arrowDown" />
+            </Button>
+          )}
         </div>
 
         <div className="flex gap-5 px-3">
@@ -322,6 +342,7 @@ export const QuestionPage = () => {
               onEdit={(cauHoi) => handleAction("edit", cauHoi)}
               onDelete={(cauHoi) => handleAction("delete", cauHoi)}
               onAddToBank={(cauHoi) => handleAction("add-to-bank", cauHoi)}
+              actions={actions}
             />
           ))
         ) : (

@@ -8,9 +8,15 @@ import DynamicTable, {
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import AddAssignmentForm from "@/components/atomic/organisms/AddAssignmentForm/AddAssignmentForm";
 import { useAssign, useCreateAssign, useDeleteAssign } from "@/hooks/useAssign";
-import type { Assign, AssignmentRequest, ErrorResponse } from "@/types";
+import type {
+  Assign,
+  AssignmentRequest,
+  ErrorResponse,
+  RoleDetailItem,
+} from "@/types";
 import { useTranslation } from "react-i18next";
 import type { AxiosError } from "axios";
+import { useAuthStore } from "@/stores/auth.store";
 
 export const AssignmentPage = () => {
   const { assigns } = useAssign();
@@ -22,6 +28,23 @@ export const AssignmentPage = () => {
   const { createPhanCongAsync, isCreating } = useCreateAssign();
 
   const { deleteAsync, isDeleting } = useDeleteAssign();
+
+  const pageName = "phan_cong";
+
+  const { role } = useAuthStore();
+  const roleDetails = !role ? [] : role.role_details;
+  const actions = roleDetails
+    .filter((item: RoleDetailItem) => item.tenChucNang === pageName)
+    .flatMap((item) => {
+      const result: string[] = [];
+
+      if (item.canView) result.push("view");
+      if (item.canCreate) result.push("create");
+      if (item.canUpdate) result.push("update");
+      if (item.canDelete) result.push("delete");
+
+      return result;
+    });
 
   const columns: TableColumn<Assign>[] = [
     {
@@ -140,14 +163,17 @@ export const AssignmentPage = () => {
 
           {/* Right: Actions */}
           <div className="flex gap-2">
-            <Button
-              variant={"contained"}
-              color={"primary"}
-              onClick={handleOpenAdd}
-            >
-              <Icon name="plus" size={20} />
-              Tạo phân công mới
-            </Button>
+            {actions.includes("create") && (
+              <Button
+                variant={"contained"}
+                color={"primary"}
+                onClick={handleOpenAdd}
+              >
+                <Icon name="plus" size={20} />
+                Tạo phân công mới
+              </Button>
+            )}
+
             {isModalOpen && (
               <AddAssignmentForm
                 isOpen={isModalOpen}
@@ -169,7 +195,7 @@ export const AssignmentPage = () => {
           hasColumnActions
           hasView={false}
           onAction={handleAction}
-          checkActions={["delete"]}
+          checkActions={actions.includes("delete") ? ["delete"] : []}
         />
         <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
       </div>

@@ -7,18 +7,37 @@ import AddNotificationForm from "@/components/atomic/organisms/AddNotificationFo
 import { useThongBao } from "@/hooks/useThongBao";
 import type {
   ErrorResponse,
+  RoleDetailItem,
   ThongBaoCreate,
   ThongBaoResponse,
   ThongBaoUpdate,
 } from "@/types";
 import { useTranslation } from "react-i18next";
 import type { AxiosError } from "axios";
+import { useAuthStore } from "@/stores/auth.store";
 
 export const NotificationPage = () => {
   const { thongBaos } = useThongBao();
   const { t } = useTranslation();
   const { createThongBao, updateThongBao, deleteThongBao, isProcessing } =
     useThongBao();
+
+  const pageName = "thong_bao";
+
+  const { role } = useAuthStore();
+  const roleDetails = !role ? [] : role.role_details;
+  const actions = roleDetails
+    .filter((item: RoleDetailItem) => item.tenChucNang === pageName)
+    .flatMap((item) => {
+      const result: string[] = [];
+
+      if (item.canView) result.push("view");
+      if (item.canCreate) result.push("create");
+      if (item.canUpdate) result.push("update");
+      if (item.canDelete) result.push("delete");
+
+      return result;
+    });
 
   const defaultModalState = {
     open: false,
@@ -203,14 +222,16 @@ export const NotificationPage = () => {
             <Icon name="arrowUpDown" />
           </Button>
 
-          <Button
-            variant={"contained"}
-            color={"primary"}
-            onClick={() => openInsertModal()}
-          >
-            <Icon name="plus" size={20} />
-            Tạo thông báo mới
-          </Button>
+          {actions.includes("create") && (
+            <Button
+              variant={"contained"}
+              color={"primary"}
+              onClick={() => openInsertModal()}
+            >
+              <Icon name="plus" size={20} />
+              Tạo thông báo mới
+            </Button>
+          )}
 
           {modalState.open && (
             <AddNotificationForm
@@ -231,6 +252,7 @@ export const NotificationPage = () => {
             onView={(id) => detailTB(id)}
             onEdit={(id) => openUpdateModal(id)}
             onDelete={(id) => deleteTB(id)}
+            actions={actions}
           />
         ))}
       </div>

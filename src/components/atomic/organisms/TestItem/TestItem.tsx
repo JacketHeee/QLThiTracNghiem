@@ -16,9 +16,10 @@ interface TestItemProps {
   data: DeThi;
   onEdit?: (item: DeThi) => void;
   onDelete?: (item: DeThi) => void;
+  actions: string[];
 }
 
-export default function TestItem({ data }: TestItemProps) {
+export default function TestItem({ data, actions }: TestItemProps) {
   const [isCollapse, setIsCollapse] = useState(true);
   const navigate = useNavigate();
 
@@ -67,12 +68,16 @@ export default function TestItem({ data }: TestItemProps) {
           <Button color={"primary"} onClick={handleJoinTest}>
             Xem chi tiết
           </Button>
-          <Button color={"primary"} onClick={handleEditTest}>
-            Sửa
-          </Button>
-          <Button color={"primary"} onClick={handleDelete}>
-            Xóa
-          </Button>
+          {actions.includes("update") && (
+            <Button color={"primary"} onClick={handleEditTest}>
+              Sửa
+            </Button>
+          )}
+          {actions.includes("delete") && (
+            <Button color={"primary"} onClick={handleDelete}>
+              Xóa
+            </Button>
+          )}
         </div>
       </div>
 
