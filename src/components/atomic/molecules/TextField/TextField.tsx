@@ -49,6 +49,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
           {/* Chỉ hiển thị nút icon nếu type truyền vào là password */}
           {isPasswordType && (
             <Button
+              type="button"
               size={"small"}
               onClick={togglePasswordVisibility}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-text-disabled transition-colors hover:text-text-secondary"

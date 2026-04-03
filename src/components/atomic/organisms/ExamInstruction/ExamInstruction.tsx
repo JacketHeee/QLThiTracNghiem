@@ -1,34 +1,57 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Logo from "../../molecules/Logo/Logo";
 import { Button } from "../../atoms";
 import { useExamStore } from "@/stores/useExamStore";
 import { useDeThiStore } from "@/stores/useDeThi.store";
 import { formatMinutesToTime } from "@/utils";
-import type { BaiThi } from "@/types";
+import type { BaiLam } from "@/types";
+import { useAuthStore } from "@/stores/auth.store";
+import { useExamActions } from "@/hooks/useExamActions";
 
 export const ExamInstruction = () => {
-  const { startExam, initExam, mode } = useExamStore();
+  const { initExam, mode } = useExamStore();
   const navigate = useNavigate();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { id } = useParams();
+  const { startExam } = useExamActions();
 
   const { testData } = useDeThiStore();
+  const { user } = useAuthStore();
 
-  const handleStart = () => {
-    const newExam: BaiThi = {
-      id: Math.floor(Math.random() * 100000), // Hoặc ID từ API nếu có
-      deThiId: testData?.id || 0,
-      thiSinhId: 1, // ID user hiện tại
-      status: "DANG_LAM",
-      chitiet_bailams: [], // Khởi tạo mảng rỗng
-      tongDiem: 0,
-      soCauDung: 0,
-    };
+  const handleStart = async () => {
+    // TRƯỜNG HỢP 1: CHẾ ĐỘ PREVIEW (Dành cho Admin/Giáo viên xem thử)
+    if (mode === "PREVIEW") {
+      const previewExam: BaiLam = {
+        id: -1, // ID giả
+        deThiId: testData?.id || 0,
+        thiSinhId: user?.id || 0,
+        status: "DANG_LAM",
+        chitiet_bailams: [], // Hoặc map từ testData.cau_hois nếu muốn có sẵn hàng
+        thoiGianBatDau: new Date().toISOString(),
+        tongDiem: 0,
+        soCauDung: 0,
+      };
 
-    initExam(newExam, mode);
+      initExam(previewExam, "PREVIEW");
+      navigate("doing");
+      return;
+    }
 
-    startExam();
-    navigate("doing");
+    // TRƯỜNG HỢP 2: THI THẬT (STUDENT)
+    try {
+      // 1. Gọi API qua Hook (Hook này đã lo việc fetch Detail và startTest rồi)
+      // Bạn KHÔNG nên tạo newExam thủ công ở đây vì API startTest sẽ trả về dữ liệu chuẩn
+
+      await startExam({
+        thiSinhId: user?.id || 0,
+        deThiId: testData?.id || 0,
+      });
+
+      // 2. navigate sang trang làm bài
+      // (Lưu ý: Logic lưu vào Store đã nằm trong onSuccess của useExamActions rồi)
+      navigate("doing");
+    } catch (error) {
+      console.error("Lỗi khi bắt đầu thi:", error);
+      // Có thể hiện thông báo lỗi bằng Toast ở đây
+    }
   };
 
   return (

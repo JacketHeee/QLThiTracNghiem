@@ -259,7 +259,7 @@ export const PermissionForm: FC<PermissionFormProps> = ({
                 {/* Body đồng bộ divide màu border và hover effect */}
                 <tbody className="text-body-2 divide-y divide-other-outlined-border border-b border-other-outlined-border">
                   {isLoading
-                    ? defaultPermissions.map((perm, i) => (
+                    ? defaultPermissions.map((_perm, i) => (
                         <tr key={i}>
                           {/* Cột tên */}
                           <td className="px-6 py-2">

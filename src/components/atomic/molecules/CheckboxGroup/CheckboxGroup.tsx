@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 
 interface CheckboxGroupProps {
   options: Option[];
-  value?: number[]; // Danh sách các ID đã chọn từ API
-  onChange?: (selectedValues: number[]) => void;
+  value?: (string | number)[]; // Danh sách các ID đã chọn từ API
+  onChange?: (selectedValues: (string | number)[]) => void;
   disabled?: boolean;
 }
 
@@ -15,7 +15,7 @@ export const CheckboxGroup = ({
   onChange,
   disabled = false,
 }: CheckboxGroupProps) => {
-  const [selectedIds, setSelectedIds] = useState<number[]>(value);
+  const [selectedIds, setSelectedIds] = useState<(string | number)[]>(value);
 
   // Đồng bộ khi value từ props (API) thay đổi
   useEffect(() => {
@@ -32,7 +32,7 @@ export const CheckboxGroup = ({
     onChange?.(nextIds);
   };
 
-  const handleSelectItem = (id: number) => {
+  const handleSelectItem = (id: number | string) => {
     if (disabled) return;
     const nextIds = selectedIds.includes(id)
       ? selectedIds.filter((item) => item !== id)

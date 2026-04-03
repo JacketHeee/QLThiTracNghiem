@@ -177,7 +177,7 @@ export default function AddQuestionTestPage() {
                 value: item.id,
               }))}
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              onSelect={(val) => {
+              onSelect={(_val) => {
                 // setFilterDifficulty();
               }}
               disabled={isViewMode}

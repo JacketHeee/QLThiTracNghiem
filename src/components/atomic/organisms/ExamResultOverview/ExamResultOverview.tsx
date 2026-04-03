@@ -17,8 +17,8 @@ export default function ExamResultContent() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
-  // 1. Kết nối Stores
-  const { currentExam, answers, mode } = useExamStore();
+  // 1. Chỉ lấy examResult - Đây là "Source of Truth" duy nhất
+  const { examResult, mode, answers } = useExamStore();
   const { testData } = useDeThiStore();
 
   const isPreview = mode === "PREVIEW";
@@ -29,49 +29,45 @@ export default function ExamResultContent() {
     "all"
   );
 
-  // 2. Tính toán các chỉ số (Dựa trên dữ liệu từ currentExam trong Store)
+  // 2. Clean Logic: Lấy stats trực tiếp từ examResult
   const stats = useMemo(() => {
-    if (!currentExam) return null;
+    if (!examResult) return null;
+    const { baiLam } = examResult;
+
     return {
-      score: currentExam.tongDiem || 0,
+      score: baiLam.tongDiem || 0,
+      percentage: Math.round(((baiLam.tongDiem || 0) / 10) * 100),
       totalPoints: 10,
-      percentage: Math.round(((currentExam.tongDiem || 0) / 10) * 100),
       durationText: calculateDuration(
-        currentExam.thoiGianBatDau,
-        currentExam.thoiGianNopBai
+        baiLam.thoiGianBatDau,
+        baiLam.thoiGianNopBai
       ),
-      violationCount: currentExam.logBaiLam?.soLanChuyenTab || 0,
-      dateStarted: currentExam.thoiGianBatDau
-        ? new Date(currentExam.thoiGianBatDau).toLocaleString()
+      violationCount: baiLam.logBaiLam?.soLanChuyenTab || 0,
+      dateStarted: baiLam.thoiGianBatDau
+        ? new Date(baiLam.thoiGianBatDau).toLocaleString()
         : "N/A",
-      dateFinished: currentExam.thoiGianNopBai
-        ? new Date(currentExam.thoiGianNopBai).toLocaleString()
+      dateFinished: baiLam.thoiGianNopBai
+        ? new Date(baiLam.thoiGianNopBai).toLocaleString()
         : "N/A",
     };
-  }, [currentExam]);
+  }, [examResult]);
 
-  // 3. Logic lọc câu hỏi review
+  // 3. Clean Logic: Lọc dựa trên mảng cauHois đã được Server/Store chấm điểm
   const filteredQuestions = useMemo(() => {
-    // Kiểm tra an toàn ngay đầu hàm
-    const cauHois = testData?.cau_hois;
-    if (!cauHois || !currentExam) return [];
+    if (!examResult?.cauHois) return [];
 
-    return cauHois.filter((q) => {
-      // Tìm chi tiết bài làm của câu hỏi hiện tại
-      const detail = currentExam.chitiet_bailams?.find(
-        (d) => d.cauHoiId === q.id
-      );
-      const isCorrect = detail?.isCorrectChooser || false;
+    return examResult.cauHois.filter((q) => {
+      // Tìm đáp án đúng trong list answers của câu hỏi
+      const correctAnsId = q.cau_tra_lois.find((a) => a.isCorrectAnswer)?.id;
+      const isCorrect = q.dapAnDaChon === correctAnsId;
 
       if (selectedTab === "success") return isCorrect;
       if (selectedTab === "error") return !isCorrect;
       return true;
     });
-    // Đưa testData (cả object) và currentExam vào đây
-  }, [selectedTab, testData, currentExam]);
+  }, [selectedTab, examResult]);
 
-  // Guard: Tránh crash nếu chưa có dữ liệu bài làm
-  if (!currentExam || !stats)
+  if (!examResult || !stats)
     return <div className="p-10 text-center">Đang tải kết quả...</div>;
 
   const handleBackHome = () => {

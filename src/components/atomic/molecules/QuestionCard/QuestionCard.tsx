@@ -23,7 +23,7 @@ export default function QuestionCard({
 }: QuestionCardProps) {
   return (
     <div
-      className={`overflow-hidden border-other-outlined-border text-text-secondary ${!isFlatMode ? "rounded-xl border bg-background-body-background shadow-custom" : "border-b"}`}
+      className={`min-w-[600px] overflow-hidden border-other-outlined-border text-text-secondary ${!isFlatMode ? "rounded-xl border bg-background-body-background shadow-custom" : "border-b"}`}
     >
       {/* Header */}
       {!isReviewMode && (

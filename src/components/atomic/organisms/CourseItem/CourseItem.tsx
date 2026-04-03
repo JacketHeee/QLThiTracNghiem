@@ -31,7 +31,7 @@ export default function CourseItem({
           {data.tenNhom}
         </h2>
         <p className="text-body-2 mt-1 opacity-90 hover:underline">
-          {data.giang_vien.hoTen}
+          {data.giang_vien?.hoTen}
         </p>
 
         {/* Floating Avatar */}
@@ -39,8 +39,8 @@ export default function CourseItem({
           <div className="h-[74px] w-[74px] overflow-hidden rounded-full border border-other-outlined-border bg-action-active shadow-sm">
             <img
               src={
-                data.giang_vien.urlAvatar ||
-                getDefaultAvatar(data.giang_vien.hoTen)
+                data.giang_vien?.urlAvatar ||
+                getDefaultAvatar(data.giang_vien?.hoTen || "user")
               }
               alt={"teacher"}
               className="h-full w-full object-cover"
@@ -55,7 +55,7 @@ export default function CourseItem({
         {/* Có thể thêm danh sách bài tập sắp tới ở đây */}
         <div className="flex flex-col">
           <span className="text-body-1 font-bold">
-            {data.mon_hoc.tenMonHoc}
+            {data.mon_hoc?.tenMonHoc}
           </span>{" "}
           <span className="text-body-2 text-text-secondary">
             NĂM HỌC {data.namHoc} - HỌC KỲ {data.hocKy}

@@ -40,15 +40,26 @@ export default function TestFormPage() {
 
   // 2. Logic khởi tạo và đồng bộ
   useEffect(() => {
+    // Ưu tiên 1: Nếu quay lại từ trang Questions, tuyệt đối không ghi đè dữ liệu Store
     if (state?.fromQuestions) {
       return;
     }
+
+    // Ưu tiên 2: Nếu là mode Add, reset và init (chỉ chạy khi vào mới)
     if (isAddMode) {
       resetStore();
       initTestData();
-    } else if (deThi && (isEditMode || isViewMode)) {
-      // Nếu là Edit/View: Đổ toàn bộ dữ liệu API vào Store
-      setTestData(deThi);
+      return;
+    }
+
+    // Ưu tiên 3: Mode Edit/View và có dữ liệu từ API
+    if (deThi && (isEditMode || isViewMode)) {
+      const isDifferentId = testData?.id !== urlId;
+      const isStoreEmpty = !testData?.tenDe;
+
+      if (isStoreEmpty || isDifferentId) {
+        setTestData(deThi);
+      }
     }
   }, [
     isEditMode,
@@ -59,6 +70,9 @@ export default function TestFormPage() {
     setTestData,
     isAddMode,
     state?.fromQuestions,
+    testData?.id,
+    testData?.tenDe,
+    urlId,
   ]);
 
   // 3. Logic lọc nhóm học phần (Dùng selector từ store)

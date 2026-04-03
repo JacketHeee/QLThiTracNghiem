@@ -264,6 +264,21 @@ export default function ResultPage() {
 
     return data;
   }, [viewMode, sortOrder]);
+
+  // const { reviewExam } = useExamActions();
+  // const handleViewResult = async (baiLamId: number) => {
+  //   try {
+  //     // Gọi action review bài thi (đã bao gồm logic setFinalResult vào Store)
+  //     await reviewExam(baiLamId);
+
+  //     // Sau khi dữ liệu đã vào Store thành công, mở Modal
+  //     setOpenResultModal(true);
+  //   } catch (error) {
+  //     console.error("Lỗi khi tải kết quả:", error);
+  //     // Bạn có thể thêm Toast thông báo lỗi ở đây
+  //   }
+  // };
+
   return (
     <MainContentLayout hasFooter={false} classname="w-full">
       {" "}

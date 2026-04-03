@@ -57,24 +57,25 @@ export default function AddNotificationForm({
 
   // const selectedMaMonHoc =
   //   selectedItem?.nhom_hoc_phans?.[0]?.mon_hoc.maMonHoc ?? 0;
-  const selectedMonHocId = selectedItem?.nhom_hoc_phans?.[0]?.monHocId ?? 0;
-  // Lấy danh sách nhóm đã chọn
-  const selectedNhomIds =
-    selectedItem?.nhom_hoc_phans?.map((nhom) => nhom.id) ?? [];
-  const loadDataCheckBox = () => {
-    const groupOfSubject: Group[] = subjectsWithGroup
-      .filter((item) => Number(item.id) === selectedMonHocId)
-      .flatMap((item) =>
-        item.nhom_hoc_phans.map((nhom) => ({
-          id: nhom.id,
-          label: nhom.tenNhom,
-          checked: selectedNhomIds.includes(nhom.id),
-        }))
-      );
-    setGroups(groupOfSubject);
-  };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   useEffect(() => {
+    const selectedMonHocId = selectedItem?.nhom_hoc_phans?.[0]?.monHocId ?? 0;
+    // Lấy danh sách nhóm đã chọn
+    const selectedNhomIds =
+      selectedItem?.nhom_hoc_phans?.map((nhom) => nhom.id) ?? [];
+
+    const loadDataCheckBox = () => {
+      const groupOfSubject: Group[] = subjectsWithGroup
+        .filter((item) => Number(item.id) === selectedMonHocId)
+        .flatMap((item) =>
+          item.nhom_hoc_phans.map((nhom) => ({
+            id: nhom.id,
+            label: nhom.tenNhom,
+            checked: selectedNhomIds.includes(nhom.id),
+          }))
+        );
+      setGroups(groupOfSubject);
+    };
     if (isEdit || isView) {
       loadDataCheckBox();
     }
@@ -212,7 +213,7 @@ export default function AddNotificationForm({
                 classname="!flex-[unset] bg-background-body-background"
                 placeholder="Chọn môn học"
                 options={subjects}
-                value={selectedMonHocId}
+                value={subjects[0].value}
                 onSelect={(value) => {
                   handleSelectSubject(value);
                 }}

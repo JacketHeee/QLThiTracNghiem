@@ -6,23 +6,18 @@ import DynamicTable, {
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import ExamResultOverview from "@/components/atomic/organisms/ExamResultOverview/ExamResultOverview";
 import { useDeThiSvienNhp } from "@/hooks/useDeThi";
+import { useExamActions } from "@/hooks/useExamActions";
 import { useGetNhomWithThongBao } from "@/hooks/useNhomHocPhan";
+import { dethiService } from "@/services/api/dethi.service";
 import { useAuthStore } from "@/stores/auth.store";
-import { useExamStore } from "@/stores/useExamStore";
+import { useDeThiStore } from "@/stores/useDeThi.store";
 import type { DeThi, ThongBao } from "@/types";
 import { getDefaultAvatar, getProgressColor } from "@/utils";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-// --- Interfaces ---
-// interface IStudent {
-//   id: string;
-//   name: string;
-//   avatar: string;
-// }
-
 interface IClasswork {
-  id: string;
+  id: number;
   name: string;
   attempts: string;
   percentage?: number;
@@ -31,119 +26,10 @@ interface IClasswork {
   status: "completed" | "todo";
 }
 
-const MOCK_QUESTIONS = [
-  {
-    id: "q1",
-    text: "Những thuộc tính nào sau đây thuộc về mô hình hộp (Box Model) trong CSS? (Chọn nhiều đáp án)",
-    options: ["color", "margin", "padding", "display"],
-    correctAnswer: ["margin", "padding"],
-    type: "multiple",
-  },
-  {
-    id: "q2",
-    text: "Thẻ nào được sử dụng để tạo một liên kết (hyperlink) trong HTML?",
-    options: ["<link>", "<a>", "<html>", "<href>"],
-    correctAnswer: "<a>",
-    type: "single",
-  },
-];
-
-// Mock mảng Thông báo (ThongBao[])
-// Mock mảng Thông báo (ThongBao[]) với nội dung chi tiết
-// const MOCK_THONG_BAOS: ThongBao[] = [
-//   {
-//     id: 101,
-//     tieuDe: "📢 Nhắc nhở: Nộp báo cáo tiến độ đồ án & Cập nhật link GitHub",
-//     noiDung:
-//       "Chào các nhóm, thầy nhắc lại hạn chót cập nhật file báo cáo tiến độ và link repository GitHub trên Google Drive là 23h59 tối nay. \n\nNội dung báo cáo cần bao gồm: \n1. Các tính năng đã hoàn thiện (Frontend/Backend). \n2. Danh sách các bug còn tồn đồn. \n3. Kế hoạch chi tiết cho tuần tiếp theo. \n\nSau thời gian này hệ thống sẽ tự động khóa quyền chỉnh sửa để thầy bắt đầu chấm điểm thành phần. Các nhóm gặp khó khăn về kỹ thuật vui lòng nhắn tin trực tiếp cho thầy trước 17h chiều nay.",
-//     thoiGianGui: "2026-04-03T08:00:00.000Z",
-//     uuTien: 1,
-//     status: true,
-//     nguoiGuiId: 1,
-//     nguoi_gui: {
-//       hoTen: "Nguyen Thanh Sang",
-//       urlAvatar: null,
-//       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//     } as any,
-//   },
-//   {
-//     id: 102,
-//     tieuDe:
-//       "📚 Tài liệu chuyên sâu: Next.js 15, Server Components & App Router Patterns",
-//     noiDung:
-//       "Thầy vừa cập nhật bộ tài liệu tham khảo cho Chương 4: Xây dựng kiến trúc Web hiện đại. \n\nTài liệu bao gồm: \n- Ebook 'Mastering Next.js 15' (Bản tóm tắt tiếng Việt). \n- Video hướng dẫn cấu hình Middleware và Authentication với NextAuth. \n- Source code mẫu áp dụng Clean Architecture và Atomic Design cho dự án thực tế. \n\nCác bạn lưu ý đọc kỹ phần 'Streaming & Suspense' vì đây sẽ là nội dung chính trong buổi thực hành Lab 05 vào thứ 5 tới. Ngoài ra, hãy chuẩn bị sẵn môi trường Node.js phiên bản 20 trở lên để tránh lỗi khi cài đặt các package mới.",
-//     thoiGianGui: "2026-04-01T14:30:00.000Z",
-//     uuTien: 2,
-//     status: true,
-//     nguoiGuiId: 1,
-//     nguoi_gui: {
-//       hoTen: "Nguyen Thanh Sang",
-//       urlAvatar: null,
-//       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//     } as any,
-//   },
-//   {
-//     id: 103,
-//     tieuDe: "🛠️ Thông báo: Bảo trì hệ thống Lab Online",
-//     noiDung:
-//       "Hệ thống máy chủ thực hành (Lab Online) sẽ tạm dừng hoạt động để bảo trì và nâng cấp cấu hình từ 02h00 đến 05h00 sáng ngày 05/04/2026. \n\nTrong thời gian này, các bạn sẽ không thể truy cập vào cơ sở dữ liệu dùng chung và các API test. Sau khi nâng cấp, hệ thống sẽ hỗ trợ thêm Docker Compose giúp các bạn triển khai microservices dễ dàng hơn. Rất xin lỗi vì sự bất tiện này.",
-//     thoiGianGui: "2026-03-28T22:00:00.000Z",
-//     uuTien: 3,
-//     status: true,
-//     nguoiGuiId: 1,
-//     nguoi_gui: {
-//       hoTen: "Hệ thống Quản lý",
-//       urlAvatar: null,
-//       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//     } as any,
-//   },
-// ];
-
-// Mock mảng Đề thi (DeThi[])
-// const MOCK_DE_THIS: DeThi[] = [
-//   {
-//     id: 501,
-//     tenDe: "Kiểm tra 15p: React Hooks & State",
-//     thoiGianLamBai: 15,
-//     created_at: "2026-04-02T09:00:00.000Z", // Nằm giữa 2 thông báo trên
-//     monThiId: 1,
-//     nguoiTaoId: 1,
-//     thoiGianBatDau: "2026-04-02T09:00:00.000Z",
-//     thoiGianKetThuc: "2026-04-02T10:00:00.000Z",
-//     isDeleted: false,
-//     updated_at: "2026-04-02T09:00:00.000Z",
-//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//     mon_thi: { tenMonHoc: "Lập trình Web nâng cao" } as any,
-//     cau_hois: [],
-//     nhom_hoc_phans: [],
-//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//     cau_hinh_thi: {} as any,
-//   },
-//   {
-//     id: 502,
-//     tenDe: "Bài tập về nhà: Tailwind CSS Layout",
-//     thoiGianLamBai: 45,
-//     created_at: "2026-03-30T10:00:00.000Z", // Cũ nhất
-//     monThiId: 1,
-//     nguoiTaoId: 1,
-//     thoiGianBatDau: "2026-03-30T10:00:00.000Z",
-//     thoiGianKetThuc: "2026-03-31T10:00:00.000Z",
-//     isDeleted: false,
-//     updated_at: "2026-03-30T10:00:00.000Z",
-//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//     mon_thi: { tenMonHoc: "Lập trình Web nâng cao" } as any,
-//     cau_hois: [],
-//     nhom_hoc_phans: [],
-//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//     cau_hinh_thi: {} as any,
-//   },
-// ];
-
 export default function CourseElement() {
   const [selectedTab, setSelectedTab] = useState("news");
-  const navigate = useNavigate();
 
-  const { answers, violationCount, resetExam } = useExamStore();
+  const navigate = useNavigate();
 
   const { id } = useParams();
   const { nhomHocPhan } = useGetNhomWithThongBao(Number(id));
@@ -161,7 +47,7 @@ export default function CourseElement() {
     const baiLam = item.bai_lam;
 
     return {
-      id: String(item.id),
+      id: item.id,
       name: item.tenDe,
 
       // nếu có bài làm thì show, không thì 0 lần làm
@@ -186,76 +72,26 @@ export default function CourseElement() {
     };
   });
 
-  console.log("id", id);
-  console.log("nhomHocPhan", nhomHocPhan);
-  console.log("dethis", dethis);
+  const handleStartExam = async (deThiId: number) => {
+    try {
+      // 1. Gọi trực tiếp Service hoặc dùng queryClient để lấy data đề thi
+      // Chúng ta lấy chi tiết đề để đổ vào Store
+      const res = await dethiService.getById(deThiId);
 
-  // Các dữ liệu này sau này Mạnh fetch từ API dựa trên attemptId
-  const resultData = {
-    score: 1,
-    totalPoints: 15,
-    percentage: 85,
-    duration: "00:00:12",
-    dateStarted: "Mon 23 Mar '26 05:51",
-    dateFinished: "Mon 23 Mar '26 05:51",
-  };
+      if (res.data) {
+        // 2. Cập nhật vào DeThiStore để trang Introduction có data hiển thị
+        useDeThiStore.getState().updateTestData(res.data);
 
-  const handleStartExam = () => {
-    // Chuyển hướng thẳng vào trang làm bài (mặc định mode là STUDENT)
-    useExamStore.getState().mode = "STUDENT";
-    navigate(`/tests/1/take`);
+        // 3. Sau khi Store đã có data, mới chuyển trang
+        navigate(`/tests/${deThiId}/take`);
+      }
+    } catch (error) {
+      console.error("Lỗi khi tải thông tin đề thi:", error);
+      // Toast: "Không thể tải thông tin đề thi. Vui lòng thử lại."
+    }
   };
 
   const [openResultModal, setOpenResultModal] = useState(false);
-
-  // --- Data Mockup ---
-  // const students: IStudent[] = [
-  //   {
-  //     id: "0220",
-  //     name: "0220_Nguyễn Bạch Phú Lộc",
-  //     avatar: "https://ui-avatars.com/api/?name=L&background=random",
-  //   },
-  //   {
-  //     id: "0426",
-  //     name: "0426_Nguyễn Văn Sơn",
-  //     avatar: "https://ui-avatars.com/api/?name=S&background=random",
-  //   },
-  //   {
-  //     id: "caokha",
-  //     name: "Cao Khả",
-  //     avatar: "https://ui-avatars.com/api/?name=K&background=random",
-  //   },
-  //   {
-  //     id: "dann",
-  //     name: "Dânn",
-  //     avatar: "https://ui-avatars.com/api/?name=D&background=random",
-  //   },
-  //   {
-  //     id: "minhquang",
-  //     name: "Đường Hồ Minh Quang",
-  //     avatar: "https://ui-avatars.com/api/?name=Q&background=random",
-  //   },
-  //   {
-  //     id: "tanphat",
-  //     name: "Hà Tấn Phát",
-  //     avatar: "https://ui-avatars.com/api/?name=P&background=3b82f6&color=fff",
-  //   },
-  // ];
-
-  // const classworkData: IClasswork[] = [
-  //   {
-  //     id: "1",
-  //     name: "Kiểm tra kiến thức cơ bản HTML & CSS",
-  //     attempts: "1",
-  //     percentage: 100,
-  //     score: "14 / 14",
-  //     duration: "00:00:12",
-  //     status: "completed",
-  //   },
-  //   { id: "2", name: "Test", attempts: "Unlimited", status: "todo" },
-  //   { id: "3", name: "Test name", attempts: "Unlimited", status: "todo" },
-  // ];
-
   // --- Table Configurations ---
   const classworkColumns: TableColumn<IClasswork>[] = [
     {
@@ -280,7 +116,7 @@ export default function CourseElement() {
                 size={"medium"}
                 color={"success"}
                 variant={"contained"}
-                onClick={handleStartExam}
+                onClick={() => handleStartExam(item.id)}
               >
                 Bắt đầu
               </Button>
@@ -321,7 +157,7 @@ export default function CourseElement() {
               variant={"contained"}
               color={"success"}
               size={"medium"}
-              onClick={() => setOpenResultModal(!openResultModal)}
+              onClick={() => handleViewResult(item.id)}
             >
               Kết quả
             </Button>
@@ -355,9 +191,23 @@ export default function CourseElement() {
         new Date(timeA as string).getTime()
       );
     });
-  }, [nhomHocPhan]);
+  }, [deThis, thongBaos]);
 
   const handleClose = () => setOpenResultModal(false);
+
+  const { reviewExam } = useExamActions();
+  const handleViewResult = async (baiLamId: number) => {
+    try {
+      // Gọi action review bài thi (đã bao gồm logic setFinalResult vào Store)
+      await reviewExam(baiLamId);
+
+      // Sau khi dữ liệu đã vào Store thành công, mở Modal
+      setOpenResultModal(true);
+    } catch (error) {
+      console.error("Lỗi khi tải kết quả:", error);
+      // Bạn có thể thêm Toast thông báo lỗi ở đây
+    }
+  };
   return (
     <div className="flex h-fit min-h-screen flex-1 flex-col items-center bg-background-body-background">
       <div className="flex h-fit w-[1200px] flex-col pb-10">
@@ -514,20 +364,7 @@ export default function CourseElement() {
             <Overlay onClose={handleClose}>
               {" "}
               <main className="mb-20 flex max-h-[90vh] w-fit flex-col items-center overflow-y-auto rounded-lg bg-background-body-background px-8 py-8">
-                <ExamResultOverview
-                  {...resultData}
-                  examTitle="Kiểm tra kiến thức cơ bản HTML & CSS"
-                  userName="Nguyễn Hùng Mạnh"
-                  attemptId={attemptId}
-                  violationCount={violationCount}
-                  questions={MOCK_QUESTIONS}
-                  userAnswers={answers}
-                  textMainAction="Quay lại"
-                  onBackToDashboard={() => {
-                    resetExam();
-                    handleClose();
-                  }}
-                />
+                <ExamResultOverview />
               </main>
             </Overlay>
           )}
