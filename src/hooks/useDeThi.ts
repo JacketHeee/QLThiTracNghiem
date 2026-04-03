@@ -15,6 +15,24 @@ export const useDeThi = () => {
   };
 };
 
+export const useDeThiSvienNhp = (
+  nhomHocPhanId?: number,
+  studentId?: number
+) => {
+  const query = useQuery({
+    queryKey: ["dethis", nhomHocPhanId, studentId],
+    queryFn: () =>
+      dethiService.getByNhomHocPhanStudent(nhomHocPhanId!, studentId!),
+    enabled: !!nhomHocPhanId && !!studentId, // chỉ chạy khi có đủ params
+    select: (res) => res.data || [],
+  });
+
+  return {
+    dethis: query.data || null,
+    isLoading: query.isLoading,
+  };
+};
+
 export const useDeThiStudent = (studentId: number) => {
   const query = useQuery({
     queryKey: ["dethis", "student", studentId],

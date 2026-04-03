@@ -8,6 +8,7 @@ import type {
   DeThi,
   NhomHocPhanJoinGroup,
   NhomHocPhanSinhViensResponse,
+  NhomHocPhanDetailSv,
 } from "@/types";
 import axiosClient from "./axios";
 
@@ -88,4 +89,11 @@ export const nhomHocPhanService = {
       }
     );
   },
+  //   delete: (id: number): Promise<ApiResponse<boolean>> =>
+  //     axiosClient.delete(`/monhocs/${id}`),
+
+  getWithThongBaoDeThi: (
+    nhomHocPhanId: number
+  ): Promise<ApiResponse<NhomHocPhanDetailSv>> =>
+    axiosClient.get(`/nhomhocphans/detailsinhvien/${nhomHocPhanId}`),
 };

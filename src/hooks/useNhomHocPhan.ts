@@ -205,3 +205,15 @@ export const useImportSinhVienList = () => {
       }),
   });
 };
+export const useGetNhomWithThongBao = (id: number) => {
+  const query = useQuery({
+    queryKey: ["nhomhocphan", "thongbaos", id],
+    queryFn: () => nhomHocPhanService.getWithThongBaoDeThi(id),
+    select: (res) => res.data,
+  });
+
+  return {
+    nhomHocPhan: query.data || null,
+    isLoading: query.isLoading,
+  };
+};
