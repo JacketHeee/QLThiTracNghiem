@@ -6,40 +6,112 @@ import { RichTextEditor } from "../../molecules/RichTextEditor/RichTextEditor";
 import { RadioButton } from "../../atoms/RadioButton/RadioButton";
 import { Button } from "../../atoms";
 import { Checkbox } from "../../atoms/Checkbox/Checkbox";
+import type { Answer, CauHoiCreate, CauHoiUpdate, Question } from "@/types";
+import { useAuthStore } from "@/stores/auth.store";
+import { useSubject } from "@/hooks/useSubject";
 
-interface Answer {
-  id: string;
-  text: string;
-  isCorrect: boolean;
-}
+// interface Answer {
+//   id: string;
+//   text: string;
+//   isCorrect: boolean;
+// }
 
 interface AddQuestionFormProps {
-  isOpen: boolean;
+  // isOpen: boolean;
   onClose: () => void;
+  onSaveCreate: (data: CauHoiCreate) => void;
+  onSaveUpdate: (id: number, data: CauHoiUpdate) => void;
+  selectedItem: Question | null;
+  mode: "create" | "view" | "update" | "none";
 }
 
 export default function AddQuestionForm({
-  isOpen,
+  // isOpen,
   onClose,
+  onSaveCreate,
+  onSaveUpdate,
+  selectedItem,
+  mode,
 }: AddQuestionFormProps) {
   const [selectedTab, setSelectedTab] = useState("handmade");
 
   // --- State cho Câu hỏi ---
-  const [questionContent, setQuestionContent] = useState("");
-  const [subjectId, setSubjectId] = useState<number | null>(null);
-  const [chapterId, setChapterId] = useState<number | null>(null);
-  const [difficultyId, setDifficultyId] = useState<number | null>(null);
-  const [isPublic, setIsPublic] = useState(true);
+  // const [questionContent, setQuestionContent] = useState("");
+  // const [subjectId, setSubjectId] = useState<number | null>(null);
+  // const [chapterId, setChapterId] = useState<number | null>(null);
+  // const [difficultyId, setDifficultyId] = useState<number | null>(null);
+  // const [isPublic, setIsPublic] = useState(true);
 
   // --- State cho Danh sách đáp án ---
-  const [answers, setAnswers] = useState<Answer[]>([]);
+  // const [answers, setAnswers] = useState<Answer[]>([]);
 
   // --- State cho Ô nhập đáp án mới (Tách biệt với questionContent) ---
   const [currentAnswerText, setCurrentAnswerText] = useState("");
   const [currentIsCorrect, setCurrentIsCorrect] = useState(false);
   const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null);
 
-  if (!isOpen) return null;
+  const { user } = useAuthStore();
+
+  const defaultFormData: Question = {
+    id: 0,
+    noiDungCauHoi: "",
+    imageUrl: "",
+    giaiThichDapAn: "",
+    diemMacDinh: "",
+    soLuotSuDung: 0,
+    status: "public",
+    isDeleted: false,
+
+    doKhoId: 0,
+    monHocId: 0,
+    chuongId: 0,
+    nguoiTaoId: user?.id || 0,
+
+    de_this_count: 0,
+
+    mon_hoc: null,
+    chuong: null,
+    do_kho: null,
+    nguoi_tao: user,
+    cau_tra_lois: [],
+
+    created_at: null,
+    updated_at: null,
+  };
+  const selectedQuestion: Question = selectedItem ?? defaultFormData;
+
+  const { subjectsWithChuong } = useSubject();
+  const subjectOptions = subjectsWithChuong.map((item) => ({
+    label: item.tenMonHoc,
+    value: item.id,
+  }));
+
+  const [formData, setFormData] = useState<Question>(selectedQuestion);
+
+  const setFormDataProp = <K extends keyof Question>(
+    field: K,
+    value: Question[K]
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const isCreate = mode === "create";
+  const isUpdate = mode === "update";
+
+  const selectedChuongs = subjectsWithChuong.find(
+    (item) => item.id === selectedQuestion.monHocId
+  )?.chuongs;
+  const defaultOptionChuong = selectedChuongs
+    ? selectedChuongs?.map((item) => ({
+        label: item.tenChuong,
+        value: item.id,
+      }))
+    : [];
+
+  const [chuongOptions, setChuongOptions] =
+    useState<{ label: string; value: number }[]>(defaultOptionChuong);
+
+  // if (!isOpen) return null;
 
   // Xử lý thêm hoặc cập nhật đáp án vào danh sách
   const handleSaveAnswer = () => {
@@ -47,30 +119,41 @@ export default function AddQuestionForm({
 
     if (editingAnswerId) {
       // Chế độ chỉnh sửa
-      setAnswers(
-        answers.map((ans) =>
-          ans.id === editingAnswerId
-            ? { ...ans, text: currentAnswerText, isCorrect: currentIsCorrect }
-            : currentIsCorrect
-              ? { ...ans, isCorrect: false }
-              : ans
-        )
-      );
+      const newList: Answer[] = formData.cau_tra_lois.map((ans) => {
+        if (ans.id === Number(editingAnswerId)) {
+          console.log(`2id  ${editingAnswerId} ${ans.id}`);
+          return {
+            ...ans,
+            noiDungLuaChon: currentAnswerText,
+            isCorrectAnswer: currentIsCorrect,
+          };
+        } else if (currentIsCorrect) {
+          return { ...ans, isCorrectAnswer: false };
+        } else {
+          return ans;
+        }
+      });
+
+      setFormDataProp("cau_tra_lois", newList);
       setEditingAnswerId(null);
     } else {
       // Chế độ thêm mới
       const newAnswer: Answer = {
-        id: Date.now().toString(),
-        text: currentAnswerText,
-        isCorrect: currentIsCorrect,
+        id: Number(Date.now().toString()),
+        noiDungLuaChon: currentAnswerText,
+        isCorrectAnswer: currentIsCorrect,
+        cauHoiId: null,
       };
-      setAnswers((prev) => {
-        // Nếu đáp án mới là đúng, bỏ chọn các đáp án đúng cũ
-        const updated = currentIsCorrect
-          ? prev.map((a) => ({ ...a, isCorrect: false }))
-          : prev;
-        return [...updated, newAnswer];
-      });
+
+      // Xử lý trước khi set state
+      const updatedList = currentIsCorrect
+        ? formData.cau_tra_lois.map((a) => ({ ...a, isCorrectAnswer: false }))
+        : formData.cau_tra_lois;
+
+      const finalList = [...updatedList, newAnswer];
+
+      // Set state 1 lần duy nhất
+      setFormDataProp("cau_tra_lois", finalList);
     }
 
     // Reset ô nhập
@@ -78,30 +161,70 @@ export default function AddQuestionForm({
     setCurrentIsCorrect(false);
   };
 
-  const handleDeleteAnswer = (id: string) => {
-    setAnswers(answers.filter((ans) => ans.id !== id));
+  const handleDeleteAnswer = (id: number) => {
+    const newList = formData.cau_tra_lois.filter((ans) => ans.id !== id);
+    setFormDataProp("cau_tra_lois", newList);
   };
 
   const handleEditAnswer = (ans: Answer) => {
-    setEditingAnswerId(ans.id);
-    setCurrentAnswerText(ans.text);
-    setCurrentIsCorrect(ans.isCorrect);
+    setEditingAnswerId(ans.id.toString());
+
+    setCurrentAnswerText(ans.noiDungLuaChon);
+
+    setCurrentIsCorrect(ans.isCorrectAnswer);
   };
 
   const handleFinalSubmit = () => {
-    const payload = {
-      mon_hoc_id: subjectId,
-      chuong_id: chapterId,
-      do_kho_id: difficultyId,
-      noi_dung: questionContent,
-      cong_khai: isPublic,
-      dap_an: answers.map((a) => ({
-        content: a.text,
-        is_correct: a.isCorrect,
-      })),
-    };
-    console.log("Dữ liệu gửi lên Server:", payload);
-    // Thực hiện call API mutation tại đây
+    if (isUpdate) {
+      const data: CauHoiUpdate = {
+        monHocId: formData.monHocId,
+        chuongId: formData.chuongId ?? null,
+        doKhoId: formData.doKhoId,
+        nguoiTaoId: formData.nguoiTaoId,
+        noiDungCauHoi: formData.noiDungCauHoi,
+        giaiThichDapAn: formData.giaiThichDapAn || "",
+        diemMacDinh: Number(formData.diemMacDinh) || 0,
+        status: formData.status as "public" | "private" | "archive",
+
+        cauTraLois: formData.cau_tra_lois.map((ans) => ({
+          noiDungLuaChon: ans.noiDungLuaChon,
+          isCorrectAnswer: ans.isCorrectAnswer,
+          cauHoiId: ans.cauHoiId,
+        })),
+      };
+      onSaveUpdate(formData.id, data);
+    } else if (isCreate) {
+      const data: CauHoiCreate = {
+        monHocId: formData.monHocId,
+        chuongId: formData.chuongId ?? null,
+        doKhoId: formData.doKhoId,
+        nguoiTaoId: formData.nguoiTaoId,
+        noiDungCauHoi: formData.noiDungCauHoi,
+        giaiThichDapAn: formData.giaiThichDapAn || "",
+        diemMacDinh: Number(formData.diemMacDinh) || 0,
+        status: formData.status as "public" | "private" | "archive",
+
+        cauTraLois: formData.cau_tra_lois.map((ans) => ({
+          noiDungLuaChon: ans.noiDungLuaChon,
+          isCorrectAnswer: ans.isCorrectAnswer,
+          cauHoiId: ans.cauHoiId,
+        })),
+      };
+      onSaveCreate(data);
+    }
+  };
+
+  const handleSelectSubject = (val: number) => {
+    const subject = subjectsWithChuong.find((s) => s.id === val);
+    const chuongs = subject ? subject.chuongs : [];
+    const options = chuongs.map((item) => ({
+      label: item.tenChuong,
+      value: item.id,
+    }));
+    setChuongOptions(options);
+
+    setFormDataProp("monHocId", val);
+    setFormDataProp("chuongId", null);
   };
 
   return (
@@ -111,10 +234,14 @@ export default function AddQuestionForm({
         <Tabs
           value={selectedTab}
           onChange={setSelectedTab}
-          tabs={[
-            { value: "handmade", label: "Thêm thủ công" },
-            { value: "fromFile", label: "Thêm từ file" },
-          ]}
+          tabs={
+            isCreate
+              ? [
+                  { value: "handmade", label: "Thêm thủ công" },
+                  { value: "fromFile", label: "Thêm từ file" },
+                ]
+              : [{ value: "handmade", label: "Sửa" }]
+          }
         />
 
         <div className="flex max-h-[80vh] flex-col overflow-auto px-5">
@@ -122,22 +249,17 @@ export default function AddQuestionForm({
           <div className="flex gap-5 py-3">
             <SelectField
               label="Môn học"
+              value={formData.monHocId}
               placeholder="Chọn môn học"
-              options={[
-                { label: "Toán học", value: 1 },
-                { label: "Vật lý", value: 2 },
-                { label: "Hóa học", value: 3 },
-              ]}
-              onSelect={(val) => setSubjectId(Number(val))}
+              options={subjectOptions}
+              onSelect={(val) => handleSelectSubject(Number(val))}
             />
             <SelectField
               label="Chương"
               placeholder="Chọn chương"
-              options={[
-                { label: "Chương 1: Cơ học", value: 101 },
-                { label: "Chương 2: Nhiệt học", value: 102 },
-              ]}
-              onSelect={(val) => setChapterId(Number(val))}
+              options={chuongOptions}
+              onSelect={(val) => setFormDataProp("chuongId", Number(val))}
+              value={formData.chuongId || undefined}
             />
             <SelectField
               label="Độ khó"
@@ -148,7 +270,8 @@ export default function AddQuestionForm({
                 { label: "Vận dụng", value: 3 },
                 { label: "Vận dụng cao", value: 4 },
               ]}
-              onSelect={(val) => setDifficultyId(Number(val))}
+              onSelect={(val) => setFormDataProp("doKhoId", Number(val))}
+              value={formData.do_kho?.id}
             />
           </div>
 
@@ -158,8 +281,8 @@ export default function AddQuestionForm({
               Nội dung câu hỏi
             </span>
             <RichTextEditor
-              content={questionContent}
-              onChange={(val) => setQuestionContent(val)}
+              content={formData.noiDungCauHoi}
+              onChange={(val) => setFormDataProp("noiDungCauHoi", val)}
             />
           </div>
 
@@ -169,12 +292,12 @@ export default function AddQuestionForm({
               Danh sách đáp án
             </span>
             <div className="flex flex-col rounded-md border border-other-outlined-border bg-white">
-              {answers.length === 0 ? (
+              {formData.cau_tra_lois.length === 0 ? (
                 <div className="p-8 text-center text-text-disabled">
                   Chưa có đáp án nào. Hãy thêm ở bên dưới.
                 </div>
               ) : (
-                answers.map((ans, index) => (
+                formData.cau_tra_lois.map((ans, index) => (
                   <div
                     key={ans.id}
                     className="flex items-center gap-4 border-b border-other-outlined-border p-3 last:border-none hover:bg-gray-50"
@@ -184,10 +307,10 @@ export default function AddQuestionForm({
                     </strong>
                     <div
                       className="text-body-2 prose-sm max-w-none flex-1"
-                      dangerouslySetInnerHTML={{ __html: ans.text }}
+                      dangerouslySetInnerHTML={{ __html: ans.noiDungLuaChon }}
                     />
                     <div className="flex items-center gap-4">
-                      {ans.isCorrect ? (
+                      {ans.isCorrectAnswer ? (
                         <span className="bg-success-main/10 rounded px-2 py-1 text-xs font-bold text-success-main">
                           ĐÚNG
                         </span>
@@ -196,7 +319,7 @@ export default function AddQuestionForm({
                           label="Chọn đúng"
                           checked={false}
                           onChange={() =>
-                            handleEditAnswer({ ...ans, isCorrect: true })
+                            handleEditAnswer({ ...ans, isCorrectAnswer: true })
                           }
                         />
                       )}
@@ -272,8 +395,13 @@ export default function AddQuestionForm({
           <div className="mt-4 flex items-center justify-between border-t border-other-outlined-border py-4">
             <Checkbox
               label="Đặt làm câu hỏi công khai"
-              checked={isPublic}
-              onChange={(e) => setIsPublic(e.target.checked)}
+              checked={formData.status === "public"}
+              onChange={(e) =>
+                setFormDataProp(
+                  "status",
+                  e.target.checked ? "public" : "private"
+                )
+              }
             />
             <div className="flex gap-2">
               <Button variant="outline" color="standard" onClick={onClose}>
@@ -283,7 +411,11 @@ export default function AddQuestionForm({
                 variant="contained"
                 color="primary"
                 onClick={handleFinalSubmit}
-                disabled={!questionContent || answers.length < 2 || !subjectId}
+                disabled={
+                  !formData.noiDungCauHoi ||
+                  formData.cau_tra_lois.length < 2 ||
+                  !formData.monHocId
+                }
               >
                 Lưu toàn bộ câu hỏi
               </Button>

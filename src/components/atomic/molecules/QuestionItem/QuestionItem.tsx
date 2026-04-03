@@ -6,9 +6,9 @@ import { BodyQuestionItem } from "../BodyQuestionItem/BodyQuestionItem";
 
 interface QuestionItemProps {
   data: Question;
-  onEdit?: (id: number) => void;
-  onDelete?: (id: number) => void;
-  onAddToBank?: (id: number) => void;
+  onEdit?: (data: Question) => void;
+  onDelete?: (data: Question) => void;
+  onAddToBank?: (data: Question) => void;
 }
 
 const QuestionItem = ({
@@ -48,21 +48,21 @@ const QuestionItem = ({
             <Button
               variant="text"
               color="primary"
-              onClick={() => onEdit?.(data.id)}
+              onClick={() => onEdit?.(data)}
             >
               Sửa
             </Button>
             <Button
               variant="text"
               color="primary"
-              onClick={() => onDelete?.(data.id)}
+              onClick={() => onDelete?.(data)}
             >
               Xóa
             </Button>
             <Button
               variant="text"
               color="primary"
-              onClick={() => onAddToBank?.(data.id)}
+              onClick={() => onAddToBank?.(data)}
             >
               Thêm vào ngân hàng
             </Button>

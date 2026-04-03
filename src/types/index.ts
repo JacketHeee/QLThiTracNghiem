@@ -59,6 +59,26 @@ export interface TaiKhoan {
   nhom_hoc_phans: NhomHocPhan[];
 }
 
+export interface CauTraLoi {
+  noiDungLuaChon: string;
+  isCorrectAnswer: boolean;
+}
+
+export interface CauHoiBase {
+  monHocId: number;
+  chuongId?: number | null;
+  doKhoId?: number | null;
+  nguoiTaoId: number;
+  noiDungCauHoi: string;
+  giaiThichDapAn?: string;
+  diemMacDinh?: number;
+  status?: "public" | "private" | "archive";
+  cauTraLois: CauTraLoi[];
+}
+
+export type CauHoiCreate = CauHoiBase;
+export type CauHoiUpdate = Partial<CauHoiBase>;
+
 export interface Subject {
   id: number;
   maMonHoc: string;
@@ -84,12 +104,12 @@ export interface Question {
   noiDungCauHoi: string;
   imageUrl: string | null;
   giaiThichDapAn: string;
-  diemMacDinh: string; // "1.50" -> string từ API
+  diemMacDinh: string;
   soLuotSuDung: number;
   status: QuestionStatus;
   isDeleted: boolean;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 
   doKhoId: number;
   monHocId: number;
@@ -99,10 +119,10 @@ export interface Question {
   de_this_count: number;
 
   // relations
-  mon_hoc: Subject;
-  chuong: unknown | null;
-  do_kho: DoKho;
-  nguoi_tao: TaiKhoan;
+  mon_hoc: Subject | null;
+  chuong: Chuong | null;
+  do_kho: DoKho | null;
+  nguoi_tao: TaiKhoan | null;
   cau_tra_lois: Answer[];
 
   dapAnDaChon?: number | null;
@@ -112,9 +132,7 @@ export interface Answer {
   id: number;
   noiDungLuaChon: string;
   isCorrectAnswer: boolean;
-  created_at: string; // Hoặc Date | null tùy vào cách bạn xử lý data
-  updated_at: string;
-  cauHoiId: number;
+  cauHoiId: number | null;
 }
 
 export interface Role {
@@ -181,6 +199,35 @@ export interface UserResponse extends UserBase {
 
 export interface UserResetPass {
   newPassword: string;
+}
+
+export interface SubjectWithGroup {
+  id: number;
+  maMonHoc: string;
+  tenMonHoc: string;
+  soTinChi: number;
+  soTietLyThuyet: number;
+  soTietThucHanh: number;
+  isDeleted: number;
+  nhom_hoc_phans: NhomHocPhan[];
+}
+
+export interface Chuong {
+  id: number;
+  tenChuong: string;
+  monHocId: number;
+  isDeleted: number; // hoặc boolean nếu backend trả về true/false
+}
+
+export interface MonHocWithChuong {
+  id: number;
+  maMonHoc: string;
+  tenMonHoc: string;
+  soTinChi: number;
+  soTietLyThuyet: number;
+  soTietThucHanh: number;
+  isDeleted: number; // hoặc boolean
+  chuongs: Chuong[];
 }
 
 export interface DeThiSvienResponse {

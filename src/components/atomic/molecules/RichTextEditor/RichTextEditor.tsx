@@ -3,6 +3,7 @@ import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Toolbar } from "../Toolbar/Toolbar";
 import StarterKit from "@tiptap/starter-kit";
+import { useEffect } from "react";
 
 export const RichTextEditor = ({
   content,
@@ -32,6 +33,12 @@ export const RichTextEditor = ({
       },
     },
   });
+
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
 
   return (
     <div className="overflow-hidden rounded-md border border-other-outlined-border text-text-primary transition-all">
