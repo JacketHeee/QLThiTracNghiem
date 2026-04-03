@@ -3,6 +3,12 @@ import { Mail, Phone, Camera, MapPin, Globe, CheckCircle2 } from "lucide-react";
 import { TextField } from "@/components/atomic/molecules/TextField/TextField";
 import { Button } from "@/components/atomic/atoms";
 import Tabs from "@/components/atomic/molecules/Tabs/Tabs";
+import { useChangePass } from "@/hooks/useUser";
+import { useAuthStore } from "@/stores/auth.store";
+import { getDefaultAvatar } from "@/utils";
+import type { ChangePassForm, ErrorResponse } from "@/types";
+import { useTranslation } from "react-i18next";
+import type { AxiosError } from "axios";
 
 // --- Interfaces ---
 export interface TaiKhoan {
@@ -29,25 +35,113 @@ export interface TaiKhoan {
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<"info" | "password">("info");
 
+  const { user } = useAuthStore();
+  const { changePass } = useChangePass();
+
+  const defaultChangePassForm: ChangePassForm = {
+    currentPassword: "",
+    newPassword: "",
+    newPassword_confirmation: "",
+  };
+  const [formChangePass, setFormChangePass] = useState<ChangePassForm>(
+    defaultChangePassForm
+  );
+
   // Mock data mapping đúng interface TaiKhoan
-  const user: TaiKhoan = {
-    id: 1,
-    ma: "NDT15_HMANH",
-    username: "manh.nguyenhung",
-    hoTen: "Nguyễn Hùng Mạnh",
-    email: "manh.nguyen@ndt15.vn",
-    nhomQuyenId: 1,
-    sdt: "0987 654 321",
-    ngaySinh: "17/04/2000",
-    laGioiTinhNu: false,
-    ggid: null,
-    urlAvatar: null,
-    isStudent: true,
-    isLocked: false,
-    isDeleted: false,
-    lastLogin: "2026-04-03",
-    created_at: "2025-12-01",
-    updated_at: "2026-04-01",
+  // const user: TaiKhoan = {
+  //   id: 1,
+  //   ma: "NDT15_HMANH",
+  //   username: "manh.nguyenhung",
+  //   hoTen: "Nguyễn Hùng Mạnh",
+  //   email: "manh.nguyen@ndt15.vn",
+  //   nhomQuyenId: 1,
+  //   sdt: "0987 654 321",
+  //   ngaySinh: "17/04/2000",
+  //   laGioiTinhNu: false,
+  //   ggid: null,
+  //   urlAvatar: null,
+  //   isStudent: true,
+  //   isLocked: false,
+  //   isDeleted: false,
+  //   lastLogin: "2026-04-03",
+  //   created_at: "2025-12-01",
+  //   updated_at: "2026-04-01",
+  // };
+
+  const { t } = useTranslation();
+
+  const changePassword = async () => {
+    console.log("change", formChangePass);
+    if (!user) {
+      console.log("Lỗi chưa set user");
+      return;
+    }
+
+    if (!validate()) return;
+    try {
+      await changePass({ id: user.id, data: formChangePass });
+      alert(t("message.success.update"));
+    } catch (error: unknown) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.status === 422) {
+        //lỗi validate backend
+        const errors = err.response?.data?.errors;
+
+        const firstError = Object.values(errors)?.[0];
+
+        if (Array.isArray(firstError)) {
+          alert(firstError[0]);
+        }
+      } else {
+        alert(t("message.error.update"));
+      }
+    }
+  };
+
+  const validate = (): boolean => {
+    if (
+      !formChangePass.newPassword ||
+      formChangePass.newPassword.trim() === ""
+    ) {
+      alert("Mật khẩu không được để trống");
+      return false;
+    }
+
+    if (formChangePass.newPassword.length < 6) {
+      alert("Mật khẩu phải có ít nhất 6 ký tự");
+      return false;
+    }
+
+    if (!/[a-zA-Z]/.test(formChangePass.newPassword)) {
+      alert("Mật khẩu phải chứa chữ cái");
+      return false;
+    }
+
+    if (!/[0-9]/.test(formChangePass.newPassword)) {
+      alert("Mật khẩu phải chứa số");
+      return false;
+    }
+
+    if (
+      !/[A-Z]/.test(formChangePass.newPassword) ||
+      !/[a-z]/.test(formChangePass.newPassword)
+    ) {
+      alert("Mật khẩu phải có chữ hoa và chữ thường");
+      return false;
+    }
+
+    if (
+      formChangePass.newPassword_confirmation !== formChangePass.newPassword
+    ) {
+      alert("Mật khẩu xác nhận không khớp");
+      return false;
+    }
+
+    if (formChangePass.newPassword === formChangePass.currentPassword) {
+      alert("Mật khẩu mới phải khác mật khẩu hiện tại");
+      return false;
+    }
+    return true;
   };
 
   return (
@@ -60,24 +154,21 @@ export default function ProfilePage() {
             <div className="relative py-4">
               <div className="h-32 w-32 overflow-hidden rounded-full border-4 border-background-paper bg-grey-grey-200 shadow-md">
                 <img
-                  src={
-                    user.urlAvatar ||
-                    `https://api.dicebear.com/7.x/notionists/svg?seed=${user.username}`
-                  }
+                  src={getDefaultAvatar(user?.hoTen || "User")}
                   alt="Avatar"
                   className="h-full w-full object-cover"
                 />
               </div>
-              <Button className="absolute bottom-2 right-2 rounded-full border border-other-outlined-border p-2 shadow hover:bg-action-hover">
+              <Button className="absolute bottom-2 right-2 rounded-full border border-other-outlined-border bg-background-body-background p-2 shadow hover:bg-action-hover">
                 <Camera size={18} className="text-text-primary" />
               </Button>
             </div>
             <div className="mt-4 flex-1 text-center md:mb-4 md:text-left">
               <h1 className="text-h6 font-bold uppercase text-text-primary">
-                {user.hoTen}
+                {user?.hoTen}
               </h1>
               <p className="text-body-2 text-text-secondary">
-                @{user.username}
+                @{user?.username}
               </p>
             </div>
           </div>
@@ -104,11 +195,11 @@ export default function ProfilePage() {
             <div className="space-y-4">
               <div className="text-body-2 flex items-center gap-3 text-text-secondary">
                 <Mail size={18} className="text-text-disabled" />
-                <span className="truncate">{user.email}</span>
+                <span className="truncate">{user?.email}</span>
               </div>
               <div className="text-body-2 flex items-center gap-3 text-text-secondary">
                 <Phone size={18} className="text-text-disabled" />
-                <span>{user.sdt}</span>
+                <span>{user?.sdt}</span>
               </div>
               <div className="text-body-2 flex items-center gap-3 text-text-secondary">
                 <MapPin size={18} className="text-text-disabled" />
@@ -143,22 +234,26 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
-                  <TextField label="Họ và tên" value={user.hoTen} readOnly />
-                  <TextField label="Mã định danh" value={user.ma} readOnly />
+                  <TextField label="Họ và tên" value={user?.hoTen} readOnly />
+                  <TextField label="Mã định danh" value={user?.ma} readOnly />
                   <TextField
                     label="Email liên hệ"
-                    value={user.email}
+                    value={user?.email}
                     readOnly
                   />
-                  <TextField label="Số điện thoại" value={user.sdt} readOnly />
-                  <TextField label="Ngày sinh" value={user.ngaySinh} readOnly />
+                  <TextField label="Số điện thoại" value={user?.sdt} readOnly />
+                  <TextField
+                    label="Ngày sinh"
+                    value={user?.ngaySinh}
+                    readOnly
+                  />
 
                   <div className="flex flex-col gap-1">
                     <label className="text-body-2-semibold text-text-secondary">
                       Giới tính
                     </label>
                     <div className="text-body-2 py-2 font-medium text-text-primary">
-                      {user.laGioiTinhNu ? "Nữ" : "Nam"}
+                      {user?.laGioiTinhNu ? "Nữ" : "Nam"}
                     </div>
                   </div>
 
@@ -189,17 +284,38 @@ export default function ProfilePage() {
                   onSubmit={(e) => e.preventDefault()}
                 >
                   <TextField
+                    value={formChangePass.currentPassword}
+                    onChange={(e) =>
+                      setFormChangePass((prev) => ({
+                        ...prev,
+                        currentPassword: e.target.value,
+                      }))
+                    }
                     type="password"
                     label="Mật khẩu hiện tại"
                     placeholder="••••••••"
                   />
                   <div className="h-px w-full bg-other-divider"></div>
                   <TextField
+                    value={formChangePass.newPassword}
+                    onChange={(e) =>
+                      setFormChangePass((prev) => ({
+                        ...prev,
+                        newPassword: e.target.value,
+                      }))
+                    }
                     type="password"
                     label="Mật khẩu mới"
                     placeholder="Nhập mật khẩu mới"
                   />
                   <TextField
+                    value={formChangePass.newPassword_confirmation}
+                    onChange={(e) =>
+                      setFormChangePass((prev) => ({
+                        ...prev,
+                        newPassword_confirmation: e.target.value,
+                      }))
+                    }
                     type="password"
                     label="Xác nhận mật khẩu mới"
                     placeholder="Nhập lại mật khẩu mới"
@@ -210,6 +326,7 @@ export default function ProfilePage() {
                       color="primary"
                       size="large"
                       className="font-bold"
+                      onClick={() => changePassword()}
                     >
                       Cập nhật mật khẩu
                     </Button>

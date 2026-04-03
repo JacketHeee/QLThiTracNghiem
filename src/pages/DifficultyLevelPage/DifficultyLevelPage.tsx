@@ -7,19 +7,55 @@ import DynamicTable, {
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import { useDoKho } from "@/hooks/useDoKho";
-import type { DoKho } from "@/types";
+import type { DoKho, ErrorResponse } from "@/types";
+import type { AxiosError } from "axios";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function DifficultyLevelPage() {
   const { doKhos, isLoading } = useDoKho();
-  // const [DoKhos, setDoKhos] = useState<DoKho[]>(initialDoKhos);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { t } = useTranslation();
+  const { createDoKho, updateDoKho, deleteDoKho, isProcessing } = useDoKho();
 
-  const handleOpenAdd = () => {
-    setIsModalOpen(!isModalOpen);
+  const defaultModalState = {
+    open: false,
+    mode: "none",
+    id: undefined,
+    selectedItem: null,
+  } as const;
+
+  const [modalState, setModalState] = useState<{
+    open: boolean;
+    mode: "create" | "update" | "none";
+    id: number | undefined;
+    selectedItem: DoKho | null;
+  }>(defaultModalState);
+
+  const closeModal = () => {
+    setModalState(defaultModalState);
   };
 
-  const handleAction = () => {};
+  const openInsertModal = () => {
+    setModalState({
+      open: true,
+      mode: "create",
+      id: undefined,
+      selectedItem: null,
+    });
+  };
+
+  const handleAction = (action: "detail" | "edit" | "remove", doKho: DoKho) => {
+    if (action === "edit") {
+      setModalState({
+        open: true,
+        mode: "update",
+        id: doKho.id,
+        selectedItem: doKho,
+      });
+    } else if (action === "remove") {
+      deleteDK(doKho.id);
+    }
+  };
 
   const columns: TableColumn<DoKho>[] = [
     { title: "Mã độ khó", key: "id" },
@@ -29,8 +65,95 @@ export default function DifficultyLevelPage() {
     },
   ];
 
+  const insert = async (data: DoKho) => {
+    if (!validate(data)) return;
+    try {
+      await createDoKho(data);
+      alert(t("message.success.create"));
+      closeModal();
+    } catch (error: unknown) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.status === 422) {
+        //lỗi validate backend
+        const errors = err.response?.data?.errors;
+
+        const firstError = Object.values(errors)?.[0];
+
+        if (Array.isArray(firstError)) {
+          alert(firstError[0]);
+        }
+      } else {
+        alert(t("message.error.create"));
+      }
+    }
+  };
+
+  const updateDK = async (id: number, data: DoKho) => {
+    if (!validate(data)) {
+      return;
+    }
+    try {
+      await updateDoKho({ id, data });
+      alert(t("message.success.update"));
+      closeModal();
+    } catch (error: unknown) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.status === 422) {
+        //lỗi validate backend
+        const errors = err.response.data.errors;
+
+        const firstError = Object.values(errors)?.[0];
+
+        if (Array.isArray(firstError)) {
+          alert(firstError[0]);
+        }
+      } else {
+        alert(t("message.error.update"));
+      }
+    }
+  };
+
+  const deleteDK = async (data: number) => {
+    //catch lỗi sau
+    const isConfirm = window.confirm("Bạn có chắc muốn xóa không?");
+    if (!isConfirm) return;
+    try {
+      await deleteDoKho(data);
+      alert(t("message.success.delete"));
+      closeModal();
+    } catch (error: unknown) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.status === 422) {
+        //lỗi validate backend
+        const errors = err.response.data.errors;
+
+        const firstError = Object.values(errors)?.[0];
+
+        if (Array.isArray(firstError)) {
+          alert(firstError[0]);
+        }
+      } else {
+        alert(t("message.error.delete"));
+      }
+    }
+  };
+
+  const validate = (request: DoKho): boolean => {
+    if (!request.tenDoKho || request.tenDoKho.trim() === "") {
+      alert("Tên độ khó không được để trống");
+      return false;
+    }
+    return true;
+  };
+
   return (
     <MainContentLayout>
+      {/* Xử lý loading ở đây nhen */}
+      {isProcessing && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
+          Loading...
+        </div>
+      )}
       {/* Toolbar */}
       <div className="flex flex-col gap-10 rounded-md bg-background-body-background px-2 py-2">
         <div className="flex justify-between">
@@ -57,16 +180,20 @@ export default function DifficultyLevelPage() {
             <Button
               variant={"contained"}
               color={"primary"}
-              onClick={handleOpenAdd}
+              onClick={openInsertModal}
             >
               <Icon name="plus" size={20} />
               Tạo độ khó mới
             </Button>
 
-            {isModalOpen && (
+            {modalState.open && (
               <DifficultyLevelForm
-                onSave={() => {}}
-                onCancel={() => setIsModalOpen(!isModalOpen)}
+                onSaveCreate={(data) => insert(data)}
+                onSaveUpdate={(id, data) => updateDK(id, data)}
+                initialData={modalState.selectedItem}
+                onCancel={() => closeModal()}
+                mode={modalState.mode}
+                id={modalState.id ?? null}
               />
             )}
           </div>
@@ -80,7 +207,8 @@ export default function DifficultyLevelPage() {
           data={doKhos}
           rowKey="id"
           hasColumnActions
-          onAction={handleAction}
+          onAction={(action, doKho) => handleAction(action, doKho)}
+          hasView={false}
           isLoading={isLoading}
         />
         <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />

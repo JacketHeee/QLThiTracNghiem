@@ -1,5 +1,6 @@
 import type {
   ApiResponse,
+  ChangePassForm,
   TaiKhoan,
   UserCreate,
   UserResetPass,
@@ -16,6 +17,15 @@ export const userService = {
 
   create: (data: UserCreate): Promise<ApiResponse<UserResponse>> =>
     axiosClient.post("/users", data),
+
+  changePass: ({
+    id,
+    data,
+  }: {
+    id: number;
+    data: ChangePassForm;
+  }): Promise<ApiResponse<boolean>> =>
+    axiosClient.post(`/users/changepassword/${id}`, data),
 
   update: ({
     id,

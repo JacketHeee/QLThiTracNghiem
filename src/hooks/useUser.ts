@@ -37,6 +37,26 @@ export const useCreateUser = () => {
   };
 };
 
+export const useChangePass = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: userService.changePass, // API thêm mới
+
+    onSuccess: () => {
+      // Sau khi thêm thành công → gọi lại danh sách roles
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+    },
+  });
+
+  return {
+    changePass: mutation.mutateAsync, // dùng await nếu cần
+    isChanging: mutation.isPending,
+    isChangeError: mutation.isError,
+    isChangeSuccess: mutation.isSuccess,
+  };
+};
+
 // Sửa
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
