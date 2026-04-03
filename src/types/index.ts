@@ -168,6 +168,42 @@ export interface UserResetPass {
   newPassword: string;
 }
 
+export interface DeThiSvienResponse {
+  de_this: DeThiSvien[];
+}
+
+export interface BaiLam {
+  id: number;
+  thoiGianBatDau: string;
+  thoiGianNopBai: string | null;
+  tongDiem: number | null;
+  soCauDung: number | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  thiSinhId: number;
+  deThiId: number;
+}
+
+export interface DeThiSvienResponse {
+  de_this: DeThiSvien[];
+}
+
+export interface DeThiSvien {
+  id: number;
+  monThiId: number;
+  tenDe: string;
+  thoiGianBatDau: string;
+  thoiGianKetThuc: string;
+  thoiGianLamBai: number;
+  isDeleted: boolean;
+  created_at: string;
+  updated_at: string;
+  nguoiTaoId: number;
+
+  bai_lam: BaiLam | null;
+}
+
 export interface AssignmentRequest {
   giangVienId: number | null;
   monHocIds: number[];
@@ -257,6 +293,15 @@ export interface NhomHocPhanJoinGroup {
   sinhVienId: number;
   nhomHocPhanId: number;
   maMoi: string;
+}
+
+export interface NhomHocPhanDetailSv {
+  id: number;
+  tenNhom: string;
+  thong_baos: ThongBao[];
+  de_this: DeThi[];
+  sinh_viens: TaiKhoan[];
+  giang_vien: TaiKhoan;
 }
 
 export type BackendErrors = {

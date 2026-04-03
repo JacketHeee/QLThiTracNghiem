@@ -1,4 +1,9 @@
-import type { ApiResponse, CreateDeThiPayload, DeThi } from "@/types";
+import type {
+  ApiResponse,
+  CreateDeThiPayload,
+  DeThi,
+  DeThiSvienResponse,
+} from "@/types";
 import axiosClient from "./axios"; // Import service môn học
 
 export const dethiService = {
@@ -13,6 +18,14 @@ export const dethiService = {
    */
   getByStudentId: (studentId: number): Promise<ApiResponse<DeThi[]>> =>
     axiosClient.get(`/dethis/get_osvien/${studentId}`),
+
+  getByNhomHocPhanStudent: (
+    nhomHocPhanId: number,
+    studentid: number
+  ): Promise<ApiResponse<DeThiSvienResponse>> =>
+    axiosClient.get(
+      `/dethis/get_by_nhomhocphan_svien/${nhomHocPhanId}/${studentid}`
+    ),
 
   /**
    * Tạo mới đề thi
