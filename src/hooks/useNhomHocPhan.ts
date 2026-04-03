@@ -150,7 +150,7 @@ export const useResetInviteCode = () => {
 export const useAddSinhVienToNhom = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: { sinhVienId: number } }) =>
+    mutationFn: ({ id, data }: { id: number; data: { username: string } }) =>
       nhomHocPhanService.addSinhVienToNhom(id, data),
     onSuccess: (_, { id }) =>
       queryClient.invalidateQueries({

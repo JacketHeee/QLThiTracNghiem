@@ -167,5 +167,50 @@
       "formatInstruction": "Please format users correctly.",
       "addToSystem": "Add to system"
     }
+  },
+  "subjectPage": {
+    "table": {
+      "code": "Code",
+      "name": "Subject Name",
+      "credits": "Credits",
+      "theoryPeriods": "Theory",
+      "practicePeriods": "Practice"
+    },
+    "filter": {
+      "placeholder": "Select criteria",
+      "byName": "By name",
+      "byCode": "By code"
+    },
+    "addNew": "Create new subject",
+    "confirmDelete": "Are you sure you want to delete subject: {{subjectName}}?",
+    "form": {
+      "addTitle": "Add New Subject",
+      "updateTitle": "Update Subject",
+      "nameLabel": "Subject Name",
+      "namePlaceholder": "Example: Data Structures",
+      "codeLabel": "Subject Code",
+      "codePlaceholder": "Example: 841010",
+      "creditsLabel": "Credits",
+      "creditsPlaceholder": "3",
+      "theoryPeriodsLabel": "Theory Periods",
+      "theoryPeriodsPlaceholder": "45",
+      "practicePeriodsLabel": "Practice Periods",
+      "practicePeriodsPlaceholder": "30",
+      "backButton": "Back",
+      "saveButton": "Save Subject",
+      "updateButton": "Update",
+      "validation": {
+        "nameRequired": "Subject name is required",
+        "codeRequired": "Subject code is required"
+      }
+    }
+  },
+  "tableActions": {
+    "header": "Actions",
+    "detail": "Detail",
+    "edit": "Edit",
+    "remove": "Remove",
+    "loading": "Loading...",
+    "noData": "No data"
   }
 }
