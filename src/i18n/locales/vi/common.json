@@ -168,5 +168,50 @@
       "formatInstruction": "Vui lòng soạn người dùng theo đúng định dạng.",
       "addToSystem": "Thêm vào hệ thống"
     }
+  },
+  "subjectPage": {
+    "table": {
+      "code": "Mã môn",
+      "name": "Tên môn học",
+      "credits": "Tín chỉ",
+      "theoryPeriods": "Lý thuyết",
+      "practicePeriods": "Thực hành"
+    },
+    "filter": {
+      "placeholder": "Chọn tiêu chí",
+      "byName": "Theo tên",
+      "byCode": "Theo mã"
+    },
+    "addNew": "Tạo môn học mới",
+    "confirmDelete": "Bạn có chắc muốn xóa môn: {{subjectName}}?",
+    "form": {
+      "addTitle": "Thêm môn học mới",
+      "updateTitle": "Cập nhật môn học",
+      "nameLabel": "Tên môn học",
+      "namePlaceholder": "Ví dụ: Cấu trúc dữ liệu",
+      "codeLabel": "Mã môn học",
+      "codePlaceholder": "Ví dụ: 841010",
+      "creditsLabel": "Số tín chỉ",
+      "creditsPlaceholder": "3",
+      "theoryPeriodsLabel": "Số tiết lý thuyết",
+      "theoryPeriodsPlaceholder": "45",
+      "practicePeriodsLabel": "Số tiết thực hành",
+      "practicePeriodsPlaceholder": "30",
+      "backButton": "Quay lại",
+      "saveButton": "Lưu môn học",
+      "updateButton": "Cập nhật",
+      "validation": {
+        "nameRequired": "Tên môn học không được để trống",
+        "codeRequired": "Mã môn học không được để trống"
+      }
+    }
+  },
+  "tableActions": {
+    "header": "Thao tác",
+    "detail": "Chi tiết",
+    "edit": "Sửa",
+    "remove": "Xóa",
+    "loading": "Đang tải...",
+    "noData": "Không có dữ liệu"
   }
 }

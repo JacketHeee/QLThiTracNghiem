@@ -1,33 +1,70 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import Pagination from "@/components/atomic/molecules/Panigation/Panigation";
 import DynamicTable, {
   type TableColumn,
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
-import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
-// import { SubjectForm } from "./SubjectForm";
 import { SubjectForm } from "@/components/atomic/organisms/SubjectForm/SubjectForm";
-import type { Subject } from "@/types";
+import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import { useSubject } from "@/hooks/useSubject";
-
-const columns: TableColumn<Subject>[] = [
-  { title: "Mã môn", key: "maMonHoc" },
-  {
-    title: "Tên môn học",
-    key: "tenMonHoc",
-  },
-  { title: "Tín chỉ", key: "soTinChi", className: "text-center" },
-  { title: "Lý thuyết", key: "soTietLyThuyet", className: "text-center" },
-  { title: "Thực hành", key: "soTietThucHanh", className: "text-center" },
-];
+import type { Subject } from "@/types";
 
 export const SubjectPage = () => {
+  const { t } = useTranslation("common");
   const { subjects, isLoading, createSubject, updateSubject, deleteSubject } =
     useSubject();
+
+  const columns: TableColumn<Subject>[] = [
+    { title: t("subjectPage.table.code"), key: "maMonHoc" },
+    {
+      title: t("subjectPage.table.name"),
+      key: "tenMonHoc",
+    },
+    {
+      title: t("subjectPage.table.credits"),
+      key: "soTinChi",
+      className: "text-center",
+    },
+    {
+      title: t("subjectPage.table.theoryPeriods"),
+      key: "soTietLyThuyet",
+      className: "text-center",
+    },
+    {
+      title: t("subjectPage.table.practicePeriods"),
+      key: "soTietThucHanh",
+      className: "text-center",
+    },
+  ];
+
   // const [subjects, setSubjects] = useState<Subject[]>(initialSubjects);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCriteria, setFilterCriteria] = useState("tenMonHoc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // Or any other number you prefer
+
+  const filteredData = useMemo(() => {
+    const lowercasedFilter = searchTerm.toLowerCase();
+    return subjects.filter((item) => {
+      if (filterCriteria === "tenMonHoc") {
+        return item.tenMonHoc.toLowerCase().includes(lowercasedFilter);
+      }
+      if (filterCriteria === "maMonHoc") {
+        return item.maMonHoc.toLowerCase().includes(lowercasedFilter);
+      }
+      return true;
+    });
+  }, [searchTerm, subjects, filterCriteria]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentData = filteredData.slice(startIndex, endIndex);
 
   const handleOpenAdd = () => {
     setEditingSubject(null); // Reset về null để form hiểu là thêm mới
@@ -39,7 +76,11 @@ export const SubjectPage = () => {
       setEditingSubject(item); // Dữ liệu dòng này sẽ được truyền vào initialData của Form
       setIsModalOpen(true);
     } else if (action === "remove") {
-      if (window.confirm(`Bạn có chắc muốn xóa môn: ${item.tenMonHoc}?`)) {
+      if (
+        window.confirm(
+          t("subjectPage.confirmDelete", { subjectName: item.tenMonHoc })
+        )
+      ) {
         deleteSubject(item.id); // Gọi API Delete thực tế
       }
     }
@@ -65,20 +106,32 @@ export const SubjectPage = () => {
       <div className="flex flex-col gap-10 rounded-md bg-background-body-background px-2 py-2">
         <div className="flex justify-between">
           {/* Left: Filter & Search */}
-          <div className="flex gap-2">
+          <div className="flex w-1/2 gap-2">
             <SelectField
-              placeholder="Chọn tiêu chí"
+              placeholder={t("subjectPage.filter.placeholder")}
               defaultIndex={0}
               options={[
-                { label: "Theo tên", value: 1 },
-                { label: "Theo ID", value: 2 },
+                { label: t("subjectPage.filter.byName"), value: "tenMonHoc" },
+                { label: t("subjectPage.filter.byCode"), value: "maMonHoc" },
               ]}
-              onSelect={() => {}}
+              onSelect={(value) => {
+                if (value) {
+                  setFilterCriteria(value as string);
+                  setCurrentPage(1);
+                }
+              }}
+              classname="min-w-max"
             />
             <Input
               hasBoder={true}
-              placeholder="Tìm kiếm"
+              placeholder={t("courseGroup.search")}
               icon={<Icon name="search" className="text-text-disabled" />}
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full"
             />
           </div>
 
@@ -90,7 +143,7 @@ export const SubjectPage = () => {
               onClick={handleOpenAdd}
             >
               <Icon name="plus" size={20} />
-              Tạo môn học mới
+              {t("subjectPage.addNew")}
             </Button>
           </div>
         </div>
@@ -100,13 +153,17 @@ export const SubjectPage = () => {
       <div className="flex flex-col gap-2 rounded-md bg-background-body-background px-2 py-2">
         <DynamicTable
           columns={columns}
-          data={subjects}
+          data={currentData}
           rowKey="id"
           hasColumnActions
           onAction={handleAction}
           isLoading={isLoading}
         />
-        <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
         {isModalOpen && (
           <SubjectForm
             key={editingSubject?.id}

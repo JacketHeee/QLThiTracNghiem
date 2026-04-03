@@ -80,15 +80,33 @@ export default function CourseGroupStudentForm({
     }
   };
 
+  // const handleAddStudent = async () => {
+  //   if (!studentCode.trim()) return;
+  //   // Assume studentCode is the ID for now
+  //   const sinhVienId = parseInt(studentCode);
+  //   if (isNaN(sinhVienId)) return;
+  //   try {
+  //     await addMutation.mutateAsync({ id: groupId, data: { sinhVienId } });
+  //     setStudentCode("");
+  //     onClose(); // Close the form on success
+  //   } catch (error) {
+  //     console.error("Failed to add student:", error);
+  //   }
+  // };
+
   const handleAddStudent = async () => {
-    if (!studentCode.trim()) return;
-    // Assume studentCode is the ID for now
-    const sinhVienId = parseInt(studentCode);
-    if (isNaN(sinhVienId)) return;
+    const username = studentCode.trim();
+
+    if (!username) return;
+
     try {
-      await addMutation.mutateAsync({ id: groupId, data: { sinhVienId } });
+      await addMutation.mutateAsync({
+        id: groupId,
+        data: { username },
+      });
+
       setStudentCode("");
-      onClose(); // Close the form on success
+      onClose();
     } catch (error) {
       console.error("Failed to add student:", error);
     }

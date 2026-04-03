@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "../../atoms";
 
 export type TableColumn<T> = {
@@ -39,6 +40,7 @@ export default function DynamicTable<T>({
   className = "",
   getRowClassName,
 }: Props<T>) {
+  const { t } = useTranslation("common");
   return (
     <div className="w-full overflow-x-auto rounded-md bg-background-body-background">
       <table className={`w-full text-left text-text-primary ${className}`}>
@@ -53,7 +55,9 @@ export default function DynamicTable<T>({
               </th>
             ))}
             {hasColumnActions && (
-              <th className="text-nowrap px-6 py-4 text-center">Thao tác</th>
+              <th className="text-nowrap px-6 py-4 text-center">
+                {t("tableActions.header")}
+              </th>
             )}
           </tr>
         </thead>
@@ -93,7 +97,7 @@ export default function DynamicTable<T>({
                                 onClick={() => onAction?.("detail", item)}
                                 className="text-nowrap"
                               >
-                                Chi tiết
+                                {t("tableActions.detail")}
                               </Button>
                             )}
 
@@ -106,7 +110,7 @@ export default function DynamicTable<T>({
                                 onClick={() => onAction?.("edit", item)}
                                 className="text-nowrap"
                               >
-                                Sửa
+                                {t("tableActions.edit")}
                               </Button>
                             )}
 
@@ -119,7 +123,7 @@ export default function DynamicTable<T>({
                                 onClick={() => onAction?.("remove", item)}
                                 className="text-nowrap"
                               >
-                                Xóa
+                                {t("tableActions.remove")}
                               </Button>
                             )}
                           </>
@@ -136,7 +140,7 @@ export default function DynamicTable<T>({
                 colSpan={columns.length + (hasColumnActions ? 1 : 0)}
                 className="px-6 py-10 text-center italic text-text-disabled"
               >
-                Đang tải
+                {t("tableActions.loading")}
               </td>
             </tr>
           )}

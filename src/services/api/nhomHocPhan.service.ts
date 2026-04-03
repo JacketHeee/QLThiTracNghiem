@@ -53,7 +53,7 @@ export const nhomHocPhanService = {
 
   addSinhVienToNhom: (
     nhomhocphan: number,
-    data: { sinhVienId: number }
+    data: { username: string }
   ): Promise<EmptyResponse> =>
     axiosClient.post(
       `/nhomhocphans/add_sinh_vien_to_nhom/${nhomhocphan}`,

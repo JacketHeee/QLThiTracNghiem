@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { Button, Icon } from "@/components/atomic/atoms";
 import { TextField } from "@/components/atomic/molecules/TextField/TextField";
 import type { Subject } from "@/types";
@@ -15,6 +16,7 @@ export function SubjectForm({
   onSave,
   onCancel,
 }: SubjectFormProps) {
+  const { t } = useTranslation("common");
   // KHẮC PHỤC: Khởi tạo state trực tiếp từ initialData.
   // Để state này cập nhật khi initialData thay đổi, hãy truyền key={initialData.id} khi gọi component này.
   const [formData, setFormData] = useState<Subject>(
@@ -51,11 +53,11 @@ export function SubjectForm({
     const newErrors: Partial<Record<keyof Subject, string>> = {};
 
     if (!formData.tenMonHoc?.trim()) {
-      newErrors.tenMonHoc = "Tên môn học không được để trống";
+      newErrors.tenMonHoc = t("subjectPage.form.validation.nameRequired");
     }
 
     if (!formData.maMonHoc?.trim()) {
-      newErrors.maMonHoc = "Mã môn học không được để trống";
+      newErrors.maMonHoc = t("subjectPage.form.validation.codeRequired");
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -77,7 +79,9 @@ export function SubjectForm({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-other-divider px-6 py-2">
           <h6 className="text-body-1 font-bold text-text-primary">
-            {initialData ? "Cập nhật môn học" : "Thêm môn học mới"}
+            {initialData
+              ? t("subjectPage.form.updateTitle")
+              : t("subjectPage.form.addTitle")}
           </h6>
           <Button
             type="button"
@@ -93,8 +97,8 @@ export function SubjectForm({
         {/* Body */}
         <div className="space-y-4 px-6 py-6">
           <TextField
-            label="Tên môn học"
-            placeholder="Ví dụ: Cấu trúc dữ liệu"
+            label={t("subjectPage.form.nameLabel")}
+            placeholder={t("subjectPage.form.namePlaceholder")}
             value={formData.tenMonHoc}
             onChange={(e) => handleChange("tenMonHoc", e.target.value)}
             error={errors.tenMonHoc}
@@ -102,8 +106,8 @@ export function SubjectForm({
 
           <div className="grid grid-cols-2 gap-2">
             <TextField
-              label="Mã môn học"
-              placeholder="Ví dụ: 841010"
+              label={t("subjectPage.form.codeLabel")}
+              placeholder={t("subjectPage.form.codePlaceholder")}
               value={formData.maMonHoc}
               onChange={(e) => handleChange("maMonHoc", e.target.value)}
               disabled={!!initialData}
@@ -111,9 +115,9 @@ export function SubjectForm({
             />
 
             <TextField
-              label="Số tín chỉ"
+              label={t("subjectPage.form.creditsLabel")}
               type="number"
-              placeholder="3"
+              placeholder={t("subjectPage.form.creditsPlaceholder")}
               value={formData.soTinChi || ""}
               onChange={(e) =>
                 handleChange("soTinChi", Number(e.target.value) || 0)
@@ -123,9 +127,9 @@ export function SubjectForm({
 
           <div className="grid grid-cols-2 gap-2">
             <TextField
-              label="Số tiết lý thuyết"
+              label={t("subjectPage.form.theoryPeriodsLabel")}
               type="number"
-              placeholder="45"
+              placeholder={t("subjectPage.form.theoryPeriodsPlaceholder")}
               value={formData.soTietLyThuyet || ""}
               onChange={(e) =>
                 handleChange("soTietLyThuyet", Number(e.target.value) || 0)
@@ -133,9 +137,9 @@ export function SubjectForm({
             />
 
             <TextField
-              label="Số tiết thực hành"
+              label={t("subjectPage.form.practicePeriodsLabel")}
               type="number"
-              placeholder="30"
+              placeholder={t("subjectPage.form.practicePeriodsPlaceholder")}
               value={formData.soTietThucHanh || ""}
               onChange={(e) =>
                 handleChange("soTietThucHanh", Number(e.target.value) || 0)
@@ -153,11 +157,13 @@ export function SubjectForm({
               color={"standard"}
               onClick={onCancel}
             >
-              Quay lại
+              {t("subjectPage.form.backButton")}
             </Button>
 
             <Button type="submit" variant={"contained"} color={"primary"}>
-              {initialData ? "Cập nhật" : "Lưu môn học"}
+              {initialData
+                ? t("subjectPage.form.updateButton")
+                : t("subjectPage.form.saveButton")}
             </Button>
           </div>
         </div>
