@@ -30,7 +30,6 @@ export default function LoginForm() {
 
     try {
       const res = await loginAsync(data);
-
       if (res.original.me.isStudent) {
         navigate("/courses");
       } else {
