@@ -6,14 +6,20 @@ import { Overlay } from "../../molecules/Overlay/Overlay";
 
 interface DifficultyLevelFormProps {
   initialData?: DoKho | null;
-  onSave: (data: DoKho) => void;
+  onSaveCreate: (data: DoKho) => void;
+  onSaveUpdate: (id: number, data: DoKho) => void;
+  id: number | null;
+  mode: "create" | "view" | "update" | "none";
   onCancel: () => void;
 }
 
 export function DifficultyLevelForm({
   initialData,
-  onSave,
+  onSaveCreate,
+  onSaveUpdate,
   onCancel,
+  mode,
+  id,
 }: DifficultyLevelFormProps) {
   // Khởi tạo state dựa trên initialData
   const [formData, setFormData] = useState<DoKho>(
@@ -22,6 +28,9 @@ export function DifficultyLevelForm({
       tenDoKho: "",
     }
   );
+
+  const isCreate = mode === "create";
+  const isUpdate = mode === "update";
 
   const [error, setError] = useState<string>("");
 
@@ -39,15 +48,21 @@ export function DifficultyLevelForm({
     e.preventDefault();
 
     // Validate dữ liệu
-    if (!formData.tenDoKho?.trim()) {
-      const errorMsg = "Tên mức độ khó không được để trống";
-      setError(errorMsg);
-      // Giữ nguyên logic dùng alert từ SubjectForm của bạn
-      alert(errorMsg);
-      return;
+    // if (!formData.tenDoKho?.trim()) {
+    //   const errorMsg = "Tên mức độ khó không được để trống";
+    //   setError(errorMsg);
+    //   // Giữ nguyên logic dùng alert từ SubjectForm của bạn
+    //   alert(errorMsg);
+    //   return;
+    // } đổi validate sang page nha m
+    if (isCreate) onSaveCreate(formData);
+    else if (isUpdate) {
+      if (!id) {
+        console.log("lỗi set id");
+        return;
+      }
+      onSaveUpdate(id, formData);
     }
-
-    onSave(formData);
   };
 
   return (

@@ -30,6 +30,13 @@ export interface ChangePassForm {
   newPassword_confirmation: string;
 }
 
+export interface DoKho extends DoKhoRequest {
+  id: number;
+}
+export interface DoKhoRequest {
+  tenDoKho: string;
+}
+
 export interface TaiKhoan {
   id: number;
   ma: string;
