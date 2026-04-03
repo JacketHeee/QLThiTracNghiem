@@ -6,23 +6,82 @@ import AddQuestionForm from "@/components/atomic/organisms/AddQuestionForm/AddQu
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import QuestionItem from "@/components/atomic/molecules/QuestionItem/QuestionItem";
 import { useDoKho } from "@/hooks/useDoKho";
-import type { DoKho, Question, QuestionStatus } from "@/types";
+import type {
+  CauHoiCreate,
+  CauHoiUpdate,
+  DoKho,
+  ErrorResponse,
+  Question,
+  QuestionStatus,
+} from "@/types";
 import { useSubject } from "@/hooks/useSubject";
-import { useQuestions } from "@/hooks/useQuestion";
+import {
+  useCreateCauHoi,
+  useDeleteCauHoi,
+  useQuestions,
+  useQuestionsPrivate,
+  useUpdateCauHoi,
+} from "@/hooks/useQuestion";
+import { useAuthStore } from "@/stores/auth.store";
+import { useTranslation } from "react-i18next";
+import type { AxiosError } from "axios";
 
 export const QuestionPage = () => {
   const [selectedTab, setSelectedTab] = useState<QuestionStatus>("public");
-  const [isAddOpen, setIsAddOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [filterDifficulty, setFilterDifficulty] = useState<DoKho>();
+  const [filterDifficulty] = useState<DoKho>();
+  const { user } = useAuthStore();
+  const { createCauHoi, isCreating } = useCreateCauHoi();
+  const { updateCauHoi, isUpdating } = useUpdateCauHoi();
+  const { deleteCauHoi, isDeleting } = useDeleteCauHoi();
+  const { t } = useTranslation();
+
+  const defaultModalState = {
+    open: false,
+    mode: "none",
+    id: undefined,
+    selectedItem: null,
+  } as const;
+
+  const [modalState, setModalState] = useState<{
+    open: boolean;
+    mode: "create" | "update" | "none";
+    id: number | undefined;
+    selectedItem: Question | null;
+  }>(defaultModalState);
+
+  const closeModal = () => {
+    setModalState(defaultModalState);
+  };
+
+  const openInsertModal = () => {
+    setModalState({
+      open: true,
+      mode: "create",
+      id: undefined,
+      selectedItem: null,
+    });
+  };
+
+  const openUpdateModal = (id: number, data: Question) => {
+    setModalState({
+      open: true,
+      mode: "update",
+      id: id,
+      selectedItem: data,
+    });
+  };
 
   const { doKhos } = useDoKho();
   const { subjects } = useSubject();
   const { questions } = useQuestions();
+  const { questionsprivate } = useQuestionsPrivate(user?.id);
+
+  const allQuestions = [...questions, ...(questionsprivate || [])];
 
   const filteredQuestions = useMemo(() => {
-    return questions.filter((q: Question) => {
+    return allQuestions.filter((q: Question) => {
       // 1. Lọc theo Tab (Trạng thái)
       const matchTab = q.status === selectedTab;
 
@@ -38,14 +97,145 @@ export const QuestionPage = () => {
 
       return matchTab && matchSearch && matchDifficulty;
     });
-  }, [questions, selectedTab, searchQuery, filterDifficulty]);
+  }, [allQuestions, selectedTab, searchQuery, filterDifficulty]);
 
-  const handleAction = (type: string, id: string) => {
-    console.log(`Action: ${type} on ID: ${id}`);
+  const handleAction = (type: string, data: Question) => {
+    switch (type) {
+      case "edit":
+        openUpdateModal(data.id, data);
+        break;
+      case "delete":
+        deleteQ(data.id);
+        break;
+      case "add-to-bank":
+        addToBank(data.id);
+        break;
+
+      default:
+        break;
+    }
+  };
+
+  const deleteQ = async (id: number) => {
+    const isConfirm = window.confirm("Bạn có chắc muốn xóa không?");
+    if (!isConfirm) return;
+    try {
+      await deleteCauHoi(id);
+      alert(t("message.success.delete"));
+      closeModal();
+    } catch {
+      alert(t("message.error.delete"));
+    }
+  };
+
+  const addToBank = (id: number) => {
+    console.log("add cau hoi id ", id);
+  };
+
+  const insertQ = async (data: CauHoiCreate) => {
+    console.log("create", data);
+    if (!validateCauHoiCreate(data)) return;
+    try {
+      await createCauHoi(data);
+      alert(t("message.success.create"));
+      closeModal();
+    } catch (error: unknown) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.status === 422) {
+        //lỗi validate backend
+        const errors = err.response?.data?.errors;
+
+        const firstError = Object.values(errors)?.[0];
+
+        if (Array.isArray(firstError)) {
+          alert(firstError[0]);
+        }
+      } else {
+        alert(t("message.error.create"));
+      }
+    }
+  };
+
+  const updateQ = async (id: number, data: CauHoiUpdate) => {
+    if (!validateCauHoiUpdate(data)) {
+      return;
+    }
+    try {
+      await updateCauHoi({ id, data });
+      alert(t("message.success.update"));
+      closeModal();
+    } catch (error: unknown) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.status === 422) {
+        //lỗi validate backend
+        const errors = err.response.data.errors;
+
+        const firstError = Object.values(errors)?.[0];
+
+        if (Array.isArray(firstError)) {
+          alert(firstError[0]);
+        }
+      } else {
+        alert(t("message.error.update"));
+      }
+    }
+  };
+
+  const validateCauHoiCreate = (request: CauHoiCreate): boolean => {
+    if (!request.noiDungCauHoi || request.noiDungCauHoi.trim() === "") {
+      alert("Nội dung câu hỏi không được để trống");
+      return false;
+    }
+
+    if (!request.monHocId) {
+      alert("Vui lòng chọn môn học");
+      return false;
+    }
+
+    if (!request.chuongId) {
+      alert("Vui lòng chọn chương");
+      return false;
+    }
+
+    if (!request.doKhoId) {
+      alert("Vui lòng chọn độ khó");
+      return false;
+    }
+
+    return true;
+  };
+
+  const validateCauHoiUpdate = (request: CauHoiUpdate): boolean => {
+    if (!request.noiDungCauHoi || request.noiDungCauHoi.trim() === "") {
+      alert("Nội dung câu hỏi không được để trống");
+      return false;
+    }
+
+    if (!request.monHocId) {
+      alert("Vui lòng chọn môn học");
+      return false;
+    }
+    if (!request.chuongId) {
+      alert("Vui lòng chọn chương");
+      return false;
+    }
+
+    if (!request.doKhoId) {
+      alert("Vui lòng chọn độ khó");
+      return false;
+    }
+
+    return true;
   };
 
   return (
     <MainContentLayout>
+      {/* Xử lý loading ở đây nhen */}
+      {isCreating && isUpdating && isDeleting && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
+          Loading...
+        </div>
+      )}
       <div className="flex flex-col gap-3 rounded-md bg-background-body-background">
         <div className="border-b-1 flex items-center justify-between border-other-outlined-border pr-3">
           <Tabs
@@ -58,7 +248,7 @@ export const QuestionPage = () => {
             ]}
           />
           <Button
-            onClick={() => setIsAddOpen(true)}
+            onClick={() => openInsertModal()}
             variant="contained"
             color="primary"
           >
@@ -129,9 +319,9 @@ export const QuestionPage = () => {
             <QuestionItem
               key={q.id}
               data={q}
-              onEdit={(id) => handleAction("edit", id)}
-              onDelete={(id) => handleAction("delete", id)}
-              onAddToBank={(id) => handleAction("add-to-bank", id)}
+              onEdit={(cauHoi) => handleAction("edit", cauHoi)}
+              onDelete={(cauHoi) => handleAction("delete", cauHoi)}
+              onAddToBank={(cauHoi) => handleAction("add-to-bank", cauHoi)}
             />
           ))
         ) : (
@@ -143,7 +333,20 @@ export const QuestionPage = () => {
         )}
       </section>
 
-      <AddQuestionForm isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
+      {modalState.open && (
+        <AddQuestionForm
+          // isOpen={modalState.open} //0 ngắt mount
+          onClose={() => closeModal()}
+          selectedItem={modalState.selectedItem}
+          onSaveCreate={(data) => {
+            insertQ(data);
+          }}
+          onSaveUpdate={(id, data) => {
+            updateQ(id, data);
+          }}
+          mode={modalState.mode}
+        />
+      )}
     </MainContentLayout>
   );
 };

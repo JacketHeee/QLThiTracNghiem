@@ -27,9 +27,10 @@ export const BodyQuestionItem = ({
             Câu {index}:
           </span>
         )}
-        <span className="text-body-2 font-medium text-text-primary">
-          {data.noiDungCauHoi}
-        </span>
+        <span
+          className="text-body-2 font-medium text-text-primary"
+          dangerouslySetInnerHTML={{ __html: data.noiDungCauHoi }}
+        ></span>
       </div>
 
       {/* Danh sách đáp án */}

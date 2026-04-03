@@ -37,9 +37,16 @@ export const useSubject = () => {
     select: (res) => res.data,
   });
 
+  const queryWithChuong = useQuery({
+    queryKey: ["subjects", "chuong"],
+    queryFn: subjectService.getAllWithChuong,
+    select: (res) => res.data,
+  });
+
   return {
     subjects: query.data || [],
     subjectsWithGroup: queryWithGroup.data || [],
+    subjectsWithChuong: queryWithChuong.data || [],
     isLoading: query.isLoading,
     createSubject: createMutation.mutate,
     updateSubject: updateMutation.mutate,
