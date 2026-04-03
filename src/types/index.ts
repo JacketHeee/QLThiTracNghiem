@@ -104,6 +104,8 @@ export interface Question {
   do_kho: DoKho;
   nguoi_tao: TaiKhoan;
   cau_tra_lois: Answer[];
+
+  dapAnDaChon?: number | null;
 }
 
 export interface Answer {
@@ -183,19 +185,6 @@ export interface UserResetPass {
 
 export interface DeThiSvienResponse {
   de_this: DeThiSvien[];
-}
-
-export interface BaiLam {
-  id: number;
-  thoiGianBatDau: string;
-  thoiGianNopBai: string | null;
-  tongDiem: number | null;
-  soCauDung: number | null;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  thiSinhId: number;
-  deThiId: number;
 }
 
 export interface DeThiSvienResponse {
@@ -436,7 +425,7 @@ export interface Option {
 
 export type ExamStatus = "DANG_LAM" | "TAM_LUU" | "DA_NOP" | "BI_HUY"; // Bạn có thể thêm các status khác nếu có
 
-export interface BaiThi {
+export interface BaiLam {
   id: number;
   thoiGianBatDau?: string; // ISO String
   thoiGianNopBai?: string | null; // ISO String hoặc null nếu chưa nộp
@@ -449,7 +438,7 @@ export interface BaiThi {
   thiSinh?: TaiKhoan;
   deThiId: number;
   deThi?: DeThi;
-  chitiet_bailams: ChiTietBaiLam[];
+  chitiet_bailams?: ChiTietBaiLam[];
   logBaiLam?: LogBaiLam;
 }
 
@@ -487,4 +476,10 @@ export interface CreateDeThiPayload {
     CauHinhThi,
     "cauHinhId" | "deThiId" | "created_at" | "updated_at"
   >;
+}
+
+export interface ExamResponseData {
+  baiLam: BaiLam;
+  deThi: DeThi;
+  cauHois: Question[];
 }

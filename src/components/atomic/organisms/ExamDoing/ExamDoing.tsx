@@ -9,18 +9,21 @@ import { useDeThiStore } from "@/stores/useDeThi.store";
 import type { Question } from "@/types";
 import { shuffleArray } from "@/utils";
 import { useAuthStore } from "@/stores/auth.store";
+import { useExamActions } from "@/hooks/useExamActions";
 
 export const ExamDoing = () => {
   const navigate = useNavigate();
 
   // 1. Kết nối Final Store
   const {
+    mode,
     currentExam,
     answers,
-    updateAnswer,
+    updateAnswer: updateStoreAnswer,
     addViolation,
     finishExam,
     startExam,
+    setFinalResult,
   } = useExamStore();
 
   const { user } = useAuthStore();
@@ -38,8 +41,12 @@ export const ExamDoing = () => {
   const [showWarning, setShowWarning] = useState(false);
   const [showKicked, setShowKicked] = useState(false);
   const isTabOut = useRef(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isMouseOut, setIsMouseOut] = useState(false);
+  const {
+    updateAnswer: syncAnswerToApi,
+    submitExam: apiSubmit,
+    updateViolation,
+  } = useExamActions();
+  // const [isMouseOut, setIsMouseOut] = useState(false);
 
   useEffect(() => {
     const config = testData?.cau_hinh_thi;
@@ -105,7 +112,7 @@ export const ExamDoing = () => {
     setShuffledQuestions(finalQuestions);
 
     // Ghi nhận thời gian bắt đầu làm bài vào Store
-    startExam();
+    if (mode === "STUDENT") startExam();
 
     const timer = setInterval(() => {
       setTimeLeft((p) => {
@@ -138,6 +145,14 @@ export const ExamDoing = () => {
         // Chỉ cộng vi phạm nếu có bật tính năng giới hạn tab
         if (config.isLimitSwitchTab) {
           addViolation();
+
+          const newCount = violationCount + 1;
+          const examId = currentExam?.id; // Lấy ID của bản ghi log
+
+          if (examId && mode === "STUDENT") {
+            updateViolation({ logId: examId, count: newCount });
+          }
+
           const limit = config.tabSwitchLimit || 3;
 
           if (violationCount + 1 >= limit) {
@@ -155,7 +170,14 @@ export const ExamDoing = () => {
       window.removeEventListener("visibilitychange", handleAction);
       window.removeEventListener("focus", handleAction);
     };
-  }, [violationCount, addViolation, testData?.cau_hinh_thi]);
+  }, [
+    violationCount,
+    addViolation,
+    testData?.cau_hinh_thi,
+    currentExam?.id,
+    mode,
+    updateViolation,
+  ]);
 
   useEffect(() => {
     const config = testData?.cau_hinh_thi;
@@ -204,17 +226,68 @@ export const ExamDoing = () => {
     }
   }, [testData?.cau_hinh_thi]);
 
-  // 3. Xử lý Nộp bài
-  const handleFinish = () => {
-    // Gọi hàm finishExam từ Store, truyền questions để tự động tính điểm hệ 10
-    finishExam(testData?.cau_hois || []);
+  const handleFinish = async () => {
+    if (!currentExam?.id) return;
 
-    if (document.fullscreenElement) document.exitFullscreen();
+    try {
+      // 1. Format đáp án để gửi lên API
+      const formattedAnswers = Object.entries(answers).map(([qId, aId]) => ({
+        cauHoiId: Number(qId),
+        dapAnId: aId,
+      }));
 
-    // Điều hướng sang trang kết quả
-    navigate(`/tests/${testData?.id}/take/result/${currentExam?.id}`, {
-      replace: true,
-    });
+      if (mode === "STUDENT") {
+        // 2. Gọi API và lấy nguyên cục ExamResponseData
+        const response = await apiSubmit({
+          baiLamId: currentExam.id,
+          answers: formattedAnswers,
+          // Nếu API cần gửi số lần chuyển tab, lấy từ Store luôn:
+          // soLanChuyenTab: currentExam.logBaiLam?.soLanChuyenTab || 0
+        });
+
+        if (response.success) {
+          // 3. Đổ nguyên cục data server vào Store qua hàm bạn đã viết
+          setFinalResult(response.data);
+
+          // 4. Thoát Fullscreen sau khi đã lưu xong data
+          if (document.fullscreenElement) {
+            await document.exitFullscreen().catch(() => {});
+          }
+
+          // 5. Chuyển trang dùng replace để không Back lại được
+          navigate(`/tests/${testData?.id}/take/result/${currentExam.id}`, {
+            replace: true,
+          });
+        }
+      } else {
+        // Chế độ PREVIEW: Truyền shuffledQuestions vào để Store tự tính toán
+        finishExam(shuffledQuestions);
+
+        if (document.fullscreenElement)
+          await document.exitFullscreen().catch(() => {});
+
+        // Vẫn chuyển sang trang result để xem thử giao diện kết quả
+        navigate(`/tests/${testData?.id}/take/result/${currentExam.id}`, {
+          replace: true,
+        });
+      }
+    } catch (error) {
+      console.error("Submit error:", error);
+      // Bạn nên thêm thông báo lỗi ở đây (ví dụ: Toast)
+    }
+  };
+
+  const handleAnswerChange = (cauHoiId: number, dapAnId: number) => {
+    // 1. Cập nhật local store ngay lập tức (UI update)
+    updateStoreAnswer(cauHoiId, dapAnId);
+
+    // 2. Gọi API cập nhật (đã có optimistic update trong useExamActions)
+    if (currentExam?.id && mode === "STUDENT") {
+      syncAnswerToApi({
+        baiLamId: currentExam.id,
+        answers: [{ cauHoiId, dapAnId }],
+      });
+    }
   };
 
   return (
@@ -228,8 +301,8 @@ export const ExamDoing = () => {
       </header>
 
       <main
-        onMouseLeave={() => setIsMouseOut(true)}
-        onMouseEnter={() => setIsMouseOut(false)}
+        // onMouseLeave={() => setIsMouseOut(true)}
+        // onMouseEnter={() => setIsMouseOut(false)}
         className="flex w-fit flex-col items-center px-4 py-5 text-text-secondary"
       >
         <div className="w-full max-w-[668px]">
@@ -282,7 +355,7 @@ export const ExamDoing = () => {
                 index={idx}
                 totalQuestions={shuffledQuestions.length}
                 userAnswer={answers[q.id]}
-                onAnswerChange={updateAnswer} // Truyền thẳng hàm từ Store vào
+                onAnswerChange={handleAnswerChange} // Truyền thẳng hàm từ Store vào
               />
             ))}
           </div>

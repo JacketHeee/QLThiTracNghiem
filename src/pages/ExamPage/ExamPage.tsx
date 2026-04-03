@@ -2,18 +2,18 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Icon, Input, Button } from "@/components/atomic/atoms";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
-import { useExamStore } from "@/stores/useExamStore";
 import DynamicTable, {
   type TableColumn,
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import type { DeThi } from "@/types";
 import { useDeThi } from "@/hooks/useDeThi";
 import { checkTimeValid, getTestsStatus, splitDateTime } from "@/utils";
+import { dethiService } from "@/services/api/dethi.service";
+import { useDeThiStore } from "@/stores/useDeThi.store";
 
 export const ExamPage = () => {
   const { dethis } = useDeThi();
   const navigate = useNavigate();
-  const { startExam } = useExamStore();
   const [now, setNow] = useState(new Date());
 
   // Cập nhật thời gian mỗi phút để cập nhật trạng thái nút "Bắt đầu"
@@ -50,10 +50,23 @@ export const ExamPage = () => {
     },
   ];
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-  const handleStart = (item: { id: any }) => {
-    startExam(); // Kích hoạt thời gian bắt đầu trong Store
-    navigate(`/tests/${item.id}/take`);
+  const handleStartExam = async (deThiId: number) => {
+    try {
+      // 1. Gọi trực tiếp Service hoặc dùng queryClient để lấy data đề thi
+      // Chúng ta lấy chi tiết đề để đổ vào Store
+      const res = await dethiService.getById(deThiId);
+
+      if (res.data) {
+        // 2. Cập nhật vào DeThiStore để trang Introduction có data hiển thị
+        useDeThiStore.getState().updateTestData(res.data);
+
+        // 3. Sau khi Store đã có data, mới chuyển trang
+        navigate(`/tests/${deThiId}/take`);
+      }
+    } catch (error) {
+      console.error("Lỗi khi tải thông tin đề thi:", error);
+      // Toast: "Không thể tải thông tin đề thi. Vui lòng thử lại."
+    }
   };
 
   const handleViewResult = (item: DeThi) => {
@@ -110,7 +123,7 @@ export const ExamPage = () => {
                 size="small"
                 disabled={!isValid}
                 onClick={() => {
-                  // handleStart(item);
+                  handleStartExam(item.id);
                 }}
                 className={isValid ? "animate-pulse-subtle" : ""}
               >

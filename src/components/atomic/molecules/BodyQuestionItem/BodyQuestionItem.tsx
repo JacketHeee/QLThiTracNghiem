@@ -41,7 +41,7 @@ export const BodyQuestionItem = ({
             return (
               <div
                 key={ans.id || idx}
-                className={`text-body-2 flex max-w-[700px] items-center justify-between rounded-md px-3 py-2 transition-colors ${
+                className={`text-body-2 flex max-w-[700px] items-center justify-between gap-10 rounded-md px-3 py-2 transition-colors ${
                   ans.isCorrectAnswer
                     ? "bg-action-hover text-text-primary"
                     : "text-text-secondary"

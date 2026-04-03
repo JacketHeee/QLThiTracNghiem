@@ -75,7 +75,7 @@ export const AssignmentPage = () => {
     }
   };
 
-  const handleAction = async (action: string, item: Assign) => {
+  const handleAction = async (_action: string, item: Assign) => {
     if (
       confirm(
         `Bạn có chắc muốn xóa phân công của giảng viên: ${item.giang_vien?.hoTen}?`

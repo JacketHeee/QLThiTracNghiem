@@ -115,7 +115,7 @@ export const useUpdateDeThi = () => {
       // toast.success("Cập nhật đề thi thành công!");
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-    onError: (error: any) => {
+    onError: (_error: any) => {
       // toast.error(
       //   error?.response?.data?.message || "Không thể cập nhật đề thi"
       // );
@@ -134,7 +134,7 @@ export const useDeleteDeThi = () => {
     mutationFn: (id: number) => dethiService.delete(id),
 
     // 2. Xử lý khi thành công
-    onSuccess: (response, id) => {
+    onSuccess: (_response, id) => {
       // Làm mới danh sách đề thi (để mất dòng vừa xóa trên table/list)
       queryClient.invalidateQueries({ queryKey: ["dethis"] });
 
