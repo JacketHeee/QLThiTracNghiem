@@ -20,7 +20,7 @@ import type {
   RoleUpdate,
 } from "@/types";
 import type { AxiosError } from "axios";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const pageName = "nhom_quyen";
@@ -91,6 +91,19 @@ export const PermissionGroupPage = () => {
   }>(defaultModalState);
 
   const { roles } = useRole();
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredRoles = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return roles;
+
+    return roles.filter((item) => {
+      const groupName = item.tenNhomQuyen?.toLowerCase() ?? "";
+      const groupId = String(item.id ?? "").toLowerCase();
+      return groupName.includes(term) || groupId.includes(term);
+    });
+  }, [roles, searchTerm]);
 
   const { createRoleAsync, isCreating } = useCreateRole();
   const { updateRoleAsync, isUpdating } = useUpdateRole();
@@ -249,6 +262,8 @@ export const PermissionGroupPage = () => {
               hasBoder={true}
               placeholder={t("header.search")}
               icon={<Icon name="search" className="text-text-disabled" />}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
@@ -281,7 +296,7 @@ export const PermissionGroupPage = () => {
       <div className="flex flex-col gap-2 rounded-md bg-background-body-background px-2 py-2">
         <DynamicTable
           columns={columns}
-          data={roles}
+          data={filteredRoles}
           rowKey="id" // <--- Chỉ định key định danh ở đây
           hasColumnActions={true}
           onAction={handleAction}

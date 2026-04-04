@@ -16,7 +16,7 @@ type TableAction = "detail" | "edit" | "remove";
 type Props<T> = {
   columns: TableColumn<T>[];
   data: T[];
-  rowKey?: keyof T;
+  rowKey?: keyof T | ((item: T) => string | number);
   hasColumnActions?: boolean;
   renderActions?: (item: T) => ReactNode;
   checkActions?: string[];
@@ -64,7 +64,11 @@ export default function DynamicTable<T>({
         <tbody className="divide-y divide-other-outlined-border border-b border-other-outlined-border">
           {data.length > 0 ? (
             data.map((item, rowIndex) => {
-              const uniqueKey = rowKey ? String(item[rowKey]) : rowIndex;
+              const uniqueKey = rowKey
+                ? typeof rowKey === "function"
+                  ? String(rowKey(item))
+                  : String(item[rowKey])
+                : rowIndex;
 
               return (
                 <tr

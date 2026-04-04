@@ -30,11 +30,12 @@ import { useToastStore } from "@/stores/useToast.store";
 
 export function UserPage() {
   const { taikhoans } = useUser();
-  console.log("taikhoan", taikhoans);
   const [editingUser, setEditingUser] = useState<TaiKhoan | null>(null);
   const { t } = useTranslation();
   const { createUserAsync, isCreating } = useCreateUser();
   const { updateUserAsync, isUpdating } = useUpdateUser();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterRole, setFilterRole] = useState<number>(0);
 
   const { deleteUserAsync, isDeleting } = useDeleteUser();
   const { resetPasswordUserAsync, isResetting } = useResetPassUser();
@@ -55,6 +56,22 @@ export function UserPage() {
 
       return result;
     });
+
+  const filteredUsers = taikhoans.filter((user) => {
+    const matchesRole = () => {
+      if (filterRole === 0) return true; // "All"
+      if (filterRole === 3) return user.isStudent; // "Student"
+      return user.nhomQuyenId === filterRole; // Admin or Teacher
+    };
+
+    const searchTermLower = searchTerm.toLowerCase();
+    const matchesSearch =
+      user.username.toLowerCase().includes(searchTermLower) ||
+      user.hoTen.toLowerCase().includes(searchTermLower) ||
+      user.email.toLowerCase().includes(searchTermLower);
+
+    return matchesRole() && matchesSearch;
+  });
 
   const columns: TableColumn<TaiKhoan>[] = [
     {
@@ -444,13 +461,15 @@ export function UserPage() {
               { label: t("userPage.roles.teacher"), value: 2 },
               { label: t("userPage.roles.admin"), value: 1 },
             ]}
-            onSelect={(val) => console.log("Filter role:", val)}
-            // defaultIndex={0}
+            onSelect={(val) => setFilterRole(Number(val))}
+            defaultIndex={0}
           />
           <Input
             hasBoder={true}
             placeholder={t("userPage.searchPlaceholder")}
             icon={<Icon name="search" className="text-text-disabled" />}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
@@ -489,7 +508,7 @@ export function UserPage() {
       <div className="flex flex-col gap-2 rounded-md bg-background-body-background px-2 py-2">
         <DynamicTable
           columns={columns}
-          data={taikhoans}
+          data={filteredUsers}
           rowKey="id"
           hasColumnActions
           onAction={handleAction}

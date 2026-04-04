@@ -76,9 +76,9 @@ export default function DifficultyLevelPage() {
   };
 
   const columns: TableColumn<DoKho>[] = [
-    { title: "Mã độ khó", key: "id" },
+    { title: t("difficultyLevelPage.table.code"), key: "id" },
     {
-      title: "Tên độ khó",
+      title: t("difficultyLevelPage.table.name"),
       key: "tenDoKho",
     },
   ];
@@ -135,7 +135,7 @@ export default function DifficultyLevelPage() {
 
   const deleteDK = async (data: number) => {
     //catch lỗi sau
-    const isConfirm = window.confirm("Bạn có chắc muốn xóa không?");
+    const isConfirm = window.confirm(t("difficultyLevelPage.confirmDelete"));
     if (!isConfirm) return;
     try {
       await deleteDoKho(data);
@@ -160,7 +160,7 @@ export default function DifficultyLevelPage() {
 
   const validate = (request: DoKho): boolean => {
     if (!request.tenDoKho || request.tenDoKho.trim() === "") {
-      alert("Tên độ khó không được để trống");
+      showToast(t("difficultyLevelPage.form.validation.nameRequired"), "error");
       return false;
     }
     return true;
@@ -171,7 +171,7 @@ export default function DifficultyLevelPage() {
       {/* Xử lý loading ở đây nhen */}
       {isProcessing && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
-          Loading...
+          {t("tableActions.loading")}
         </div>
       )}
       {/* Toolbar */}
@@ -180,17 +180,17 @@ export default function DifficultyLevelPage() {
           {/* Left: Filter & Search */}
           <div className="flex gap-2">
             <SelectField
-              placeholder="Chọn tiêu chí"
+              placeholder={t("difficultyLevelPage.filter.placeholder")}
               defaultIndex={0}
               options={[
-                { label: "Theo tên", value: 1 },
-                { label: "Theo ID", value: 2 },
+                { label: t("difficultyLevelPage.filter.byName"), value: 1 },
+                { label: t("difficultyLevelPage.filter.byID"), value: 2 },
               ]}
               onSelect={() => {}}
             />
             <Input
               hasBoder={true}
-              placeholder="Tìm kiếm"
+              placeholder={t("header.search")}
               icon={<Icon name="search" className="text-text-disabled" />}
             />
           </div>
@@ -204,7 +204,7 @@ export default function DifficultyLevelPage() {
                 onClick={openInsertModal}
               >
                 <Icon name="plus" size={20} />
-                Tạo độ khó mới
+                {t("difficultyLevelPage.addNew")}
               </Button>
             )}
 
