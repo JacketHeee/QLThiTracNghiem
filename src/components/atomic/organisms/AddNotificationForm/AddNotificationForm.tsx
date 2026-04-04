@@ -8,6 +8,10 @@ import { TextField } from "../../molecules/TextField/TextField";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/auth.store";
 import type { ThongBaoCreate, ThongBaoResponse, ThongBaoUpdate } from "@/types";
+import {
+  ThongBaoValidate,
+  type ThongBaoError,
+} from "@/validate/thongbao.validate";
 
 interface AddNotificationFormProps {
   onClose: () => void;
@@ -94,6 +98,7 @@ export default function AddNotificationForm({
   }));
 
   const handleSelectSubject = (value: string | number) => {
+    if (!value) return;
     const subjectId = typeof value === "number" ? value : Number(value);
 
     const groupOfSubject: Group[] = subjectsWithGroup
@@ -147,8 +152,9 @@ export default function AddNotificationForm({
     }
   };
 
+  const [errors, setErrors] = useState<ThongBaoError>({});
   const handleSend = () => {
-    console.log("nhomHocPhanIds", formData.nhomHocPhanIds);
+    // console.log("nhomHocPhanIds", formData.nhomHocPhanIds);
     if (mode === "update") {
       const data: ThongBaoUpdate = {
         nhomHocPhanIds: formData.nhomHocPhanIds,
@@ -160,8 +166,25 @@ export default function AddNotificationForm({
         console.log("lỗi thiếu id");
         return;
       }
+
+      const validationErrors = ThongBaoValidate.create(formData);
+
+      // nếu có lỗi
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        return;
+      }
+
       onSaveUpdate(selectedItem.id, data);
     } else if (mode === "create") {
+      const validationErrors = ThongBaoValidate.create(formData);
+
+      // nếu có lỗi
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        return;
+      }
+
       onSaveCreate(formData);
     }
   };
@@ -195,6 +218,7 @@ export default function AddNotificationForm({
             value={formData.tieuDe}
             onChange={(e) => handleChange("tieuDe", e.target.value)}
             disabled={isView}
+            error={errors.tieuDe}
           />
           {/*  */}
           <TextArea
@@ -203,6 +227,7 @@ export default function AddNotificationForm({
             value={formData.noiDung}
             onChange={(e) => handleChange("noiDung", e.target.value)}
             disabled={isView}
+            error={errors.noiDung}
           />
 
           {/*  */}
@@ -213,7 +238,7 @@ export default function AddNotificationForm({
                 classname="!flex-[unset] bg-background-body-background"
                 placeholder="Chọn môn học"
                 options={subjects}
-                value={subjects[0].value}
+                value={subjects ? subjects[0]?.value : 0}
                 onSelect={(value) => {
                   handleSelectSubject(value);
                 }}
@@ -244,6 +269,9 @@ export default function AddNotificationForm({
               </div>
             </div>
           </div>
+          {errors.nhomHocPhanIds && (
+            <div className="text-sm text-red-500">{errors.nhomHocPhanIds}</div>
+          )}
 
           {/*  */}
           <div className="flex justify-end gap-2">

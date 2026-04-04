@@ -77,7 +77,6 @@ export const AssignmentPage = () => {
 
   const showToast = useToastStore((s) => s.showToast);
   const onSave = async (data: AssignmentRequest) => {
-    if (!validateCreate(data)) return;
     try {
       await createPhanCongAsync(data);
       showToast(t("message.success.create"), "success");
@@ -118,20 +117,20 @@ export const AssignmentPage = () => {
     }
   };
 
-  const validateCreate = (request: AssignmentRequest): boolean => {
-    // Kiểm tra giảng viên
-    if (!request.giangVienId) {
-      alert("Vui lòng chọn giảng viên");
-      return false;
-    }
-    // Kiểm tra danh sách môn học
-    if (!request.monHocIds || request.monHocIds.length === 0) {
-      alert("Vui lòng chọn ít nhất 1 môn học");
-      return false;
-    }
+  // const validateCreate = (request: AssignmentRequest): boolean => {
+  //   // Kiểm tra giảng viên
+  //   if (!request.giangVienId) {
+  //     alert("Vui lòng chọn giảng viên");
+  //     return false;
+  //   }
+  //   // Kiểm tra danh sách môn học
+  //   if (!request.monHocIds || request.monHocIds.length === 0) {
+  //     alert("Vui lòng chọn ít nhất 1 môn học");
+  //     return false;
+  //   }
 
-    return true;
-  };
+  //   return true;
+  // };
 
   return (
     <MainContentLayout>

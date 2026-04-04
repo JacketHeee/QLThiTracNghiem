@@ -140,7 +140,7 @@ export const PermissionGroupPage = () => {
   const showToast = useToastStore((s) => s.showToast);
 
   const insertRole = async (data: RoleCreate) => {
-    if (!validateCreate(data)) return;
+    // if (!validateCreate(data)) return;
     try {
       await createRoleAsync(data);
       showToast(t("message.success.create"), "success");
@@ -208,13 +208,13 @@ export const PermissionGroupPage = () => {
     });
   };
 
-  const validateCreate = (request: RoleCreate): boolean => {
-    if (request.role_details.length === 0) {
-      alert(t("message.validation.role.empty"));
-      return false;
-    }
-    return true;
-  };
+  // const validateCreate = (request: RoleCreate): boolean => {
+  //   if (request.role_details.length === 0) {
+  //     alert(t("message.validation.role.empty"));
+  //     return false;
+  //   }
+  //   return true;
+  // };
 
   const validateUpdate = (request: RoleUpdate): boolean => {
     if (request.role_details?.length === 0) {

@@ -9,6 +9,7 @@ import Tabs from "../../molecules/Tabs/Tabs";
 import { RadioGroup } from "../../molecules/RadioGroup/RadioGroup";
 import { Toggle } from "../../atoms/Toggle/Toggle";
 import { useRole } from "@/hooks/useRole";
+import { UserValidate, type UserError } from "@/validate/nguoidung.validate";
 
 interface UserFormProps {
   initialData?: TaiKhoan | null;
@@ -95,17 +96,31 @@ export function UserForm({
     }));
   };
 
+  const [errors, setErrors] = useState<UserError>({});
+
   // Xử lý submit form
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (isView) return;
-
     if (isUpdate) {
       if (initialData) {
+        const errors = UserValidate.update(formData);
+
+        if (Object.keys(errors).length > 0) {
+          setErrors(errors);
+          return;
+        }
         onSaveUpdate(initialData.id, formData as UserUpdate);
       }
     } else {
       const data: UserCreate = { ...formData, password: passwordField };
+      const errors = UserValidate.create(data);
+
+      if (Object.keys(errors).length > 0) {
+        setErrors(errors);
+        return;
+      }
+
       onSaveCreate(data);
     }
   };
@@ -130,6 +145,7 @@ export function UserForm({
                 value={formData.username}
                 onChange={(e) => handleChange("username", e.target.value)}
                 disabled={isView || isUpdate}
+                error={errors.username}
               />
 
               <TextField
@@ -139,6 +155,7 @@ export function UserForm({
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
                 disabled={isView}
+                error={errors.email}
               />
 
               <TextField
@@ -147,6 +164,7 @@ export function UserForm({
                 value={formData.hoTen}
                 onChange={(e) => handleChange("hoTen", e.target.value)}
                 disabled={isView}
+                error={errors.hoTen}
               />
 
               <div className="flex items-center gap-4">
@@ -171,6 +189,7 @@ export function UserForm({
                 value={formData.ngaySinh}
                 onChange={(e) => handleChange("ngaySinh", e.target.value)}
                 disabled={isView}
+                error={errors.ngaySinh}
               />
 
               {!formData.isStudent && (
@@ -202,6 +221,7 @@ export function UserForm({
                   placeholder={t("userForm.passwordPlaceholder")}
                   value={passwordField}
                   onChange={(e) => setPasswordField(e.target.value)}
+                  error={errors.password}
                 />
               )}
 

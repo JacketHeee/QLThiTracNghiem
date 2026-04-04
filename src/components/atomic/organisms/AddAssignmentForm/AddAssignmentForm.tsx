@@ -11,6 +11,10 @@ import type { Assign, AssignmentRequest, Subject } from "@/types";
 import { Checkbox } from "../../atoms/Checkbox/Checkbox";
 import { useSubject } from "@/hooks/useSubject";
 import { useGetGvien } from "@/hooks/useUser";
+import {
+  AssignmentValidate,
+  type AssignmentError,
+} from "@/validate/phancong.validate";
 
 interface AddAssignmentFormProps {
   isOpen: boolean;
@@ -102,12 +106,22 @@ export default function AddAssignmentForm({
     });
   };
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [errors, setErrors] = useState<AssignmentError>({});
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!formData.giangVienId) {
       alert(t("addAssignmentForm.selectTeacherPrompt"));
       return;
     }
+    const validationErrors = AssignmentValidate.create(formData);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
     onSave(formData);
   };
 
@@ -156,6 +170,10 @@ export default function AddAssignmentForm({
           <div className="flex-1 overflow-auto">
             <DynamicTable columns={modalColumns} data={subjects} rowKey="id" />
           </div>
+
+          {errors.monHocIds && (
+            <div className="text-sm text-red-500">{errors.monHocIds}</div>
+          )}
 
           {/* Footer Actions */}
           <div className="flex justify-end gap-3 border-t border-other-outlined-border pt-4">

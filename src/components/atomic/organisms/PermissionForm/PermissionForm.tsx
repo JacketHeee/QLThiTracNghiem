@@ -12,6 +12,7 @@ import type {
 import { TextField } from "../../molecules/TextField/TextField";
 import { Overlay } from "../../molecules/Overlay/Overlay";
 import { useRoleDetail } from "@/hooks/useRole";
+import { RoleValidate, type RoleError } from "@/validate/nhomquyen.validate";
 
 const defaultPermissions: PermissionItem[] = [
   {
@@ -187,9 +188,22 @@ export const PermissionForm: FC<PermissionFormProps> = ({
     );
   };
 
+  const [errors, setErrors] = useState<RoleError>({});
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+
     if (mode === "create") {
+      const validationErrors = RoleValidate.create({
+        tenNhomQuyen: groupName,
+        role_details: ConvertToRoleRequest(permissions),
+      });
+
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        return;
+      }
+
       onSaveCreate({
         tenNhomQuyen: groupName,
         role_details: ConvertToRoleRequest(permissions),
@@ -199,6 +213,17 @@ export const PermissionForm: FC<PermissionFormProps> = ({
         alert("missing id");
         return;
       }
+
+      const validationErrors = RoleValidate.create({
+        tenNhomQuyen: groupName,
+        role_details: ConvertToRoleRequest(permissions),
+      });
+
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        return;
+      }
+
       onSaveUpdate(id, {
         tenNhomQuyen: groupName,
         role_details: ConvertToRoleRequest(permissions),
@@ -238,6 +263,7 @@ export const PermissionForm: FC<PermissionFormProps> = ({
               setGroupName(e.target.value);
             }}
             className="w-full"
+            error={errors.tenNhomQuyen}
           />
 
           <div className="rounded-md">
@@ -311,6 +337,9 @@ export const PermissionForm: FC<PermissionFormProps> = ({
                 </tbody>
               </table>
             </div>
+            {errors.role_details && (
+              <div className="text-sm text-red-500">{errors.role_details}</div>
+            )}
           </div>
         </div>
 

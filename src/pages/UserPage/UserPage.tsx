@@ -168,7 +168,7 @@ export function UserPage() {
 
   const insertUser = async (data: UserCreate) => {
     console.log("create", data);
-    if (!validateCreate(data)) return;
+    // if (!validateCreate(data)) return;
     try {
       await createUserAsync(data);
       showToast(t("message.success.create"), "success");
@@ -192,9 +192,9 @@ export function UserPage() {
 
   const updateUser = async (id: number, data: UserUpdate) => {
     console.log("update", data);
-    if (!validateUpdate(data)) {
-      return;
-    }
+    // if (!validateUpdate(data)) {
+    //   return;
+    // }
     try {
       await updateUserAsync({ id, data });
       showToast(t("message.success.update"), "success");
@@ -278,124 +278,124 @@ export function UserPage() {
     }
   };
 
-  const validateCreate = (request: UserCreate): boolean => {
-    if (!request.username || request.username.trim() === "") {
-      alert(t("userPage.validation.usernameRequired"));
-      return false;
-    }
+  // const validateCreate = (request: UserCreate): boolean => {
+  //   if (!request.username || request.username.trim() === "") {
+  //     alert(t("userPage.validation.usernameRequired"));
+  //     return false;
+  //   }
 
-    if (!request.email || request.email.trim() === "") {
-      alert(t("userPage.validation.emailRequired"));
-      return false;
-    }
+  //   if (!request.email || request.email.trim() === "") {
+  //     alert(t("userPage.validation.emailRequired"));
+  //     return false;
+  //   }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(request.email)) {
-      alert(t("userPage.validation.emailInvalid"));
-      return false;
-    }
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   if (!emailRegex.test(request.email)) {
+  //     alert(t("userPage.validation.emailInvalid"));
+  //     return false;
+  //   }
 
-    if (!request.hoTen || request.hoTen.trim() === "") {
-      alert(t("userPage.validation.fullNameRequired"));
-      return false;
-    }
+  //   if (!request.hoTen || request.hoTen.trim() === "") {
+  //     alert(t("userPage.validation.fullNameRequired"));
+  //     return false;
+  //   }
 
-    if (request.hoTen.length > 255) {
-      alert(t("userPage.validation.fullNameMaxLength"));
-      return false;
-    }
+  //   if (request.hoTen.length > 255) {
+  //     alert(t("userPage.validation.fullNameMaxLength"));
+  //     return false;
+  //   }
 
-    if (!request.ngaySinh) {
-      alert(t("userPage.validation.dobRequired"));
-      return false;
-    }
+  //   if (!request.ngaySinh) {
+  //     alert(t("userPage.validation.dobRequired"));
+  //     return false;
+  //   }
 
-    const today = new Date();
-    const birthDate = new Date(request.ngaySinh);
-    if (birthDate >= today) {
-      alert(t("userPage.validation.dobInvalid"));
-      return false;
-    }
+  //   const today = new Date();
+  //   const birthDate = new Date(request.ngaySinh);
+  //   if (birthDate >= today) {
+  //     alert(t("userPage.validation.dobInvalid"));
+  //     return false;
+  //   }
 
-    if (!request.password || request.password.trim() === "") {
-      alert(t("userPage.validation.passwordRequired"));
-      return false;
-    }
+  //   if (!request.password || request.password.trim() === "") {
+  //     alert(t("userPage.validation.passwordRequired"));
+  //     return false;
+  //   }
 
-    if (request.password.length < 6) {
-      alert(t("userPage.validation.passwordMinLength"));
-      return false;
-    }
+  //   if (request.password.length < 6) {
+  //     alert(t("userPage.validation.passwordMinLength"));
+  //     return false;
+  //   }
 
-    if (!/[a-zA-Z]/.test(request.password)) {
-      alert(t("userPage.validation.passwordLetterRequired"));
-      return false;
-    }
+  //   if (!/[a-zA-Z]/.test(request.password)) {
+  //     alert(t("userPage.validation.passwordLetterRequired"));
+  //     return false;
+  //   }
 
-    if (!/[0-9]/.test(request.password)) {
-      alert(t("userPage.validation.passwordNumberRequired"));
-      return false;
-    }
+  //   if (!/[0-9]/.test(request.password)) {
+  //     alert(t("userPage.validation.passwordNumberRequired"));
+  //     return false;
+  //   }
 
-    if (!/[A-Z]/.test(request.password) || !/[a-z]/.test(request.password)) {
-      alert(t("userPage.validation.passwordCaseRequired"));
-      return false;
-    }
+  //   if (!/[A-Z]/.test(request.password) || !/[a-z]/.test(request.password)) {
+  //     alert(t("userPage.validation.passwordCaseRequired"));
+  //     return false;
+  //   }
 
-    if (!request.isStudent && request.nhomQuyenId === null) {
-      alert(t("userPage.validation.roleRequired"));
-      return false;
-    }
+  //   if (!request.isStudent && request.nhomQuyenId === null) {
+  //     alert(t("userPage.validation.roleRequired"));
+  //     return false;
+  //   }
 
-    return true;
-  };
+  //   return true;
+  // };
 
-  const validateUpdate = (request: UserUpdate): boolean => {
-    if (!request.username || request.username.trim() === "") {
-      alert(t("userPage.validation.usernameRequired"));
-      return false;
-    }
+  // const validateUpdate = (request: UserUpdate): boolean => {
+  //   if (!request.username || request.username.trim() === "") {
+  //     alert(t("userPage.validation.usernameRequired"));
+  //     return false;
+  //   }
 
-    if (!request.email || request.email.trim() === "") {
-      alert(t("userPage.validation.emailRequired"));
-      return false;
-    }
+  //   if (!request.email || request.email.trim() === "") {
+  //     alert(t("userPage.validation.emailRequired"));
+  //     return false;
+  //   }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(request.email)) {
-      alert(t("userPage.validation.emailInvalid"));
-      return false;
-    }
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   if (!emailRegex.test(request.email)) {
+  //     alert(t("userPage.validation.emailInvalid"));
+  //     return false;
+  //   }
 
-    if (!request.hoTen || request.hoTen.trim() === "") {
-      alert(t("userPage.validation.fullNameRequired"));
-      return false;
-    }
+  //   if (!request.hoTen || request.hoTen.trim() === "") {
+  //     alert(t("userPage.validation.fullNameRequired"));
+  //     return false;
+  //   }
 
-    if (request.hoTen.length > 255) {
-      alert(t("userPage.validation.fullNameMaxLength"));
-      return false;
-    }
+  //   if (request.hoTen.length > 255) {
+  //     alert(t("userPage.validation.fullNameMaxLength"));
+  //     return false;
+  //   }
 
-    if (!request.ngaySinh) {
-      alert(t("userPage.validation.dobRequired"));
-      return false;
-    }
+  //   if (!request.ngaySinh) {
+  //     alert(t("userPage.validation.dobRequired"));
+  //     return false;
+  //   }
 
-    const today = new Date();
-    const birthDate = new Date(request.ngaySinh);
-    if (birthDate >= today) {
-      alert(t("userPage.validation.dobInvalid"));
-      return false;
-    }
+  //   const today = new Date();
+  //   const birthDate = new Date(request.ngaySinh);
+  //   if (birthDate >= today) {
+  //     alert(t("userPage.validation.dobInvalid"));
+  //     return false;
+  //   }
 
-    if (!request.isStudent && request.nhomQuyenId === null) {
-      alert(t("userPage.validation.roleRequired"));
-      return false;
-    }
+  //   if (!request.isStudent && request.nhomQuyenId === null) {
+  //     alert(t("userPage.validation.roleRequired"));
+  //     return false;
+  //   }
 
-    return true;
-  };
+  //   return true;
+  // };
 
   const validateChangePass = (password: string): boolean => {
     if (!password || password.trim() === "") {
