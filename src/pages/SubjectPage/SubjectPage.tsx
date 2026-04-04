@@ -10,6 +10,7 @@ import MainContentLayout from "@/components/atomic/templates/MainContentLayout/M
 import type { RoleDetailItem, Subject } from "@/types";
 import { useSubject } from "@/hooks/useSubject";
 import { useAuthStore } from "@/stores/auth.store";
+import { useToastStore } from "@/stores/useToast.store";
 
 export const SubjectPage = () => {
   const { t } = useTranslation("common");
@@ -98,24 +99,34 @@ export const SubjectPage = () => {
         )
       ) {
         deleteSubject(item.id); // Gọi API Delete thực tế
+        showToast(t("message.success.delete"), "success");
       }
     }
   };
 
+  const showToast = useToastStore((s) => s.showToast);
   const handleSave = (data: Subject) => {
-    if (editingSubject) {
-      // Trường hợp Sửa
-      updateSubject(data);
-    } else {
-      // Trường hợp Thêm mới (loại bỏ id: 0 để backend tự sinh nếu cần)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id, ...payload } = data;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      createSubject(payload as any);
+    try {
+      if (editingSubject) {
+        // Trường hợp Sửa
+        updateSubject(data);
+        showToast(t("message.success.update"), "success");
+      } else {
+        // Trường hợp Thêm mới (loại bỏ id: 0 để backend tự sinh nếu cần)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, ...payload } = data;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        createSubject(payload as any);
+        showToast(t("message.success.create"), "success");
+      }
+      setIsModalOpen(false);
+      setEditingSubject(null);
+    } catch (error) {
+      console.log(error);
+      showToast(t("message.error.create"), "error");
     }
-    setIsModalOpen(false);
-    setEditingSubject(null);
   };
+
   return (
     <MainContentLayout>
       {/* Toolbar */}

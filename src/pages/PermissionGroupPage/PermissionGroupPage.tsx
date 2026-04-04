@@ -11,6 +11,7 @@ import {
   useUpdateRole,
 } from "@/hooks/useRole";
 import { useAuthStore } from "@/stores/auth.store";
+import { useToastStore } from "@/stores/useToast.store";
 import type {
   ErrorResponse,
   Role,
@@ -136,12 +137,13 @@ export const PermissionGroupPage = () => {
       id: id,
     });
   };
+  const showToast = useToastStore((s) => s.showToast);
 
   const insertRole = async (data: RoleCreate) => {
     if (!validateCreate(data)) return;
     try {
       await createRoleAsync(data);
-      alert(t("message.success.create"));
+      showToast(t("message.success.create"), "success");
       closeModal();
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
@@ -152,10 +154,10 @@ export const PermissionGroupPage = () => {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(firstError[0], "error");
         }
       } else {
-        alert(t("message.error.create"));
+        showToast(t("message.error.create"), "error");
       }
     }
   };
@@ -166,7 +168,7 @@ export const PermissionGroupPage = () => {
     }
     try {
       await updateRoleAsync({ id, data });
-      alert(t("message.success.update"));
+      showToast(t("message.success.update"), "success");
       closeModal();
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
@@ -177,10 +179,10 @@ export const PermissionGroupPage = () => {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(firstError[0], "error");
         }
       } else {
-        alert(t("message.error.update"));
+        showToast(t("message.error.update"), "error");
       }
     }
   };
@@ -191,10 +193,10 @@ export const PermissionGroupPage = () => {
     if (!isConfirm) return;
     try {
       await deleteRoleAsync(data.id);
-      alert(t("message.success.delete"));
+      showToast(t("message.success.delete"), "success");
       closeModal();
     } catch {
-      alert(t("message.error.delete"));
+      showToast(t("message.error.delete"), "error");
     }
   };
 
