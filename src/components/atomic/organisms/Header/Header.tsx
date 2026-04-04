@@ -6,13 +6,14 @@ import { Dropdown, DropdownItem } from "../../molecules/Dropdown/Dropdown";
 import { LogOut, User } from "lucide-react";
 import { useAuthStore } from "@/stores/auth.store";
 import { useNavigate } from "react-router-dom";
+import { getDefaultAvatar } from "@/utils";
 
 export default function Header() {
   const { isDarkMode, toggleTheme } = useThemeStore();
   const { t, i18n } = useTranslation();
   const navi = useNavigate();
 
-  const { logout } = useAuthStore();
+  const { logout, user } = useAuthStore();
 
   const toggleLanguage = () => {
     i18n.changeLanguage(i18n.language === "vi" ? "en" : "vi");
@@ -47,7 +48,11 @@ export default function Header() {
             align="right"
             trigger={
               <Button className="!p-0">
-                <Icon size={40} name="avatar" />
+                <img
+                  src={getDefaultAvatar(user?.hoTen || "user")}
+                  alt="avatar"
+                  className="h-10 w-10 rounded-full object-cover"
+                />
               </Button>
             }
           >

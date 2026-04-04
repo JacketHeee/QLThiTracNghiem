@@ -70,8 +70,6 @@ export default function TestFormPage() {
     setTestData,
     isAddMode,
     state?.fromQuestions,
-    testData?.id,
-    testData?.tenDe,
     urlId,
   ]);
 
@@ -106,10 +104,11 @@ export default function TestFormPage() {
           <div className="flex flex-col gap-5 rounded-md bg-background-body-background p-5 text-text-secondary">
             {/*  */}
             <TextField
+              type="text"
               label="Tên đề thi"
               placeholder="Nhập tên đề thi"
               value={testData?.tenDe || ""}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onChange={(e) =>
                 setTestData({ ...testData, tenDe: e.target.value })
               }
               disabled={isViewMode}

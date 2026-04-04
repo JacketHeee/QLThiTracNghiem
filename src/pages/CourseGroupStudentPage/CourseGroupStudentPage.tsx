@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button, Icon, Input } from "@/components/atomic/atoms";
-import Pagination from "@/components/atomic/molecules/Panigation/Panigation";
 import DynamicTable, {
   type TableColumn,
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
@@ -17,6 +16,7 @@ import {
   useExportSinhVienList,
 } from "@/hooks/useNhomHocPhan";
 import type { StudentRecord, TaiKhoan } from "@/types";
+import { getDefaultAvatar } from "@/utils";
 
 const mapTaiKhoanToStudentRecord = (
   taiKhoan: TaiKhoan,
@@ -49,15 +49,11 @@ const getTableColumns = (
     render: (_, item) => (
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-action-hover text-text-secondary">
-          {item.avatarUrl ? (
-            <img
-              src={item.avatarUrl}
-              alt={item.fullName}
-              className="h-full w-full rounded-full object-cover"
-            />
-          ) : (
-            <Icon name="user" size={20} />
-          )}
+          <img
+            src={getDefaultAvatar(item.fullName)}
+            alt={item.fullName}
+            className="h-full w-full rounded-full object-cover"
+          />
         </div>
         <div className="flex flex-col">
           <span className="font-bold text-primary-main">{item.fullName}</span>
@@ -225,7 +221,6 @@ export function CourseGroupStudentPage() {
               {message}
             </div>
           )}
-          <Pagination currentPage={1} totalPages={10} onPageChange={() => {}} />
         </div>
       </div>
 

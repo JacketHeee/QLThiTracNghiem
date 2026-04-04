@@ -1,6 +1,5 @@
 import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
-import Pagination from "@/components/atomic/molecules/Panigation/Panigation";
 import { DifficultyLevelForm } from "@/components/atomic/organisms/DifficultyLevelForm/DifficultyLevelForm";
 import DynamicTable, {
   type TableColumn,
@@ -232,7 +231,6 @@ export default function DifficultyLevelPage() {
           isLoading={isLoading}
           checkActions={actions}
         />
-        <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
       </div>
     </MainContentLayout>
   );

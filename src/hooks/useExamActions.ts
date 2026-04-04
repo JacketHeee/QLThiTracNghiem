@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { examService } from "@/services/api/exam.service";
 import { useExamStore } from "@/stores/useExamStore";
 import { useDeThiStore } from "@/stores/useDeThi.store";
@@ -84,7 +84,14 @@ export const useExamActions = () => {
     },
   });
 
+  const query = useQuery({
+    queryKey: ["bailams"],
+    queryFn: examService.getAll,
+    select: (res) => res.data,
+  });
+
   return {
+    baiLams: query.data,
     startExam: startExamMutation.mutateAsync,
     isStarting: startExamMutation.isPending,
     updateAnswer: updateAnswerMutation.mutate,

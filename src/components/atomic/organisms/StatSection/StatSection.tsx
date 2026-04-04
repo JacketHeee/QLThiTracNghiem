@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   BarChart,
   Bar,
@@ -20,8 +21,11 @@ import {
   Trophy,
   Info,
 } from "lucide-react";
+import { useMemo } from "react";
+import { useDeThiStore } from "@/stores/useDeThi.store";
+import { useNhomHocPhanSinhViens } from "@/hooks/useNhomHocPhan";
+import { useExamActions } from "@/hooks/useExamActions";
 
-// Sử dụng interface rõ ràng cho dữ liệu
 interface StatItem {
   label: string;
   value: string | number;
@@ -30,79 +34,117 @@ interface StatItem {
   iconBgColor: string;
 }
 
-const statsSummary: StatItem[] = [
-  {
-    label: "Thí sinh đã nộp",
-    value: 7,
-    icon: <UserCheck size={20} />,
-    textColor: "text-primary-main",
-    iconBgColor: "bg-primary-background",
-  },
-  {
-    label: "Thí sinh chưa nộp",
-    value: 6,
-    icon: <UserPlus size={20} />,
-    textColor: "text-warning-main",
-    iconBgColor: "bg-warning-background",
-  },
-  {
-    label: "Thí sinh không thi",
-    value: 40,
-    icon: <UserX size={20} />,
-    textColor: "text-error-main",
-    iconBgColor: "bg-error-background",
-  },
-  {
-    label: "Điểm trung bình",
-    value: 3.81,
-    icon: <BarChart3 size={20} />,
-    textColor: "text-info-main",
-    iconBgColor: "bg-info-background",
-  },
-  {
-    label: "Điểm <= 1",
-    value: 0,
-    icon: <TrendingDown size={20} />,
-    textColor: "text-error-dark",
-    iconBgColor: "bg-error-background",
-  },
-  {
-    label: "Điểm <= 5",
-    value: 5,
-    icon: <ThumbsDown size={20} />,
-    textColor: "text-warning-dark",
-    iconBgColor: "bg-warning-background",
-  },
-  {
-    label: "Điểm >= 5",
-    value: 2,
-    icon: <ThumbsUp size={20} />,
-    textColor: "text-success-main",
-    iconBgColor: "bg-success-background",
-  },
-  {
-    label: "Điểm cao nhất",
-    value: 7.33,
-    icon: <Trophy size={20} />,
-    textColor: "text-primary-dark",
-    iconBgColor: "bg-primary-background",
-  },
-];
-
-const chartData = [
-  { name: "<= 1", students: 0 },
-  { name: "<= 2", students: 3 },
-  { name: "<= 3", students: 0 },
-  { name: "<= 4", students: 0 },
-  { name: "<= 5", students: 2 },
-  { name: "<= 6", students: 1 },
-  { name: "<= 7", students: 0 },
-  { name: "<= 8", students: 1 },
-  { name: "<= 9", students: 0 },
-  { name: "<= 10", students: 0 },
-];
-
 export default function StatSection() {
+  const { testData } = useDeThiStore();
+  const { sinhViens } = useNhomHocPhanSinhViens(Number(testData?.id));
+  const { baiLams } = useExamActions();
+
+  // --- LOGIC XỬ LÝ DỮ LIỆU ĐỘNG ---
+  const { statsSummary, chartData } = useMemo(() => {
+    const currentDeThiId = testData?.id;
+    const currentBaiLams = (baiLams || []).filter(
+      (bl) => bl.deThiId === currentDeThiId
+    );
+
+    // 1. Thống kê số lượng
+    const submittedList = currentBaiLams.filter((bl) => bl.status === "DA_NOP");
+    const submittedCount = submittedList.length;
+    const totalStudents = sinhViens?.length || 0;
+
+    // Thí sinh chưa nộp = Có trong danh sách lớp nhưng chưa có bài làm hoặc chưa bấm nộp
+    const unsubmittedCount = totalStudents - submittedCount;
+
+    // 2. Tính toán điểm số
+    const scores = submittedList.map((bl) => bl.tongDiem || 0);
+    const avgScore =
+      scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+    const maxScore = scores.length > 0 ? Math.max(...scores) : 0;
+
+    const countLE1 = scores.filter((s) => s <= 1).length;
+    const countLE5 = scores.filter((s) => s <= 5).length;
+    const countGE5 = scores.filter((s) => s >= 5).length;
+
+    // 3. Phân phối biểu đồ (Hệ 10)
+    const distribution = [
+      { name: "<= 1", students: 0 },
+      { name: "<= 2", students: 0 },
+      { name: "<= 3", students: 0 },
+      { name: "<= 4", students: 0 },
+      { name: "<= 5", students: 0 },
+      { name: "<= 6", students: 0 },
+      { name: "<= 7", students: 0 },
+      { name: "<= 8", students: 0 },
+      { name: "<= 9", students: 0 },
+      { name: "<= 10", students: 0 },
+    ];
+
+    scores.forEach((s) => {
+      const index = Math.min(Math.floor(s === 0 ? 0 : s - 0.01), 9);
+      if (index >= 0) distribution[index].students++;
+    });
+
+    const summary: StatItem[] = [
+      {
+        label: "Thí sinh đã nộp",
+        value: submittedCount,
+        icon: <UserCheck size={20} />,
+        textColor: "text-primary-main",
+        iconBgColor: "bg-primary-background",
+      },
+      {
+        label: "Thí sinh chưa nộp",
+        value: unsubmittedCount,
+        icon: <UserPlus size={20} />,
+        textColor: "text-warning-main",
+        iconBgColor: "bg-warning-background",
+      },
+      {
+        label: "Tổng số sinh viên",
+        value: totalStudents,
+        icon: <UserX size={20} />,
+        textColor: "text-error-main",
+        iconBgColor: "bg-error-background",
+      },
+      {
+        label: "Điểm trung bình",
+        value: avgScore.toFixed(2),
+        icon: <BarChart3 size={20} />,
+        textColor: "text-info-main",
+        iconBgColor: "bg-info-background",
+      },
+      {
+        label: "Điểm <= 1",
+        value: countLE1,
+        icon: <TrendingDown size={20} />,
+        textColor: "text-error-dark",
+        iconBgColor: "bg-error-background",
+      },
+      {
+        label: "Điểm <= 5",
+        value: countLE5,
+        icon: <ThumbsDown size={20} />,
+        textColor: "text-warning-dark",
+        iconBgColor: "bg-warning-background",
+      },
+      {
+        label: "Điểm >= 5",
+        value: countGE5,
+        icon: <ThumbsUp size={20} />,
+        textColor: "text-success-main",
+        iconBgColor: "bg-success-background",
+      },
+      {
+        label: "Điểm cao nhất",
+        value: maxScore.toFixed(2),
+        icon: <Trophy size={20} />,
+        textColor: "text-primary-dark",
+        iconBgColor: "bg-primary-background",
+      },
+    ];
+
+    return { statsSummary: summary, chartData: distribution };
+  }, [testData, sinhViens, baiLams]);
+
   return (
     <div className="flex flex-col gap-6 bg-background-body-background p-6">
       {/* Overview Cards */}
@@ -120,7 +162,6 @@ export default function StatSection() {
                 {item.label}
               </span>
             </div>
-
             <div
               className={`flex h-11 w-11 items-center justify-center rounded-xl shadow-sm transition-transform group-hover:scale-110 ${item.iconBgColor} ${item.textColor}`}
             >
@@ -163,17 +204,10 @@ export default function StatSection() {
                 axisLine={false}
                 tickLine={false}
                 className="text-caption fill-text-secondary"
-                domain={[0, 4]}
-                ticks={[0, 1, 2, 3, 4]}
+                allowDecimals={false}
               />
               <Tooltip
                 cursor={{ fill: "var(--color-action-hover)", radius: 4 }}
-                contentStyle={{
-                  borderRadius: "8px",
-                  border: "none",
-                  backgroundColor: "var(--color-other-tooltip)",
-                  color: "white",
-                }}
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
                     return (
@@ -197,11 +231,11 @@ export default function StatSection() {
                 {chartData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
-                    className={`p-2 ${
+                    className={
                       entry.students > 0
                         ? "fill-primary-main"
                         : "fill-grey-grey-200"
-                    }`}
+                    }
                   />
                 ))}
                 <LabelList
@@ -209,24 +243,11 @@ export default function StatSection() {
                   position="top"
                   offset={12}
                   className="text-subtitle-2 fill-text-primary font-bold"
-                  formatter={(val: unknown) => {
-                    const value = Number(val);
-                    return value > 0 ? value : "";
-                  }}
+                  formatter={(val: number) => (val > 0 ? val : "")}
                 />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </div>
-
-        {/* Legend */}
-        <div className="mt-8 flex justify-center">
-          <div className="inline-flex items-center gap-3 rounded-full border border-other-outlined-border bg-grey-grey-50 px-4 py-2">
-            <div className="h-2 w-2 rounded-full bg-primary-main"></div>
-            <span className="text-badge-label text-text-secondary">
-              Số lượng sinh viên
-            </span>
-          </div>
         </div>
       </div>
     </div>

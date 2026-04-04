@@ -61,11 +61,11 @@ export default function QuestionCard({
             if (isReviewMode) {
               if (isCorrectOpt) {
                 // Đáp án đúng luôn có màu xanh nhẹ
-                rowStyle = "bg-green-50 border border-green-200";
+                rowStyle = "bg-success-background border border-green-200";
                 textStyle = "text-green-700 font-bold";
               } else if (isSelected && !isCorrectOpt) {
                 // Mạnh chọn sai -> Màu đỏ nhẹ
-                rowStyle = "bg-red-50 border border-red-200";
+                rowStyle = "bg-error-background border border-red-200";
                 textStyle = "text-red-700 font-bold";
               }
             } else {
@@ -81,7 +81,7 @@ export default function QuestionCard({
             return (
               <div
                 key={opt.id}
-                className={`group -ml-2 flex items-center justify-between rounded-lg p-3 transition-all ${rowStyle} ${
+                className={`*: group -ml-2 flex items-center justify-between rounded-lg p-3 transition-all ${rowStyle} ${
                   !isReviewMode
                     ? "cursor-pointer hover:bg-action-hover"
                     : "cursor-default"

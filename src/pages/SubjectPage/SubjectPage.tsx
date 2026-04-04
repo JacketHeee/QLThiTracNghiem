@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
-import Pagination from "@/components/atomic/molecules/Panigation/Panigation";
 import DynamicTable, {
   type TableColumn,
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
@@ -79,7 +78,6 @@ export const SubjectPage = () => {
   }, [searchTerm, subjects, filterCriteria]);
 
   // Pagination logic
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentData = filteredData.slice(startIndex, endIndex);
@@ -174,16 +172,11 @@ export const SubjectPage = () => {
         <DynamicTable
           columns={columns}
           data={currentData}
-          rowKey="id"
+          rowKey="maMonHoc"
           hasColumnActions
           onAction={handleAction}
           isLoading={isLoading}
           checkActions={actions}
-        />
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
         />
         {isModalOpen && (
           <SubjectForm
