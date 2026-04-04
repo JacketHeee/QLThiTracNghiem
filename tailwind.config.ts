@@ -7,9 +7,16 @@ export default {
   theme: {
     extend: {
       colors,
+      boxShadow: {
+        custom: "0 4px 8px rgba(0,0,0,0.1)",
+      },
     },
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  plugins: [require("tailwind-scrollbar")({ nocompatible: true })],
+  plugins: [
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("tailwind-scrollbar")({ nocompatible: true }),
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("tailwindcss-animate"),
+  ],
 };

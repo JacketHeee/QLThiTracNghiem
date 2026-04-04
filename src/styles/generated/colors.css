@@ -26,8 +26,8 @@
     --color-background-body-background: #ffffff;
     --color-background-page-header-background: #f5f5f7;
     --color-background-border: #3a35414d;
-    --color-background-extra-bg: #f9f8f9;
-    --color-background-section: #ffffff;
+    --color-background-extra-bg: #333333;
+    --color-background-section: #262626;
     --color-background-body: #f6f6f8;
     --color-primary-main: #fb3311;
     --color-primary-dark: #5a5fe0;
@@ -38,7 +38,7 @@
     --color-states-contained-hover-background: #5db921;
     --color-states-active-menu: #ff331114;
     --color-states-outline-selected-background: #666cff14;
-    --color-secondary-main: #6d788d;
+    --color-secondary-main: #52556d;
     --color-secondary-dark: #606a7c;
     --color-secondary-light: #7f889b;
     --color-secondary-contrast: #ffffff;
@@ -78,12 +78,12 @@
     --color-grey-grey-a200: #aaaaaa;
     --color-grey-grey-a400: #616161;
     --color-grey-grey-a700: #303030;
-    --color-custom-background-error-background: #ffffffe0;
-    --color-custom-background-warning-background: #ffffffe0;
-    --color-custom-background-info-background: #ffffffe0;
-    --color-custom-background-success-background: #ffffffe0;
-    --color-custom-background-primary-background: #ffffffe0;
-    --color-custom-background-secondary-background: #ffffffe0;
+    --color-custom-background-error-background: #ff4d491a;
+    --color-custom-background-warning-background: #fdb5281a;
+    --color-custom-background-info-background: #0071d91a;
+    --color-custom-background-success-background: #3cb27a1a;
+    --color-custom-background-primary-background: #fb33111a;
+    --color-custom-background-secondary-background: #ffffff1a;
   }
 
   .dark {

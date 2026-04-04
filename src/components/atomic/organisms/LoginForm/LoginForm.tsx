@@ -1,92 +1,128 @@
-import { Button, Icon } from "@/components/atomic/atoms";
-import { FormField } from "@/components/atomic/molecules";
 import { Link, useNavigate } from "react-router-dom";
+import { Checkbox } from "../../atoms/Checkbox/Checkbox";
+import Logo from "../../molecules/Logo/Logo";
+import { TextField } from "../../molecules/TextField/TextField";
+import { Button, Icon } from "../../atoms";
+import Divider from "../../atoms/Divider/Divider";
+import { useLogin } from "@/hooks/useLogin";
+import { useState, type FormEvent } from "react"; // Thêm FormEvent
 import { useTranslation } from "react-i18next";
-// import googleIcon from "@/assets/icons/google-icon.svg";
-// import logoIcon from "@/assets/icons/logo-icon.svg";
+import type { ErrorResponse, LoginFormSubmit } from "@/types";
+import type { AxiosError } from "axios";
 
 export default function LoginForm() {
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const navigation = useNavigate();
+  const [loginData, setLoginData] = useState("admin");
+  const [pass, setPass] = useState("admin");
 
-  const handleClick = () => {
-    navigation("/dashboard");
+  const { loginAsync, isLoadingLogin } = useLogin();
+
+  // Đổi tên và nhận event
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault(); // Ngăn chặn reload trang
+
+    const data: LoginFormSubmit = {
+      login: loginData,
+      password: pass,
+    };
+
+    try {
+      const res = await loginAsync(data);
+      if (res.original.me.isStudent) {
+        navigate("/courses");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error: unknown) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.status === 422) {
+        const errors = err.response?.data?.errors;
+        const firstError = errors
+          ? Object.values(errors)?.[0]
+          : ["Lỗi hệ thống"];
+
+        if (Array.isArray(firstError)) {
+          alert(firstError[0]);
+        }
+      } else {
+        alert(t("message.login.failed"));
+      }
+    }
   };
 
   return (
-    <div className="flex flex-col">
-      <div className="mb-8 flex flex-col items-center">
-        <div className="mb-4 flex items-center gap-2">
-          <Icon name="logoIcon" />
-          <span className="text-main text-2xl font-bold">MaHiChAn</span>
+    <div className="flex flex-col items-center gap-5">
+      {isLoadingLogin && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
+          Loading...
         </div>
-        <h2 className="text-main text-xl font-bold">{t("login.welcome")}</h2>
-        <p className="text-muted text-sm">{t("login.subtitle")}</p>
-      </div>
+      )}
 
-      <form className="text-main flex flex-col gap-5">
-        <FormField
-          label={t("login.email")}
-          name="email"
-          placeholder={t("login.emailPlaceholder")}
-        />
+      <Logo large={true} />
 
-        <FormField
-          label={t("login.password")}
-          name="password"
-          type="password"
-          placeholder={t("login.passwordPlaceholder")}
-        />
-
-        <div className="flex items-center justify-between text-sm">
-          <label className="text-main flex cursor-pointer items-center gap-2">
-            <input
-              type="checkbox"
-              className="accent-primary h-4 w-4 rounded border-neutral-200"
-            />
-            {t("login.rememberMe")}
-          </label>
-          <a href="#" className="text-primary font-medium hover:underline">
-            {t("login.forgotPassword")}
-          </a>
-        </div>
-
-        <Button
-          type="submit"
-          className="bg-primary w-full rounded-xl py-3 font-bold text-white transition-all hover:opacity-90"
-          onClick={handleClick}
-        >
-          {t("login.submit")}
-        </Button>
-      </form>
-
-      <div className="text-muted mt-6 text-center text-sm">
-        {t("login.noAccount")}{" "}
-        <Link to="/register" className="text-primary font-bold hover:underline">
-          {t("login.registerNow")}
-        </Link>
-      </div>
-
-      <div className="relative my-8 w-full">
-        <div className="absolute inset-0 flex items-center" aria-hidden="true">
-          <div className="w-full border-t border-neutral-200"></div>
-        </div>
-
-        <div className="relative flex justify-center text-sm">
-          <span className="text-muted bg-white px-4 font-medium">
-            {t("login.or")}
+      {/* Chuyển đổi div thành form và gán onSubmit */}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <div className="flex flex-col gap-1">
+          <span className="text-h6 text-text-primary">
+            Chào mừng đến với MaChHiAn! 👋🏻
+          </span>
+          <span className="text-body-2 text-text-secondary">
+            Vui lòng đăng nhập vào tài khoản của bạn và bắt đầu cuộc phiêu lưu.
           </span>
         </div>
-      </div>
 
-      <Button
-        type="button"
-        className="text-main flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 py-3 font-medium transition-all hover:bg-neutral-50"
-      >
-        <Icon name="googleIcon" />
-        {t("login.googleLogin")}
-      </Button>
+        <TextField
+          placeholder="Mã sinh viên"
+          value={loginData}
+          onChange={(e) => setLoginData(e.target.value)}
+          // Thêm thuộc tính HTML5 cơ bản nếu cần
+        />
+
+        <div className="flex flex-col gap-2">
+          <TextField
+            placeholder="Mật khẩu"
+            type="password" // Đảm bảo mật khẩu được ẩn
+            value={pass}
+            onChange={(e) => setPass(e.target.value)}
+          />
+          <div className="flex-bet-center">
+            <Checkbox label="Nhớ lần này" />
+            <span className="text-body-2 cursor-pointer text-primary-main">
+              Quên mật khẩu?
+            </span>
+          </div>
+        </div>
+
+        {/* Chuyển sang type="submit" và xóa onClick */}
+        <Button
+          type="submit"
+          variant={"contained"}
+          color={"primary"}
+          className="justify-center"
+          disabled={isLoadingLogin} // Vô hiệu hóa khi đang load
+        >
+          Đăng nhập
+        </Button>
+
+        <div className="text-body-1 flex gap-1">
+          <span className="text-text-secondary">Bạn chưa có tài khoản?</span>
+          <Link to="/register">
+            <span className="text-primary-main">Bắt đầu ngay</span>
+          </Link>
+        </div>
+
+        <Divider> Hoặc</Divider>
+
+        <div className="flex justify-center gap-2">
+          {/* Button này không có type="submit" nên sẽ không trigger form */}
+          <Button type="button" size={"medium"}>
+            <Icon name="googleIcon" />
+            Google
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }

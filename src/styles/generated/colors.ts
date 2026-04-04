@@ -80,16 +80,10 @@ export const colors = {
   "grey-grey-a200": "var(--color-grey-grey-a200)",
   "grey-grey-a400": "var(--color-grey-grey-a400)",
   "grey-grey-a700": "var(--color-grey-grey-a700)",
-  "custom-background-error-background":
-    "var(--color-custom-background-error-background)",
-  "custom-background-warning-background":
-    "var(--color-custom-background-warning-background)",
-  "custom-background-info-background":
-    "var(--color-custom-background-info-background)",
-  "custom-background-success-background":
-    "var(--color-custom-background-success-background)",
-  "custom-background-primary-background":
-    "var(--color-custom-background-primary-background)",
-  "custom-background-secondary-background":
-    "var(--color-custom-background-secondary-background)",
+  "error-background": "var(--color-custom-background-error-background)",
+  "warning-background": "var(--color-custom-background-warning-background)",
+  "info-background": "var(--color-custom-background-info-background)",
+  "success-background": "var(--color-custom-background-success-background)",
+  "primary-background": "var(--color-custom-background-primary-background)",
+  "secondary-background": "var(--color-custom-background-secondary-background)",
 };

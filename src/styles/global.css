@@ -1,6 +1,6 @@
-@import "./generated/typography.css";
 @import "./generated/colors.css";
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+@import "./generated/typography.css";
 
 @tailwind base;
 @tailwind components;
@@ -70,5 +70,11 @@
   /* hover */
   ::-webkit-scrollbar-thumb:hover {
     /* background: var(--color-primary-main); */
+  }
+
+  .flex-bet-center {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 }

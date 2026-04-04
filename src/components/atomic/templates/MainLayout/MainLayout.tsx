@@ -9,7 +9,7 @@ export const MainLayout = () => {
 
       <div className="flex max-h-screen flex-1 flex-col">
         <Header />
-        <main className="scroll-thin flex flex-1 justify-center overflow-auto bg-background-body pt-5">
+        <main className="scroll-thin flex flex-1 justify-center overflow-auto bg-background-body">
           <Outlet />
         </main>
       </div>
