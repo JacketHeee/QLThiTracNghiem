@@ -27,73 +27,6 @@ import type { AxiosError } from "axios";
 import type { ErrorResponse } from "@/types";
 import { useAuthStore } from "@/stores/auth.store";
 
-const columns: TableColumn<TaiKhoan>[] = [
-  {
-    title: "Tên đăng nhập",
-    key: "username",
-  },
-  {
-    title: "Họ và tên",
-    key: "hoTen",
-    render: (_, item) => (
-      <div className="flex items-center gap-3">
-        {/* Avatar tròn xám */}
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-action-hover text-text-secondary">
-          <img
-            src={getDefaultAvatar(item?.hoTen || "user")}
-            alt="avatar"
-            className="h-full w-full rounded-full object-cover"
-          />
-        </div>
-        <div className="flex flex-col">
-          <span className="font-bold text-primary-main">{item.hoTen}</span>
-          <span className="text-caption text-text-disabled">{item.email}</span>
-        </div>
-      </div>
-    ),
-  },
-  {
-    title: "Giới tính",
-    key: "laGioiTinhNu",
-    render: (val) => (val ? "Nữ" : "Nam"),
-  },
-  {
-    title: "Ngày sinh",
-    key: "ngaySinh",
-    render: (val) => (val ? new Date(val).toISOString().split("T")[0] : "---"),
-  },
-  {
-    title: "Nhóm quyền",
-    key: "nhomQuyenId",
-    render: (val) => (
-      <span className="text-text-primary">
-        {val === 1 ? "Quản trị viên" : val === 2 ? "Giảng viên" : "Sinh viên"}
-      </span>
-    ),
-  },
-  {
-    title: "Ngày tham gia",
-    key: "created_at",
-    render: (val) => formatDateTimeVN(val),
-  },
-  {
-    title: "Trạng thái",
-    key: "isLocked",
-    render: (val) => (
-      <div
-        className={cn(
-          "inline-flex items-center justify-center rounded-full px-3 py-1 text-[11px] font-bold leading-none",
-          !val
-            ? "bg-success-background text-alert-success-content"
-            : "bg-error-background text-alert-error-content"
-        )}
-      >
-        {!val ? "Hoạt động" : "Bị khóa"}
-      </div>
-    ),
-  },
-];
-
 export function UserPage() {
   const { taikhoans } = useUser();
   console.log("taikhoan", taikhoans);
@@ -121,6 +54,80 @@ export function UserPage() {
 
       return result;
     });
+
+  const columns: TableColumn<TaiKhoan>[] = [
+    {
+      title: t("userPage.table.username"),
+      key: "username",
+    },
+    {
+      title: t("userPage.table.fullName"),
+      key: "hoTen",
+      render: (_, item) => (
+        <div className="flex items-center gap-3">
+          {/* Avatar tròn xám */}
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-action-hover text-text-secondary">
+            <img
+              src={getDefaultAvatar(item?.hoTen || "user")}
+              alt="avatar"
+              className="h-full w-full rounded-full object-cover"
+            />
+          </div>
+          <div className="flex flex-col">
+            <span className="font-bold text-primary-main">{item.hoTen}</span>
+            <span className="text-caption text-text-disabled">
+              {item.email}
+            </span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: t("userPage.table.gender"),
+      key: "laGioiTinhNu",
+      render: (val) => (val ? t("userForm.female") : t("userForm.male")),
+    },
+    {
+      title: t("userPage.table.dateOfBirth"),
+      key: "ngaySinh",
+      render: (val) =>
+        val ? new Date(val).toISOString().split("T")[0] : "---",
+    },
+    {
+      title: t("userPage.table.role"),
+      key: "nhomQuyenId",
+      render: (val) => (
+        <span className="text-text-primary">
+          {val === 1
+            ? t("userPage.roles.admin")
+            : val === 2
+              ? t("userPage.roles.teacher")
+              : t("userPage.roles.student")}
+        </span>
+      ),
+    },
+    {
+      title: t("userPage.table.joinDate"),
+      key: "created_at",
+      render: (val) => formatDateTimeVN(val),
+    },
+    {
+      title: t("userPage.table.status"),
+      key: "isLocked",
+      render: (val) => (
+        <div
+          className={cn(
+            "inline-flex items-center justify-center rounded-full px-3 py-1 text-[11px] font-bold leading-none",
+            !val
+              ? "bg-success-background text-alert-success-content"
+              : "bg-error-background text-alert-error-content"
+          )}
+        >
+          {!val ? t("userPage.status.active") : t("userPage.status.locked")}
+        </div>
+      ),
+    },
+  ];
 
   const defaultModalState = {
     open: false,
@@ -207,7 +214,7 @@ export function UserPage() {
   };
 
   const deleteUser = async (data: number) => {
-    const isConfirm = window.confirm("Bạn có chắc muốn xóa không?");
+    const isConfirm = window.confirm(t("userPage.confirmDelete"));
     if (!isConfirm) return;
     try {
       await deleteUserAsync(data);
@@ -222,7 +229,7 @@ export function UserPage() {
     const data: UserResetPass = {
       newPassword: password,
     };
-    const isConfirm = window.confirm("Bạn có chắc muốn đổi mật khẩu không?");
+    const isConfirm = window.confirm(t("userPage.confirmResetPassword"));
     if (!isConfirm) return;
     if (!validateChangePass(password)) return;
     try {
@@ -269,70 +276,70 @@ export function UserPage() {
 
   const validateCreate = (request: UserCreate): boolean => {
     if (!request.username || request.username.trim() === "") {
-      alert("Tên đăng nhập không được để trống");
+      alert(t("userPage.validation.usernameRequired"));
       return false;
     }
 
     if (!request.email || request.email.trim() === "") {
-      alert("Email không được để trống");
+      alert(t("userPage.validation.emailRequired"));
       return false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(request.email)) {
-      alert("Email không đúng định dạng");
+      alert(t("userPage.validation.emailInvalid"));
       return false;
     }
 
     if (!request.hoTen || request.hoTen.trim() === "") {
-      alert("Họ tên không được để trống");
+      alert(t("userPage.validation.fullNameRequired"));
       return false;
     }
 
     if (request.hoTen.length > 255) {
-      alert("Họ tên không được vượt quá 255 ký tự");
+      alert(t("userPage.validation.fullNameMaxLength"));
       return false;
     }
 
     if (!request.ngaySinh) {
-      alert("Ngày sinh không được để trống");
+      alert(t("userPage.validation.dobRequired"));
       return false;
     }
 
     const today = new Date();
     const birthDate = new Date(request.ngaySinh);
     if (birthDate >= today) {
-      alert("Ngày sinh phải trước ngày hôm nay");
+      alert(t("userPage.validation.dobInvalid"));
       return false;
     }
 
     if (!request.password || request.password.trim() === "") {
-      alert("Mật khẩu không được để trống");
+      alert(t("userPage.validation.passwordRequired"));
       return false;
     }
 
     if (request.password.length < 6) {
-      alert("Mật khẩu phải có ít nhất 6 ký tự");
+      alert(t("userPage.validation.passwordMinLength"));
       return false;
     }
 
     if (!/[a-zA-Z]/.test(request.password)) {
-      alert("Mật khẩu phải chứa chữ cái");
+      alert(t("userPage.validation.passwordLetterRequired"));
       return false;
     }
 
     if (!/[0-9]/.test(request.password)) {
-      alert("Mật khẩu phải chứa số");
+      alert(t("userPage.validation.passwordNumberRequired"));
       return false;
     }
 
     if (!/[A-Z]/.test(request.password) || !/[a-z]/.test(request.password)) {
-      alert("Mật khẩu phải có chữ hoa và chữ thường");
+      alert(t("userPage.validation.passwordCaseRequired"));
       return false;
     }
 
     if (!request.isStudent && request.nhomQuyenId === null) {
-      alert("Vui lòng chọn nhóm quyền");
+      alert(t("userPage.validation.roleRequired"));
       return false;
     }
 
@@ -341,45 +348,45 @@ export function UserPage() {
 
   const validateUpdate = (request: UserUpdate): boolean => {
     if (!request.username || request.username.trim() === "") {
-      alert("Tên đăng nhập không được để trống");
+      alert(t("userPage.validation.usernameRequired"));
       return false;
     }
 
     if (!request.email || request.email.trim() === "") {
-      alert("Email không được để trống");
+      alert(t("userPage.validation.emailRequired"));
       return false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(request.email)) {
-      alert("Email không đúng định dạng");
+      alert(t("userPage.validation.emailInvalid"));
       return false;
     }
 
     if (!request.hoTen || request.hoTen.trim() === "") {
-      alert("Họ tên không được để trống");
+      alert(t("userPage.validation.fullNameRequired"));
       return false;
     }
 
     if (request.hoTen.length > 255) {
-      alert("Họ tên không được vượt quá 255 ký tự");
+      alert(t("userPage.validation.fullNameMaxLength"));
       return false;
     }
 
     if (!request.ngaySinh) {
-      alert("Ngày sinh không được để trống");
+      alert(t("userPage.validation.dobRequired"));
       return false;
     }
 
     const today = new Date();
     const birthDate = new Date(request.ngaySinh);
     if (birthDate >= today) {
-      alert("Ngày sinh phải trước ngày hôm nay");
+      alert(t("userPage.validation.dobInvalid"));
       return false;
     }
 
     if (!request.isStudent && request.nhomQuyenId === null) {
-      alert("Vui lòng chọn nhóm quyền");
+      alert(t("userPage.validation.roleRequired"));
       return false;
     }
 
@@ -388,27 +395,27 @@ export function UserPage() {
 
   const validateChangePass = (password: string): boolean => {
     if (!password || password.trim() === "") {
-      alert("Mật khẩu không được để trống");
+      alert(t("userPage.validation.passwordRequired"));
       return false;
     }
 
     if (password.length < 6) {
-      alert("Mật khẩu phải có ít nhất 6 ký tự");
+      alert(t("userPage.validation.passwordMinLength"));
       return false;
     }
 
     if (!/[a-zA-Z]/.test(password)) {
-      alert("Mật khẩu phải chứa chữ cái");
+      alert(t("userPage.validation.passwordLetterRequired"));
       return false;
     }
 
     if (!/[0-9]/.test(password)) {
-      alert("Mật khẩu phải chứa số");
+      alert(t("userPage.validation.passwordNumberRequired"));
       return false;
     }
 
     if (!/[A-Z]/.test(password) || !/[a-z]/.test(password)) {
-      alert("Mật khẩu phải có chữ hoa và chữ thường");
+      alert(t("userPage.validation.passwordCaseRequired"));
       return false;
     }
     return true;
@@ -419,26 +426,26 @@ export function UserPage() {
       {/* Xử lý loading ở đây nhen */}
       {isCreating && isUpdating && isDeleting && isResetting && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
-          Loading...
+          {t("tableActions.loading")}
         </div>
       )}
       <div className="flex justify-between rounded-md bg-background-body-background px-2 py-2">
         {/* Left */}
         <div className="flex gap-2">
           <SelectField
-            placeholder="Lọc theo vai trò"
+            placeholder={t("userPage.filter.rolePlaceholder")}
             options={[
-              { label: "Tất cả", value: 0 },
-              { label: "Sinh viên", value: 3 },
-              { label: "Giảng viên", value: 2 },
-              { label: "Quản trị", value: 1 },
+              { label: t("userPage.filter.all"), value: 0 },
+              { label: t("userPage.roles.student"), value: 3 },
+              { label: t("userPage.roles.teacher"), value: 2 },
+              { label: t("userPage.roles.admin"), value: 1 },
             ]}
             onSelect={(val) => console.log("Filter role:", val)}
             // defaultIndex={0}
           />
           <Input
             hasBoder={true}
-            placeholder="Tìm kiếm MSSV ..."
+            placeholder={t("userPage.searchPlaceholder")}
             icon={<Icon name="search" className="text-text-disabled" />}
           />
         </div>
@@ -456,7 +463,7 @@ export function UserPage() {
               onClick={handleOpenAdd}
             >
               <Icon name="plus" size={20} />
-              Tạo tài khoản mới
+              {t("userPage.addNew")}
             </Button>
           )}
 

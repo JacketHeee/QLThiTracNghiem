@@ -47,24 +47,24 @@ export const AssignmentPage = () => {
 
   const columns: TableColumn<Assign>[] = [
     {
-      title: "Mã môn",
+      title: t("assignmentPage.table.subjectCode"),
       key: "monHocId",
       render: (_, item) => {
         return item.mon_hoc.maMonHoc || "---";
       },
     },
     {
-      title: "Môn học",
+      title: t("assignmentPage.table.subjectName"),
       key: "mon_hoc",
       render: (_, item) => item.mon_hoc.tenMonHoc || "---",
     },
     {
-      title: "Mã giảng viên",
+      title: t("assignmentPage.table.teacherCode"),
       key: "giangVienId",
       render: (_, item) => item.giang_vien.username || "---",
     },
     {
-      title: "Tên giảng viên",
+      title: t("assignmentPage.table.teacherName"),
       key: "giang_vien",
       render: (_, item) => item.giang_vien.hoTen || "---",
     },
@@ -145,17 +145,23 @@ export const AssignmentPage = () => {
           {/* Left: Filter & Search */}
           <div className="flex gap-2">
             <SelectField
-              placeholder="Chọn tiêu chí"
+              placeholder={t("assignmentPage.filter.placeholder")}
               defaultIndex={0}
               options={[
-                { label: "Theo môn học", value: 1 },
-                { label: "Theo giảng viên", value: 2 },
+                {
+                  label: t("assignmentPage.filter.bySubject"),
+                  value: 1,
+                },
+                {
+                  label: t("assignmentPage.filter.byTeacher"),
+                  value: 2,
+                },
               ]}
               onSelect={() => {}}
             />
             <Input
               hasBoder={true}
-              placeholder="Tìm kiếm"
+              placeholder={t("header.search")}
               icon={<Icon name="search" className="text-text-disabled" />}
             />
           </div>
@@ -169,7 +175,7 @@ export const AssignmentPage = () => {
                 onClick={handleOpenAdd}
               >
                 <Icon name="plus" size={20} />
-                Tạo phân công mới
+                {t("assignmentPage.addNew")}
               </Button>
             )}
 

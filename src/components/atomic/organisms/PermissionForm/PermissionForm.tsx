@@ -1,4 +1,5 @@
 import React, { useEffect, useState, type FC, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { Button, Icon } from "@/components/atomic/atoms";
 import { cn } from "@/utils/cn";
 import type {
@@ -80,13 +81,6 @@ interface PermissionFormProps {
   children?: React.ReactNode;
 }
 
-const permissionCols = [
-  { key: "read", title: "Xem" },
-  { key: "create", title: "Thêm mới" },
-  { key: "update", title: "Cập nhật" },
-  { key: "delete", title: "Xoá" },
-] as const;
-
 const ConvertRoleDetails = (data: RoleDetailItem[]): PermissionItem[] => {
   return defaultPermissions.map((perm) => {
     const found = data.find((item) => item.tenChucNang === perm.key);
@@ -134,6 +128,13 @@ export const PermissionForm: FC<PermissionFormProps> = ({
   onCancel,
   className,
 }) => {
+  const { t } = useTranslation();
+  const permissionCols = [
+    { key: "read", title: t("permissionForm.view") },
+    { key: "create", title: t("permissionForm.create") },
+    { key: "update", title: t("permissionForm.update") },
+    { key: "delete", title: t("permissionForm.delete") },
+  ] as const;
   //submit
   const [groupName, setGroupName] = useState<string>(
     defaultGroupPermission.groupName
@@ -216,7 +217,7 @@ export const PermissionForm: FC<PermissionFormProps> = ({
       >
         <div className="flex-bet-center border-b border-other-divider px-6 py-2">
           <h6 className="text-body-1 font-bold text-text-primary">
-            Thêm nhóm quyền
+            {t("permissionForm.addPermissionGroup")}
           </h6>
           <Button
             variant="text"
@@ -230,8 +231,8 @@ export const PermissionForm: FC<PermissionFormProps> = ({
 
         <div className="flex-1 space-y-4 overflow-y-auto px-6 py-0">
           <TextField
-            label="Tên nhóm quyền"
-            placeholder="VD: Giảng viên"
+            label={t("permissionForm.groupName")}
+            placeholder={t("permissionForm.groupNamePlaceholder")}
             value={groupName}
             onChange={(e) => {
               setGroupName(e.target.value);
@@ -245,7 +246,9 @@ export const PermissionForm: FC<PermissionFormProps> = ({
                 {/* Header đồng bộ bg-action-focus và text-table-header */}
                 <thead className="text-table-header bg-action-focus text-text-primary">
                   <tr>
-                    <th className="px-6 py-2">Tên quyền</th>
+                    <th className="px-6 py-2">
+                      {t("permissionForm.permissionName")}
+                    </th>
                     {permissionCols.map((col) => (
                       <th key={col.key} className="px-6 py-2 text-center">
                         <button
@@ -285,7 +288,9 @@ export const PermissionForm: FC<PermissionFormProps> = ({
                           className="transition-colors hover:bg-action-hover"
                         >
                           {/* Cột tên quyền - font-medium tương tự DynamicTable */}
-                          <td className="px-6 py-2">{row.name}</td>
+                          <td className="px-6 py-2">
+                            {t(`permissionNames.${row.key}`)}
+                          </td>
 
                           {/* Các cột checkbox */}
                           {permissionCols.map((col) => (
@@ -311,11 +316,11 @@ export const PermissionForm: FC<PermissionFormProps> = ({
 
         <div className="flex justify-end gap-3 px-5 py-2">
           <Button variant="outline" onClick={onCancel}>
-            Quay lại
+            {t("common.back")}
           </Button>
           {!isView && (
             <Button type="submit" variant="contained" color="primary">
-              Lưu
+              {t("common.save")}
             </Button>
           )}
         </div>

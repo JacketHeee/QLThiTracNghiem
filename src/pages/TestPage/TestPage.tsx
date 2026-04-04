@@ -6,9 +6,11 @@ import { useDeThi } from "@/hooks/useDeThi";
 import { useSubject } from "@/hooks/useSubject";
 import { useAuthStore } from "@/stores/auth.store";
 import type { RoleDetailItem } from "@/types";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 export const TestPage = () => {
+  const { t } = useTranslation();
   const { dethis } = useDeThi();
   const { subjects } = useSubject();
   const pageName = "de_thi";
@@ -33,13 +35,13 @@ export const TestPage = () => {
         {/* Left */}
         <div className="flex gap-2">
           <SelectField
-            placeholder="Tất cả"
+            placeholder={t("testPage.filter.all")}
             options={[
-              { label: "Tất cả", value: 1 },
-              { label: "Đang mở", value: 2 },
-              { label: "Đã đóng", value: 3 },
+              { label: t("testPage.filter.all"), value: 1 },
+              { label: t("testPage.filter.opening"), value: 2 },
+              { label: t("testPage.filter.closed"), value: 3 },
               {
-                label: "Chưa mở",
+                label: t("testPage.filter.notOpened"),
                 value: 4,
               },
             ]}
@@ -47,12 +49,12 @@ export const TestPage = () => {
           />
           <Input
             hasBoder={true}
-            placeholder="Tìm kiếm"
+            placeholder={t("testPage.searchPlaceholder")}
             icon={<Icon name="search" className="text-text-disabled" />}
           />
           <SelectField
-            label="Môn học"
-            placeholder="Chọn môn học"
+            label={t("testPage.subject")}
+            placeholder={t("testPage.selectSubjectPlaceholder")}
             options={subjects.map((item) => ({
               label: item.tenMonHoc,
               value: item.id,
@@ -71,7 +73,7 @@ export const TestPage = () => {
             <Link to="/tests/add">
               <Button variant={"contained"} color={"primary"}>
                 <Icon name="plus" size={20} />
-                Tạo bài kiểm tra
+                {t("testPage.addNew")}
               </Button>
             </Link>
           )}

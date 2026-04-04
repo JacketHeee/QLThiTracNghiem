@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { Button, Icon } from "@/components/atomic/atoms";
 import { TextField } from "@/components/atomic/molecules/TextField/TextField";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
@@ -31,18 +32,19 @@ export function UserForm({
   onCancel,
   mode,
 }: UserFormProps) {
+  const { t } = useTranslation();
   const [selectedTab, setSelectedTab] = useState("manual");
 
   const isView = mode === "view";
   const isUpdate = mode === "update";
 
   const tabs = isUpdate
-    ? [{ value: "manual", label: "Sửa" }]
+    ? [{ value: "manual", label: t("userForm.edit") }]
     : isView
-      ? [{ value: "manual", label: "Chi Tiết" }]
+      ? [{ value: "manual", label: t("userForm.detail") }]
       : [
-          { value: "manual", label: "Thêm thủ công" },
-          { value: "file", label: "Thêm từ file" },
+          { value: "manual", label: t("userForm.addManually") },
+          { value: "file", label: t("userForm.addFromFile") },
         ];
 
   const { roles } = useRole();
@@ -123,25 +125,25 @@ export function UserForm({
             {/* Form Body */}
             <div className="flex max-h-[70vh] flex-col gap-5 overflow-auto px-8 py-4">
               <TextField
-                label="Tên đăng nhập"
-                placeholder="Nhập tên đăng nhập"
+                label={t("userForm.username")}
+                placeholder={t("userForm.usernamePlaceholder")}
                 value={formData.username}
                 onChange={(e) => handleChange("username", e.target.value)}
                 disabled={isView || isUpdate}
               />
 
               <TextField
-                label="Email"
+                label={t("userForm.email")}
                 type="email"
-                placeholder="Nhập địa chỉ email"
+                placeholder={t("userForm.emailPlaceholder")}
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
                 disabled={isView}
               />
 
               <TextField
-                label="Họ và tên"
-                placeholder="Nhập họ và tên"
+                label={t("userForm.fullName")}
+                placeholder={t("userForm.fullNamePlaceholder")}
                 value={formData.hoTen}
                 onChange={(e) => handleChange("hoTen", e.target.value)}
                 disabled={isView}
@@ -149,13 +151,13 @@ export function UserForm({
 
               <div className="flex items-center gap-4">
                 <span className="text-body-2 font-medium text-text-primary">
-                  Giới tính
+                  {t("userForm.gender")}
                 </span>
                 <RadioGroup
                   name="gender"
                   options={[
-                    { label: "Nam", value: false },
-                    { label: "Nữ", value: true },
+                    { label: t("userForm.male"), value: false },
+                    { label: t("userForm.female"), value: true },
                   ]}
                   value={formData.laGioiTinhNu}
                   onChange={(value) => handleChange("laGioiTinhNu", value)}
@@ -164,7 +166,7 @@ export function UserForm({
               </div>
 
               <TextField
-                label="Ngày sinh"
+                label={t("userForm.dateOfBirth")}
                 type="date"
                 value={formData.ngaySinh}
                 onChange={(e) => handleChange("ngaySinh", e.target.value)}
@@ -174,11 +176,11 @@ export function UserForm({
               {!formData.isStudent && (
                 <div className="flex flex-col gap-1">
                   <span className="text-body-2 font-medium text-text-primary">
-                    Nhóm quyền
+                    {t("userForm.permissionGroup")}
                   </span>
                   <SelectField
                     classname="w-full"
-                    placeholder="Chọn nhóm quyền"
+                    placeholder={t("userForm.permissionGroupPlaceholder")}
                     options={roleSelection}
                     defaultIndex={roleSelection.findIndex(
                       (r) => r.value === formData.nhomQuyenId
@@ -193,11 +195,11 @@ export function UserForm({
                 <TextField
                   label={
                     isUpdate
-                      ? "Mật khẩu mới (Để trống nếu không đổi)"
-                      : "Mật khẩu"
+                      ? t("userForm.newPasswordPrompt")
+                      : t("userForm.password")
                   }
                   type="password"
-                  placeholder="Nhập mật khẩu"
+                  placeholder={t("userForm.passwordPlaceholder")}
                   value={passwordField}
                   onChange={(e) => setPasswordField(e.target.value)}
                 />
@@ -205,13 +207,13 @@ export function UserForm({
 
               <div className="mt-2 flex items-center justify-between border-t border-other-outlined-border py-2 pt-4">
                 <Toggle
-                  label="Khóa tài khoản"
+                  label={t("userForm.lockAccount")}
                   checked={formData.isLocked}
                   onChange={(e) => handleChange("isLocked", e.target.checked)}
                   disabled={isView}
                 />
                 <Toggle
-                  label="Là sinh viên?"
+                  label={t("userForm.isStudent")}
                   checked={formData.isStudent}
                   onChange={(e) => handleChangeIsStudent(e.target.checked)}
                   disabled={isView}
@@ -228,7 +230,7 @@ export function UserForm({
                       onResetPassword(initialData.id, passwordField)
                     }
                   >
-                    Tạo lại mật khẩu nhanh
+                    {t("userForm.quickResetPassword")}
                   </Button>
                 </div>
               )}
@@ -242,12 +244,12 @@ export function UserForm({
                 color={"standard"}
                 onClick={onCancel}
               >
-                Quay lại
+                {t("common.back")}
               </Button>
 
               {!isView && (
                 <Button type="submit" variant={"contained"} color={"primary"}>
-                  {isUpdate ? "Cập nhật" : "Lưu tài khoản"}
+                  {isUpdate ? t("common.update") : t("common.saveAccount")}
                 </Button>
               )}
             </div>
@@ -256,10 +258,10 @@ export function UserForm({
           <div className="flex h-64 flex-col items-center justify-center gap-4 px-6">
             <Icon name="upload" size={48} className="text-text-disabled" />
             <p className="text-text-secondary">
-              Kéo thả file vào đây hoặc nhấn để chọn file
+              {t("userForm.dragDropPrompt")}
             </p>
             <Button type="button" variant="outline" color="primary">
-              Chọn file Excel
+              {t("userForm.selectExcelFile")}
             </Button>
           </div>
         )}

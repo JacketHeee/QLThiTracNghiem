@@ -137,7 +137,7 @@ export const NotificationPage = () => {
   };
 
   const deleteTB = async (id: number) => {
-    const isConfirm = window.confirm("Bạn có chắc muốn xóa?");
+    const isConfirm = window.confirm(t("notificationPage.confirmDelete"));
     if (!isConfirm) return;
     try {
       await deleteThongBao(id);
@@ -150,17 +150,17 @@ export const NotificationPage = () => {
 
   const validateCreate = (request: ThongBaoCreate): boolean => {
     if (!request.tieuDe || request.tieuDe.trim() === "") {
-      alert("Tiêu đề không được để trống");
+      alert(t("notificationPage.validation.titleRequired"));
       return false;
     }
 
     if (!request.noiDung || request.noiDung.trim() === "") {
-      alert("Nội dung không được để trống");
+      alert(t("notificationPage.validation.contentRequired"));
       return false;
     }
 
     if (!request.nhomHocPhanIds || request.nhomHocPhanIds.length === 0) {
-      alert("Vui lòng chọn ít nhất một nhóm học phần");
+      alert(t("notificationPage.validation.courseGroupRequired"));
       return false;
     }
 
@@ -169,17 +169,17 @@ export const NotificationPage = () => {
 
   const validateUpdate = (request: ThongBaoUpdate): boolean => {
     if (!request.tieuDe || request.tieuDe.trim() === "") {
-      alert("Tiêu đề không được để trống");
+      alert(t("notificationPage.validation.titleRequired"));
       return false;
     }
 
     if (!request.noiDung || request.noiDung.trim() === "") {
-      alert("Nội dung không được để trống");
+      alert(t("notificationPage.validation.contentRequired"));
       return false;
     }
 
     if (!request.nhomHocPhanIds || request.nhomHocPhanIds.length === 0) {
-      alert("Vui lòng chọn ít nhất một nhóm học phần");
+      alert(t("notificationPage.validation.courseGroupRequired"));
       return false;
     }
 
@@ -191,7 +191,7 @@ export const NotificationPage = () => {
       {/* Xử lý loading ở đây nhen */}
       {isProcessing && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
-          Loading...
+          {t("tableActions.loading")}
         </div>
       )}
       {/* Toolbar: Search & Action */}
@@ -200,18 +200,18 @@ export const NotificationPage = () => {
 
         <div className="flex gap-2">
           <SelectField
-            placeholder="Chọn môn học"
+            placeholder={t("notificationPage.filter.placeholder")}
             defaultIndex={0}
             options={[
-              { label: "Tất cả", value: 1 },
-              { label: "Đã gửi", value: 2 },
-              { label: "Bản nháp", value: 3 },
+              { label: t("notificationPage.filter.all"), value: 1 },
+              { label: t("notificationPage.filter.sent"), value: 2 },
+              { label: t("notificationPage.filter.draft"), value: 3 },
             ]}
             onSelect={() => {}}
           />
           <Input
             hasBoder={true}
-            placeholder="Tìm kiếm"
+            placeholder={t("notificationPage.searchPlaceholder")}
             icon={<Icon name="search" className="text-text-disabled" />}
           />
         </div>
@@ -229,7 +229,7 @@ export const NotificationPage = () => {
               onClick={() => openInsertModal()}
             >
               <Icon name="plus" size={20} />
-              Tạo thông báo mới
+              {t("notificationPage.addNew")}
             </Button>
           )}
 
