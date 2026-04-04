@@ -30,7 +30,6 @@ import type { AxiosError } from "axios";
 export const QuestionPage = () => {
   const [selectedTab, setSelectedTab] = useState<QuestionStatus>("public");
   const [searchQuery, setSearchQuery] = useState("");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [filterDifficulty] = useState<DoKho>();
   const { user } = useAuthStore();
   const { createCauHoi, isCreating } = useCreateCauHoi();
@@ -96,26 +95,24 @@ export const QuestionPage = () => {
   const { questions } = useQuestions();
   const { questionsprivate } = useQuestionsPrivate(user?.id);
 
-  const allQuestions = [...questions, ...(questionsprivate || [])];
-
+  // Thay thế đoạn khai báo allQuestions và useMemo cũ
   const filteredQuestions = useMemo(() => {
-    return allQuestions.filter((q: Question) => {
-      // 1. Lọc theo Tab (Trạng thái)
-      const matchTab = q.status === selectedTab;
+    // Gộp mảng ngay bên trong callback của useMemo
+    const combined = [...questions, ...(questionsprivate || [])];
 
-      // 2. Lọc theo nội dung Search (Không phân biệt hoa thường)
+    return combined.filter((q: Question) => {
+      const matchTab = q.status === selectedTab;
       const matchSearch = q.noiDungCauHoi
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
-
-      // 3. Lọc theo Độ khó (nếu có chọn)
       const matchDifficulty = filterDifficulty
         ? q.do_kho === filterDifficulty
         : true;
 
       return matchTab && matchSearch && matchDifficulty;
     });
-  }, [allQuestions, selectedTab, searchQuery, filterDifficulty]);
+    // Dependency bây giờ là các mảng gốc từ hooks
+  }, [questions, questionsprivate, selectedTab, searchQuery, filterDifficulty]);
 
   const handleAction = (type: string, data: Question) => {
     switch (type) {
@@ -305,7 +302,7 @@ export const QuestionPage = () => {
               value: item.id,
             }))}
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            onSelect={(val) => {
+            onSelect={(_val) => {
               // setFilterDifficulty();
             }}
           />

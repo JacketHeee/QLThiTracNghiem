@@ -444,7 +444,7 @@ export default function ResultPage() {
           >
             <DynamicTable
               columns={columns}
-              data={tableData}
+              data={tableData as any}
               key={viewMode}
               rowKey={"id"}
               hasColumnActions={viewMode === "user"}

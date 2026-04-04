@@ -35,7 +35,7 @@ export default function AddQuestionTestPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isOpenQuestionForm, setIsOpenQuestionForm] = useState(false);
+  const [_isOpenQuestionForm, setIsOpenQuestionForm] = useState(false);
   const { mutate: createDeThi } = useCreateDeThi();
   const { mutate: updateDeThi } = useUpdateDeThi();
 

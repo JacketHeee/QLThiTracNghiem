@@ -26,10 +26,10 @@ const QuestionItem = ({
       {/* Header */}
       <div className="flex justify-between border-b border-other-outlined-border p-5">
         <span className="text-caption rounded-sm border border-text-secondary px-2 py-1 text-text-secondary">
-          {data.do_kho.tenDoKho}
+          {data.do_kho?.tenDoKho}
         </span>
         <span className="text-body-1 text-text-secondary">
-          {data.mon_hoc.tenMonHoc}
+          {data.mon_hoc?.tenMonHoc}
         </span>
       </div>
 
@@ -77,7 +77,7 @@ const QuestionItem = ({
           </div>
 
           <div className="flex items-center gap-1 text-text-secondary">
-            <span>{formatDateTimeVN(data.created_at)} ·</span>
+            <span>{formatDateTimeVN(data.created_at || "")} ·</span>
             <Icon name="word" size={16} />
             <span>· Lượt sử dụng: {data.soLuotSuDung} lần</span>
           </div>
