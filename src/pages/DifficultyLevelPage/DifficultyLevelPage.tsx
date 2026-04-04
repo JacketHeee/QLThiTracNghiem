@@ -7,7 +7,8 @@ import DynamicTable, {
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import { useDoKho } from "@/hooks/useDoKho";
-import type { DoKho, ErrorResponse } from "@/types";
+import { useAuthStore } from "@/stores/auth.store";
+import type { DoKho, ErrorResponse, RoleDetailItem } from "@/types";
 import type { AxiosError } from "axios";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -16,6 +17,23 @@ export default function DifficultyLevelPage() {
   const { doKhos, isLoading } = useDoKho();
   const { t } = useTranslation();
   const { createDoKho, updateDoKho, deleteDoKho, isProcessing } = useDoKho();
+
+  const pageName = "do_kho";
+
+  const { role } = useAuthStore();
+  const roleDetails = !role ? [] : role.role_details;
+  const actions = roleDetails
+    .filter((item: RoleDetailItem) => item.tenChucNang === pageName)
+    .flatMap((item) => {
+      const result: string[] = [];
+
+      if (item.canView) result.push("view");
+      if (item.canCreate) result.push("create");
+      if (item.canUpdate) result.push("update");
+      if (item.canDelete) result.push("delete");
+
+      return result;
+    });
 
   const defaultModalState = {
     open: false,
@@ -177,14 +195,16 @@ export default function DifficultyLevelPage() {
 
           {/* Right: Actions */}
           <div className="flex gap-2">
-            <Button
-              variant={"contained"}
-              color={"primary"}
-              onClick={openInsertModal}
-            >
-              <Icon name="plus" size={20} />
-              Tạo độ khó mới
-            </Button>
+            {actions.includes("create") && (
+              <Button
+                variant={"contained"}
+                color={"primary"}
+                onClick={openInsertModal}
+              >
+                <Icon name="plus" size={20} />
+                Tạo độ khó mới
+              </Button>
+            )}
 
             {modalState.open && (
               <DifficultyLevelForm
@@ -210,6 +230,7 @@ export default function DifficultyLevelPage() {
           onAction={(action, doKho) => handleAction(action, doKho)}
           hasView={false}
           isLoading={isLoading}
+          checkActions={actions}
         />
         <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
       </div>

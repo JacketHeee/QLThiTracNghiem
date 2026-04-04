@@ -14,7 +14,8 @@ import {
   useDeleteNhomHocPhan,
 } from "@/hooks/useNhomHocPhan";
 import { useTranslation } from "react-i18next";
-import type { NhomHocPhan, NhomHocPhanCreate } from "@/types";
+import type { NhomHocPhan, NhomHocPhanCreate, RoleDetailItem } from "@/types";
+import { useAuthStore } from "@/stores/auth.store";
 
 type CourseStatus = "active" | "hidden";
 
@@ -26,6 +27,22 @@ const withAlpha = (hex: string, alphaHex: string) => {
 };
 
 export function CourseGroupPage() {
+  const pageName = "hoc_phan";
+
+  const { role } = useAuthStore();
+  const roleDetails = !role ? [] : role.role_details;
+  const actions = roleDetails
+    .filter((item: RoleDetailItem) => item.tenChucNang === pageName)
+    .flatMap((item) => {
+      const result: string[] = [];
+
+      if (item.canView) result.push("view");
+      if (item.canCreate) result.push("create");
+      if (item.canUpdate) result.push("update");
+      if (item.canDelete) result.push("delete");
+
+      return result;
+    });
   const { nhomHocPhans, isLoading } = useNhomHocPhan();
   const createMutation = useCreateNhomHocPhan();
   const updateMutation = useUpdateNhomHocPhan();
@@ -246,18 +263,20 @@ export function CourseGroupPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                <Button
-                  variant="contained"
-                  color="primary"
-                  disabled={isProcessing}
-                  onClick={() => {
-                    setEditFormData(null);
-                    setIsFormOpen(true);
-                  }}
-                >
-                  <Icon name="plus" size={18} />
-                  {t("courseGroup.addGroup")}
-                </Button>
+                {actions.includes("create") && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    disabled={isProcessing}
+                    onClick={() => {
+                      setEditFormData(null);
+                      setIsFormOpen(true);
+                    }}
+                  >
+                    <Icon name="plus" size={18} />
+                    {t("courseGroup.addGroup")}
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -306,17 +325,19 @@ export function CourseGroupPage() {
                                 {t("courseGroup.studentList")}
                               </Link>
 
-                              <button
-                                type="button"
-                                className="w-full rounded-md px-3 py-2 text-left text-sm text-text-secondary transition-colors hover:bg-action-hover"
-                                disabled={isProcessing}
-                                onClick={() => {
-                                  setOpenMenu(null);
-                                  handleEditGroup(group);
-                                }}
-                              >
-                                {t("courseGroup.editInfo")}
-                              </button>
+                              {actions.includes("update") && (
+                                <button
+                                  type="button"
+                                  className="w-full rounded-md px-3 py-2 text-left text-sm text-text-secondary transition-colors hover:bg-action-hover"
+                                  disabled={isProcessing}
+                                  onClick={() => {
+                                    setOpenMenu(null);
+                                    handleEditGroup(group);
+                                  }}
+                                >
+                                  {t("courseGroup.editInfo")}
+                                </button>
+                              )}
 
                               <button
                                 type="button"
@@ -333,14 +354,16 @@ export function CourseGroupPage() {
                                   : t("courseGroup.hideGroup")}
                               </button>
 
-                              <button
-                                type="button"
-                                className="w-full rounded-md px-3 py-2 text-left text-sm text-text-secondary transition-colors hover:bg-action-hover"
-                                disabled={isProcessing}
-                                onClick={() => handleRemoveGroup(group.id)}
-                              >
-                                {t("courseGroup.deleteGroup")}
-                              </button>
+                              {actions.includes("delete") && (
+                                <button
+                                  type="button"
+                                  className="w-full rounded-md px-3 py-2 text-left text-sm text-text-secondary transition-colors hover:bg-action-hover"
+                                  disabled={isProcessing}
+                                  onClick={() => handleRemoveGroup(group.id)}
+                                >
+                                  {t("courseGroup.deleteGroup")}
+                                </button>
+                              )}
                             </div>
                           )}
                       </div>

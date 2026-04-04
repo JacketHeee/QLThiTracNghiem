@@ -19,6 +19,11 @@ const defaultPermissions: PermissionItem[] = [
     actions: { read: false, create: false, update: false, delete: false },
   },
   {
+    key: "do_kho",
+    name: "Độ khó",
+    actions: { read: false, create: false, update: false, delete: false },
+  },
+  {
     key: "hoc_phan",
     name: "Học phần",
     actions: { read: false, create: false, update: false, delete: false },
@@ -33,11 +38,11 @@ const defaultPermissions: PermissionItem[] = [
     name: "Môn học",
     actions: { read: false, create: false, update: false, delete: false },
   },
-  {
-    key: "chuong",
-    name: "Chương",
-    actions: { read: false, create: false, update: false, delete: false },
-  },
+  // {
+  //   key: "chuong",
+  //   name: "Chương",
+  //   actions: { read: false, create: false, update: false, delete: false },
+  // },
   {
     key: "phan_cong",
     name: "Phân công",
@@ -308,9 +313,11 @@ export const PermissionForm: FC<PermissionFormProps> = ({
           <Button variant="outline" onClick={onCancel}>
             Quay lại
           </Button>
-          <Button type="submit" variant="contained" color="primary">
-            Lưu
-          </Button>
+          {!isView && (
+            <Button type="submit" variant="contained" color="primary">
+              Lưu
+            </Button>
+          )}
         </div>
       </form>
     </Overlay>

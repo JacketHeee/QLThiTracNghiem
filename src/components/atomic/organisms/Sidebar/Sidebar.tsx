@@ -51,7 +51,7 @@ const SIDEBAR_SECTIONS: SidebarSection[] = [
         icon: "layers",
         labelKey: "sidebar.items.difficultyLevel",
         to: "/difficulty-level",
-        permission: "hoc_phan",
+        permission: "do_kho",
       },
       {
         icon: "question",

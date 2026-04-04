@@ -256,14 +256,16 @@ export const PermissionGroupPage = () => {
 
           {/* Right: Actions */}
           <div className="flex gap-2">
-            <Button
-              variant={"contained"}
-              color={"primary"}
-              onClick={openInsertModal}
-            >
-              <Icon name="plus" size={20} />
-              Tạo nhóm quyền mới
-            </Button>
+            {actions.includes("create") && (
+              <Button
+                variant={"contained"}
+                color={"primary"}
+                onClick={openInsertModal}
+              >
+                <Icon name="plus" size={20} />
+                Tạo nhóm quyền mới
+              </Button>
+            )}
             {modalState.open && (
               <PermissionForm
                 key={modalState.id}
