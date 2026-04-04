@@ -56,4 +56,6 @@ export const examService = {
   ): Promise<ApiResponse<ExamResponseData>> => {
     return axiosClient.get(`/bailams/reviewresult/${baiLamId}`);
   },
+
+  getAll: (): Promise<ApiResponse<BaiLam[]>> => axiosClient.get("/bailams"),
 };

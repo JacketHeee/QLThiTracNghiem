@@ -1,6 +1,5 @@
 import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
-import Pagination from "@/components/atomic/molecules/Panigation/Panigation";
 import type { TableColumn } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import DynamicTable from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import { PermissionForm } from "@/components/atomic/organisms/PermissionForm/PermissionForm";
@@ -22,8 +21,6 @@ import type {
 import type { AxiosError } from "axios";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-
-const totalPages = 5;
 
 const columns: TableColumn<Role>[] = [
   {
@@ -63,7 +60,6 @@ const columns: TableColumn<Role>[] = [
 const pageName = "nhom_quyen";
 
 export const PermissionGroupPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
   const { t } = useTranslation();
 
   const { role } = useAuthStore();
@@ -288,11 +284,6 @@ export const PermissionGroupPage = () => {
           hasColumnActions={true}
           onAction={handleAction}
           checkActions={actions}
-        />
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
         />
       </div>
     </MainContentLayout>

@@ -530,3 +530,8 @@ export interface ExamResponseData {
   deThi: DeThi;
   cauHois: Question[];
 }
+export interface StudentResult extends TaiKhoan {
+  nhomHocPhan?: NhomHocPhan; // Thông tin nhóm
+  baiLam?: BaiLam; // Thông tin bài thi (nếu đã làm)
+  isAverage?: boolean; // Đánh dấu dòng trung bình
+}

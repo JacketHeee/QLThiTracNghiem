@@ -8,111 +8,26 @@ import DynamicTable from "@/components/atomic/organisms/DynamicTable/DynamicTabl
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import { useEffect, useMemo, useState } from "react";
 import StatSection from "@/components/atomic/organisms/StatSection/StatSection";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useExamStore } from "@/stores/useExamStore";
-import { getProgressColor } from "@/utils";
+import {
+  getProgressColor,
+  getTestsStatus,
+  getVariantDeThiWithStatus,
+} from "@/utils";
+import { useDeThiStore } from "@/stores/useDeThi.store";
+import { StatusLabel } from "@/components/atomic/atoms/StatusLabel/StatusLabel";
+import {
+  useNhomHocPhanDetail,
+  useNhomHocPhanSinhViens,
+} from "@/hooks/useNhomHocPhan";
+import { useExamActions } from "@/hooks/useExamActions";
+import { useDoKho } from "@/hooks/useDoKho";
+import type { BaiLam, StudentResult } from "@/types";
+import { Overlay } from "@/components/atomic/molecules/Overlay/Overlay";
+import ExamResultOverview from "@/components/atomic/organisms/ExamResultOverview/ExamResultOverview";
 
-type ViewMode = "user" | "question" | "chapter" | "difficulty";
-
-// 1. Interface cho dữ liệu bảng điểm
-interface BaseData {
-  id: string | number;
-  phanTram: number;
-  diem: string;
-}
-
-interface UserData extends BaseData {
-  mssv: string;
-  hoTen: string;
-  thoiGianVao: string;
-  thoiGianThi: string;
-  soLanThoat: number;
-  isAverage?: boolean;
-}
-
-interface GenericStats extends BaseData {
-  stt: number;
-  noiDung: string;
-}
-
-// mock data
-const userModeData = [
-  {
-    id: "avg",
-    mssv: "Average",
-    hoTen: "Trung bình hệ thống",
-    phanTram: 68,
-    diem: "9.5/14",
-    thoiGianVao: "-",
-    thoiGianThi: "00:45:00",
-    soLanThoat: 0.5,
-    isAverage: true,
-  },
-  ...Array.from({ length: 20 }, (_, i) => {
-    const percent = Math.floor(Math.random() * 101);
-    const score = Math.round((percent / 100) * 14);
-    return {
-      id: `u${i + 1}`,
-      mssv: `20110${400 + i}`,
-      hoTen: `Sinh viên ${i + 1}`,
-      phanTram: percent,
-      diem: `${score}/14`,
-      thoiGianVao: "Sat 10 Jan '26",
-      thoiGianThi: `00:${10 + i}:${Math.floor(Math.random() * 60)}`,
-      soLanThoat: Math.random() > 0.8 ? Math.floor(Math.random() * 5) : 0,
-    };
-  }),
-];
-
-const questionModeData = Array.from({ length: 30 }, (_, i) => ({
-  id: `q${i + 1}`,
-  stt: i + 1,
-  noiDung: `Câu hỏi số ${i + 1}: Nội dung kiến thức quan trọng về Frontend và Geospatial...`,
-  phanTram: Math.floor(Math.random() * 100),
-  diem: (Math.random() * 1).toFixed(1),
-}));
-
-const chapters = [
-  "Tổng quan HTML5",
-  "Cấu trúc CSS3",
-  "Flexbox & Grid",
-  "Javascript Basic",
-  "ES6 & TypeScript",
-  "React Component",
-  "Hooks & State",
-  "API Integration",
-  "TerriaJS & Cesium",
-  "H3 Index System",
-  "Clean Code",
-  "Deployment",
-];
-
-const chapterModeData = chapters.map((name, i) => ({
-  id: `c${i + 1}`,
-  stt: i + 1,
-  noiDung: `Chương ${i + 1}: ${name}`,
-  phanTram: Math.floor(Math.random() * (90 - 40 + 1)) + 40, // Random từ 40-90%
-  diem: (Math.random() * (10 - 5) + 5).toFixed(1),
-}));
-
-const difficultyLevels = [
-  "Nhận biết",
-  "Thông hiểu",
-  "Vận dụng",
-  "Vận dụng cao",
-];
-
-const difficultyModeData = difficultyLevels.map((label, i) => {
-  // Logic: Nhận biết thường % đúng cao, Vận dụng cao thường % đúng thấp
-  const mockPercents = [92, 75, 45, 15];
-  return {
-    id: `d${i + 1}`,
-    stt: i + 1,
-    noiDung: label,
-    phanTram: mockPercents[i],
-    diem: (10 / (i + 1)).toFixed(1),
-  };
-});
+type ViewMode = "user" | "question" | "difficulty";
 
 export default function ResultPage() {
   const [selectedTab, setSelectedTab] = useState<"stat" | "classScore">(
@@ -121,6 +36,17 @@ export default function ResultPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("user");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
   const navigate = useNavigate();
+
+  const { id } = useParams();
+  console.log(id);
+
+  const { testData } = useDeThiStore();
+  const { nhomHocPhan } = useNhomHocPhanDetail(Number(id));
+  const { sinhViens } = useNhomHocPhanSinhViens(Number(testData?.id));
+  const [openResultModal, setOpenResultModal] = useState(false);
+  const handleClose = () => setOpenResultModal(false);
+
+  const { baiLams } = useExamActions();
 
   const handleStartExam = () => {
     // Chuyển hướng thẳng vào trang làm bài (mặc định mode là STUDENT)
@@ -178,106 +104,201 @@ export default function ResultPage() {
       return [
         {
           title: "MSSV",
-          key: "mssv",
-          render: (val: any, item: UserData) => (
+          key: "ma", // SỬA: từ 'mssv' thành 'ma' theo TaiKhoan interface
+          render: (val: any, item: StudentResult) => (
             <span>{item.isAverage ? "" : val}</span>
           ),
         },
         {
           title: "Họ tên",
           key: "hoTen",
-          render: (val: any, item: any) => (
+          render: (val: any, item: StudentResult) => (
             <div className="flex items-center gap-3">
               <Icon name={item.isAverage ? "groupUser" : "user"} size={20} />
-              <span className={item.isAverage ? "font-bold" : ""}>{val}</span>
+              <span
+                className={item.isAverage ? "font-bold text-primary-main" : ""}
+              >
+                {val}
+              </span>
             </div>
           ),
         },
-        { title: "Phần trăm", key: "phanTram", render: renderPercent },
-        { title: "Điểm", key: "diem", className: "text-center" },
-        { title: "Thời gian vào thi", key: "thoiGianVao" },
         {
-          title: "Thời gian thi",
-          key: "thoiGianThi",
+          title: "Phần trăm",
+          key: "phanTram",
+          render: (val: BaiLam) => renderPercent(val?.tongDiem || -1),
+        },
+        {
+          title: "Điểm",
+          key: "baiLam",
           className: "text-center",
+          render: (val: BaiLam) =>
+            val?.tongDiem != null ? `${val.tongDiem}/10` : "—",
+        },
+        {
+          title: "Thời gian vào",
+          key: "baiLam",
+          render: (val: BaiLam) =>
+            val?.thoiGianBatDau
+              ? new Date(val.thoiGianBatDau).toLocaleTimeString("vi-VN", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "—",
         },
         {
           title: "Số lần thoát",
-          key: "soLanThoat",
+          key: "baiLam",
           className: "text-center text-alert-error-main font-bold",
+          render: (val: BaiLam) => val?.logBaiLam?.soLanChuyenTab ?? 0,
         },
-      ] as TableColumn<UserData>[];
+      ] as TableColumn<StudentResult>[];
     }
 
-    // Cấu hình chung cho Question, Chapter, Difficulty
     return [
       { title: "STT", key: "stt", className: "w-16" },
       {
-        title:
-          viewMode === "chapter"
-            ? "Nội dung chương"
-            : viewMode === "difficulty"
-              ? "Mức độ"
-              : "Nội dung",
+        title: viewMode === "difficulty" ? "Mức độ độ khó" : "Nội dung câu hỏi",
         key: "noiDung",
       },
-      { title: "Phần trăm đúng", key: "phanTram", render: renderPercent },
+      { title: "Tỉ lệ đúng", key: "phanTram", render: renderPercent },
       { title: "Điểm trung bình", key: "diem", className: "text-center" },
-    ] as TableColumn<GenericStats | UserData>[];
+    ] as TableColumn<any>[];
   }, [viewMode]);
 
-  // --- 2. Mock Data theo từng Mode ---
+  const { doKhos } = useDoKho();
+
   const tableData = useMemo(() => {
-    let data: any[] = [];
+    const currentDeThiId = testData?.id;
+    const allCauHois = testData?.cau_hois || [];
+    // Chỉ lấy bài làm của đề thi đang xét
+    const currentBaiLams = (baiLams || []).filter(
+      (bl) => bl.deThiId === currentDeThiId
+    );
 
-    // Lấy data thô theo mode
-    switch (viewMode) {
-      case "user":
-        data = [...userModeData];
-        break;
-      case "question":
-        data = [...questionModeData];
-        break;
-      case "chapter":
-        data = [...chapterModeData];
-        break;
-      case "difficulty":
-        data = [...difficultyModeData];
-        break;
+    // --- 1. MODE: THEO NGƯỜI LÀM (USER) ---
+    if (viewMode === "user") {
+      const baiLamMap = new Map(currentBaiLams.map((bl) => [bl.thiSinhId, bl]));
+
+      const extendedStudents: StudentResult[] = (sinhViens || []).map((sv) => ({
+        ...sv,
+        nhomHocPhan: nhomHocPhan || undefined,
+        baiLam: baiLamMap.get(sv.id),
+      }));
+
+      // Tính trung bình cộng điểm số của những người đã nộp bài
+      const completedTests = extendedStudents.filter(
+        (s) => s.baiLam?.status === "DA_NOP"
+      );
+      const avgScore =
+        completedTests.length > 0
+          ? completedTests.reduce(
+              (acc, curr) => acc + (curr.baiLam?.tongDiem || 0),
+              0
+            ) / completedTests.length
+          : 0;
+
+      const avgRow = {
+        id: -1,
+        ma: "AVG",
+        hoTen: "Trung bình lớp",
+        isAverage: true,
+        baiLam: { tongDiem: avgScore } as BaiLam,
+      } as StudentResult;
+
+      let result = [avgRow, ...extendedStudents];
+
+      if (sortOrder) {
+        result = [
+          avgRow,
+          ...[...extendedStudents].sort((a, b) => {
+            const scoreA = a.baiLam?.tongDiem ?? -1;
+            const scoreB = b.baiLam?.tongDiem ?? -1;
+            return sortOrder === "asc" ? scoreA - scoreB : scoreB - scoreA;
+          }),
+        ];
+      }
+      return result;
     }
 
-    // Logic Sắp xếp
-    if (sortOrder) {
-      // Tách dòng Average ra để không bị đảo lộn
-      const avgRow = data.find((item) => item.isAverage);
-      const otherRows = data.filter((item) => !item.isAverage);
+    // --- 2. MODE: THEO CÂU HỎI (Thống kê tỉ lệ đúng/sai từng câu) ---
+    if (viewMode === "question") {
+      return allCauHois.map((ch, index) => {
+        const studentAnswers = currentBaiLams
+          .filter((bl) => bl.status === "DA_NOP")
+          .flatMap(
+            (bl) =>
+              bl.chitiet_bailams?.filter((ct) => ct.cauHoiId === ch.id) || []
+          );
 
-      otherRows.sort((a, b) => {
-        // Vì phanTram tỉ lệ thuận với điểm hệ 10, ta sort theo phanTram cho chính xác
-        return sortOrder === "asc"
-          ? a.phanTram - b.phanTram
-          : b.phanTram - a.phanTram;
+        const correctCount = studentAnswers.filter(
+          (a) => a.isCorrectChooser
+        ).length;
+        const percent =
+          studentAnswers.length > 0
+            ? Math.round((correctCount / studentAnswers.length) * 100)
+            : 0;
+
+        return {
+          id: ch.id,
+          stt: index + 1,
+          noiDung: ch.noiDungCauHoi,
+          phanTram: percent,
+          diem: ((percent * Number(ch.diemMacDinh || 1)) / 100).toFixed(2),
+        };
       });
+    }
+    // --- MODE: DIFFICULTY (FIXED HERE) ---
+    if (viewMode === "difficulty") {
+      return (doKhos || []).map((dk, index) => {
+        // 1. Lấy danh sách ID các câu hỏi thuộc độ khó này trong đề thi hiện tại
+        const questionIdsInLevel = allCauHois
+          .filter((q) => q.doKhoId === dk.id)
+          .map((q) => q.id);
 
-      return avgRow ? [avgRow, ...otherRows] : otherRows;
+        // 2. Thu thập tất cả chi tiết bài làm của sinh viên liên quan đến các câu hỏi trên
+        const relevantAnswers = currentBaiLams
+          .filter((bl) => bl.status === "DA_NOP")
+          .flatMap((bl) => bl.chitiet_bailams || [])
+          .filter((ct) => questionIdsInLevel.includes(ct.cauHoiId));
+
+        const correct = relevantAnswers.filter(
+          (a) => a.isCorrectChooser
+        ).length;
+        const total = relevantAnswers.length;
+        const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+        return {
+          id: `dk-${dk.id}`,
+          stt: index + 1,
+          noiDung: dk.tenDoKho,
+          phanTram: percent,
+          diem: (percent / 10).toFixed(1), // Điểm TB hệ 10 của mức độ này
+        };
+      });
     }
 
-    return data;
-  }, [viewMode, sortOrder]);
+    return [];
+  }, [viewMode, sinhViens, baiLams, testData, sortOrder, nhomHocPhan, doKhos]);
 
-  // const { reviewExam } = useExamActions();
-  // const handleViewResult = async (baiLamId: number) => {
-  //   try {
-  //     // Gọi action review bài thi (đã bao gồm logic setFinalResult vào Store)
-  //     await reviewExam(baiLamId);
+  const status = getTestsStatus(
+    testData?.thoiGianBatDau,
+    testData?.thoiGianKetThuc
+  );
 
-  //     // Sau khi dữ liệu đã vào Store thành công, mở Modal
-  //     setOpenResultModal(true);
-  //   } catch (error) {
-  //     console.error("Lỗi khi tải kết quả:", error);
-  //     // Bạn có thể thêm Toast thông báo lỗi ở đây
-  //   }
-  // };
+  const { reviewExam } = useExamActions();
+  const handleViewResult = async (baiLamId: number) => {
+    try {
+      // Gọi action review bài thi (đã bao gồm logic setFinalResult vào Store)
+      await reviewExam(baiLamId);
+
+      // Sau khi dữ liệu đã vào Store thành công, mở Modal
+      setOpenResultModal(true);
+    } catch (error) {
+      console.error("Lỗi khi tải kết quả:", error);
+      // Bạn có thể thêm Toast thông báo lỗi ở đây
+    }
+  };
 
   return (
     <MainContentLayout hasFooter={false} classname="w-full">
@@ -291,14 +312,9 @@ export default function ResultPage() {
           </div>
 
           <div className="flex-bet-center gap-3">
-            <Button
-              variant={"outline"}
-              color={"error"}
-              size="small"
-              className="cursor-default rounded-2xl hover:bg-background-body-background"
-            >
-              Đã đóng
-            </Button>
+            <StatusLabel variant={getVariantDeThiWithStatus(status.status)}>
+              {status.label}{" "}
+            </StatusLabel>
             <Divider orientation="vertical" />
             <Button
               variant={"outline"}
@@ -312,14 +328,12 @@ export default function ResultPage() {
         <div className="flex gap-2">
           <div className="flex flex-col gap-3 pb-8 pt-5">
             <div className="flex flex-col gap-2">
-              <div className="text-h5 text-text-primary">
-                Kiểm tra kiến thức cơ bản HTML & CSS
-              </div>
+              <div className="text-h5 text-text-primary">{testData?.tenDe}</div>
               {/* infor */}
               <div className="flex flex-col gap-2 text-text-secondary">
                 <div className="flex items-center gap-1">
                   <Icon name="groupUser" size={20} />
-                  <span className="text-body-1">DKP1232</span>
+                  <span className="text-body-1">{nhomHocPhan?.tenNhom}</span>
                 </div>
               </div>
             </div>
@@ -389,14 +403,7 @@ export default function ResultPage() {
                 variant={"contained"}
                 color={"primary"}
                 size={"small"}
-                onClick={() => {
-                  // Logic tính điểm hệ 10 khi xuất file
-                  const exportData = tableData.map((item) => ({
-                    ...item,
-                    diemHe10: (item.phanTram / 10).toFixed(1),
-                  }));
-                  console.log("Xuất dữ liệu hệ 10:", exportData);
-                }}
+                onClick={() => {}}
               >
                 <Icon name="document" size={20} />
                 Xuất bảng điểm
@@ -411,7 +418,6 @@ export default function ResultPage() {
             {[
               { id: "user", label: "Theo người làm" },
               { id: "question", label: "Theo câu hỏi" },
-              { id: "chapter", label: "Theo chương" },
               { id: "difficulty", label: "Theo độ khó" },
             ].map((mode) => (
               <Button
@@ -446,22 +452,56 @@ export default function ResultPage() {
               getRowClassName={(item) =>
                 item.isAverage ? "bg-warning-background" : ""
               }
-              renderActions={(item) => (
-                <Button
-                  variant="contained"
-                  color="success"
-                  size="small"
-                  onClick={() => console.log("Xem chi tiết:", item.mssv)}
-                >
-                  Kết quả
-                </Button>
-              )}
+              renderActions={(item: StudentResult) => {
+                if (item.isAverage) return null;
+
+                // 2. Kiểm tra trạng thái bài làm
+                const status = item.baiLam?.status;
+
+                if (status === "DA_NOP") {
+                  return (
+                    <Button
+                      variant="contained"
+                      color="success"
+                      size="small"
+                      onClick={() => handleViewResult(item.baiLam?.id || 0)}
+                    >
+                      <Icon name="eye" size={16} className="mr-1" />{" "}
+                      {/* Thêm icon cho đẹp */}
+                      Kết quả
+                    </Button>
+                  );
+                }
+
+                // 3. Nếu đang làm (DANG_LAM)
+                if (status === "DANG_LAM") {
+                  return (
+                    <span className="text-caption rounded bg-warning-background px-2 py-1 font-medium text-warning-main">
+                      Đang làm...
+                    </span>
+                  );
+                }
+
+                return (
+                  <span className="text-caption font-medium italic text-text-disabled">
+                    Chưa tham gia
+                  </span>
+                );
+              }}
             />
           </div>
         )}
 
         {selectedTab === "stat" && <StatSection key="stat-section" />}
       </div>
+      {openResultModal && (
+        <Overlay onClose={handleClose}>
+          {" "}
+          <main className="mb-20 flex max-h-[90vh] w-fit flex-col items-center overflow-y-auto rounded-lg bg-background-body-background px-8 py-8">
+            <ExamResultOverview />
+          </main>
+        </Overlay>
+      )}
     </MainContentLayout>
   );
 }

@@ -6,7 +6,6 @@ import { Button, Icon, Input } from "../../atoms";
 import DynamicTable, {
   type TableColumn,
 } from "../../organisms/DynamicTable/DynamicTable";
-import Pagination from "../../molecules/Panigation/Panigation";
 import type { Assign, AssignmentRequest, Subject } from "@/types";
 import { Checkbox } from "../../atoms/Checkbox/Checkbox";
 import { useSubject } from "@/hooks/useSubject";
@@ -145,9 +144,6 @@ export default function AddAssignmentForm({
           <div className="flex-1 overflow-auto">
             <DynamicTable columns={modalColumns} data={subjects} rowKey="id" />
           </div>
-
-          {/* Pagination */}
-          <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
 
           {/* Footer Actions */}
           <div className="flex justify-end gap-3 border-t border-other-outlined-border pt-4">

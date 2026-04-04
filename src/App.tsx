@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { useThemeStore } from "./stores/theme.store";
+import { ToastContainer } from "./components/atomic/molecules/ToastContainer/ToastContainer";
 
 export default function App() {
   useEffect(() => {
@@ -13,5 +14,10 @@ export default function App() {
     }
   }, []);
 
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+      <ToastContainer />
+    </>
+  );
 }

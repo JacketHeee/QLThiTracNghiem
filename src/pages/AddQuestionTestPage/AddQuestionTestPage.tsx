@@ -3,12 +3,12 @@ import { Checkbox } from "@/components/atomic/atoms/Checkbox/Checkbox";
 import Divider from "@/components/atomic/atoms/Divider/Divider";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import { BodyQuestionItem } from "@/components/atomic/molecules/BodyQuestionItem/BodyQuestionItem";
-import AddQuestionForm from "@/components/atomic/organisms/AddQuestionForm/AddQuestionForm";
 import { useCreateDeThi, useUpdateDeThi } from "@/hooks/useDeThi";
 import { useDoKho } from "@/hooks/useDoKho";
 import { useQuestions } from "@/hooks/useQuestion";
 import { useDeThiStore } from "@/stores/useDeThi.store";
 import { useExamStore } from "@/stores/useExamStore";
+import { useToastStore } from "@/stores/useToast.store";
 import type { CreateDeThiPayload, DeThi } from "@/types";
 import { formatFullDateTimeVN, mapDeThiToCreatePayload } from "@/utils";
 import {
@@ -32,9 +32,9 @@ export default function AddQuestionTestPage() {
   const isViewMode = pathname.includes("/view");
   const isAddMode = pathname.includes("/add");
 
-  console.log("Manh: ", isAddMode, isEditMode, isViewMode);
   const { id } = useParams();
   const navigate = useNavigate();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isOpenQuestionForm, setIsOpenQuestionForm] = useState(false);
   const { mutate: createDeThi } = useCreateDeThi();
   const { mutate: updateDeThi } = useUpdateDeThi();
@@ -48,6 +48,7 @@ export default function AddQuestionTestPage() {
   const addQuestion = useDeThiStore((s) => s.addQuestion);
   const removeQuestion = useDeThiStore((s) => s.removeQuestion);
   const moveQuestion = useDeThiStore((s) => s.moveQuestion);
+  const showToast = useToastStore((s) => s.showToast);
 
   // Selector an toàn cho danh sách câu hỏi trong đề
   const cauHoi_deThi = useMemo(
@@ -91,14 +92,13 @@ export default function AddQuestionTestPage() {
         },
       });
     } else {
-      console.log(data);
-      console.log(testData);
       updateDeThi(
         { payload: data, id: testData?.id || Number(id) },
         {
           onSuccess: (data) => {
             // Có thể điều hướng người dùng sau khi lưu thành công
             console.log("Lưu bài thi", testData?.id || Number(id));
+            showToast("Lưu thành công!", "success");
             navigate(`/tests/${data.data.id}`);
           },
         }
@@ -156,10 +156,10 @@ export default function AddQuestionTestPage() {
               <Icon name="question" /> Thêm câu hỏi
             </Button>
 
-            <AddQuestionForm
+            {/* <AddQuestionForm
               isOpen={isOpenQuestionForm}
               onClose={() => setIsOpenQuestionForm(!isOpenQuestionForm)}
-            />
+            /> */}
           </div>
           <div className="flex-bet-center gap-2">
             <SelectField

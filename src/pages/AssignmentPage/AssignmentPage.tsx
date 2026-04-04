@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
-import Pagination from "@/components/atomic/molecules/Panigation/Panigation";
 import DynamicTable, {
   type TableColumn,
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
@@ -191,13 +190,12 @@ export const AssignmentPage = () => {
         <DynamicTable
           columns={columns}
           data={assigns}
-          rowKey="monHocId"
+          rowKey={"giangVienId"}
           hasColumnActions
           hasView={false}
           onAction={handleAction}
           checkActions={actions.includes("delete") ? ["delete"] : []}
         />
-        <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
       </div>
     </MainContentLayout>
   );

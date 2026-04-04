@@ -131,7 +131,7 @@ export default function ExamResultContent() {
         </div>
         {config?.showScore && (
           <div
-            className={`bg-action-hover/20 flex min-h-[280px] w-64 flex-col items-center justify-center p-8 ${getTextProgressColor(stats.percentage)}`}
+            className={`flex min-h-[280px] w-64 flex-col items-center justify-center bg-background-body-background p-8 ${getTextProgressColor(stats.percentage)}`}
           >
             <div className="relative flex items-center justify-center">
               <svg className="h-32 w-32 -rotate-90 transform">
@@ -173,7 +173,7 @@ export default function ExamResultContent() {
             id="details-section"
             className="overflow-hidden rounded-xl border border-other-outlined-border bg-background-body-background shadow-custom"
           >
-            <div className="bg-white px-6 pt-4">
+            <div className="px-6 pt-4">
               <Tabs
                 small
                 value={selectedTab}
@@ -189,7 +189,7 @@ export default function ExamResultContent() {
                 ]}
               />
             </div>
-            <div className="divide-y divide-other-outlined-border bg-white">
+            <div className="divide-y divide-other-outlined-border">
               {filteredQuestions.length > 0 ? (
                 filteredQuestions.map((q, idx) => (
                   <QuestionCard

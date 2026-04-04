@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
-import Pagination from "@/components/atomic/molecules/Panigation/Panigation";
 import DynamicTable, {
   type TableColumn,
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
@@ -22,7 +21,7 @@ import {
   useUpdateUser,
   useUser,
 } from "@/hooks/useUser";
-import { formatDateTimeVN } from "@/utils";
+import { formatDateTimeVN, getDefaultAvatar } from "@/utils";
 import { useTranslation } from "react-i18next";
 import type { AxiosError } from "axios";
 import type { ErrorResponse } from "@/types";
@@ -40,15 +39,11 @@ const columns: TableColumn<TaiKhoan>[] = [
       <div className="flex items-center gap-3">
         {/* Avatar tròn xám */}
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-action-hover text-text-secondary">
-          {item.urlAvatar ? (
-            <img
-              src={item.urlAvatar}
-              alt="avatar"
-              className="h-full w-full rounded-full object-cover"
-            />
-          ) : (
-            <Icon name="user" size={20} />
-          )}
+          <img
+            src={getDefaultAvatar(item?.hoTen || "user")}
+            alt="avatar"
+            className="h-full w-full rounded-full object-cover"
+          />
         </div>
         <div className="flex flex-col">
           <span className="font-bold text-primary-main">{item.hoTen}</span>
@@ -239,18 +234,6 @@ export function UserPage() {
       alert(t("message.error.update"));
     }
   };
-
-  // const updateUser = (id: number, user: UserUpdate) => {
-  //   console.log("update", id, user);
-  // }
-
-  // const resetPassword = (id: number, password: string) => {
-  //   console.log("change pass", password);
-  // }
-
-  // const deleteUser = (id: number) => {
-  //   console.log("xoa ", id)
-  // }
 
   const detail = (data: TaiKhoan) => {
     setModalState({
@@ -496,12 +479,11 @@ export function UserPage() {
         <DynamicTable
           columns={columns}
           data={taikhoans}
-          rowKey="ma"
+          rowKey="id"
           hasColumnActions
           onAction={handleAction}
           checkActions={actions}
         />
-        <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
       </div>
     </MainContentLayout>
   );
