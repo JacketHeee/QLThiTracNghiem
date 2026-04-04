@@ -3,12 +3,15 @@ import CourseItem from "@/components/atomic/organisms/CourseItem/CourseItem";
 import TestUpload from "@/components/atomic/organisms/TestUpload/TestUpload";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import { useNhomHocPhanStudent } from "@/hooks/useNhomHocPhan";
+import { useAuthStore } from "@/stores/auth.store";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export const CoursePage = () => {
-  const { nhomHocPhans } = useNhomHocPhanStudent(3);
-  console.log(" Manh: ", nhomHocPhans);
+  const { user } = useAuthStore();
+  // console.log(user);
+
+  const { nhomHocPhans } = useNhomHocPhanStudent(user?.id || null);
   const [isOpenHideClass, setIsOpenHideClass] = useState(false);
   return (
     <MainContentLayout hasFooter={false}>
@@ -48,7 +51,7 @@ export const CoursePage = () => {
           className="hover:bg-action-selected"
           onClick={() => setIsOpenHideClass(!isOpenHideClass)}
         >
-          Hiển thị các lớp học đã ẩn {"(5)"}
+          Hiển thị các lớp học đã ẩn {"()"}
         </Button>
       </div>
       {isOpenHideClass && (

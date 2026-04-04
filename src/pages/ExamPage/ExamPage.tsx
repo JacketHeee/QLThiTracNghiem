@@ -6,13 +6,15 @@ import DynamicTable, {
   type TableColumn,
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import type { DeThi } from "@/types";
-import { useDeThi } from "@/hooks/useDeThi";
+import { useDeThiStudent } from "@/hooks/useDeThi";
 import { checkTimeValid, getTestsStatus, splitDateTime } from "@/utils";
 import { dethiService } from "@/services/api/dethi.service";
 import { useDeThiStore } from "@/stores/useDeThi.store";
+import { useAuthStore } from "@/stores/auth.store";
 
 export const ExamPage = () => {
-  const { dethis } = useDeThi();
+  const { user } = useAuthStore();
+  const { dethis } = useDeThiStudent(user ? user.id : null); //ở đây
   const navigate = useNavigate();
   const [now, setNow] = useState(new Date());
 
@@ -34,8 +36,8 @@ export const ExamPage = () => {
     },
     {
       title: "Tên lớp",
-      key: "pivot",
-      render: (_, item) => item.monThiId,
+      key: "mon_thi",
+      render: (_, item) => item.mon_thi.tenMonHoc,
     },
     { title: "Tên bài kiểm tra", key: "tenDe" },
     {

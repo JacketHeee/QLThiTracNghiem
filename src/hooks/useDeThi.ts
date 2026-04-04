@@ -33,10 +33,10 @@ export const useDeThiSvienNhp = (
   };
 };
 
-export const useDeThiStudent = (studentId: number) => {
+export const useDeThiStudent = (studentId: number | null) => {
   const query = useQuery({
     queryKey: ["dethis", "student", studentId],
-    queryFn: () => dethiService.getByStudentId(studentId),
+    queryFn: () => dethiService.getByStudentId(studentId!),
     select: (res) => res.data || [],
     enabled: !!studentId, // Chỉ chạy khi có ID
   });

@@ -14,9 +14,16 @@ import {
   useDeleteNhomHocPhan,
 } from "@/hooks/useNhomHocPhan";
 import { useTranslation } from "react-i18next";
-import type { NhomHocPhan, NhomHocPhanCreate, RoleDetailItem } from "@/types";
+import type {
+  ErrorResponse,
+  NhomHocPhan,
+  NhomHocPhanCreate,
+  NhomHocPhanUpdate,
+  RoleDetailItem,
+} from "@/types";
 import { useAuthStore } from "@/stores/auth.store";
 import { useToastStore } from "@/stores/useToast.store";
+import type { AxiosError } from "axios";
 
 type CourseStatus = "active" | "hidden";
 
@@ -29,8 +36,7 @@ const withAlpha = (hex: string, alphaHex: string) => {
 
 export function CourseGroupPage() {
   const pageName = "hoc_phan";
-
-  const { role } = useAuthStore();
+  const { user, role } = useAuthStore();
   const roleDetails = !role ? [] : role.role_details;
   const actions = roleDetails
     .filter((item: RoleDetailItem) => item.tenChucNang === pageName)
@@ -52,10 +58,12 @@ export function CourseGroupPage() {
   const [statusFilter, setStatusFilter] = useState<CourseStatus>("active");
   const [searchValue, setSearchValue] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
+
   const [editFormData, setEditFormData] = useState<null | {
     data: Partial<CourseGroupFormData>;
     groupId?: number;
   }>(null);
+
   const [openMenu, setOpenMenu] = useState<{
     courseId: number;
     groupId: number;
@@ -138,51 +146,84 @@ export function CourseGroupPage() {
   };
 
   const showToast = useToastStore((s) => s.showToast);
+
   const handleSave = async (data: CourseGroupFormData) => {
-    try {
-      const monHocId = parseInt(data.subject) || 1;
-      const namHoc = data.academicYear;
-      const hocKy = data.semester;
-      const maMoi = data.maMoi || `GRP${Date.now()}`; // Use provided or generate
-      const siSo = data.siSo;
+    console.log("editFormData", editFormData);
+    if (editFormData?.groupId) {
+      // Update
+      const nhomHocPhanUpdate: NhomHocPhanUpdate = {
+        monHocId: data.monHocId,
+        tenNhom: data.groupName,
+        notes: data.note,
+        hocKy: data.semester,
+        namHoc: data.academicYear,
+        giangVienId: user?.id,
+      };
 
-      if (editFormData?.groupId) {
-        // Update
-
+      try {
+        console.log("nhom hoc phan update ", nhomHocPhanUpdate);
         await updateMutation.mutateAsync({
           id: editFormData.groupId,
-          data: {
-            tenNhom: data.groupName,
-            notes: data.note,
-            giangVienId: data.giangVienId,
-          },
+          data: nhomHocPhanUpdate,
         });
-      } else {
-        // Create
-        const createData: NhomHocPhanCreate = {
-          monHocId,
-          tenNhom: data.groupName,
-          maMoi,
-          siSo,
-          notes: data.note,
-          hocKy,
-          namHoc,
-          giangVienId: data.giangVienId,
-          isHide: false,
-          isDeleted: false,
-        };
-        await createMutation.mutateAsync(createData);
+        setIsFormOpen(false);
+        setEditFormData(null);
+        showToast(t("message.success.update"), "success");
+      } catch (error: unknown) {
+        const err = error as AxiosError<ErrorResponse>;
+        if (err.response?.status === 422) {
+          //lỗi validate backend
+          const errors = err.response?.data?.errors;
+
+          const firstError = Object.values(errors)?.[0];
+
+          if (Array.isArray(firstError)) {
+            showToast(t(firstError[0]), "error");
+          }
+        } else {
+          showToast(t("message.error.update"), "error");
+        }
       }
-      setEditFormData(null);
-      setIsFormOpen(false);
-    } catch (error) {
-      showToast(`Failed to save group: ${error}`, "error");
+    } else {
+      const createData: NhomHocPhanCreate = {
+        monHocId: data.monHocId,
+        tenNhom: data.groupName,
+        notes: data.note,
+        hocKy: data.semester,
+        namHoc: data.academicYear,
+        giangVienId: user ? user.id : null,
+        isHide: false,
+        isDeleted: false,
+      };
+
+      try {
+        console.log("create", createData);
+        await createMutation.mutateAsync(createData);
+        showToast(t("message.success.create"), "success");
+        setIsFormOpen(false);
+        setEditFormData(null);
+      } catch (error: unknown) {
+        const err = error as AxiosError<ErrorResponse>;
+        if (err.response?.status === 422) {
+          //lỗi validate backend
+          const errors = err.response?.data?.errors;
+
+          const firstError = Object.values(errors)?.[0];
+
+          if (Array.isArray(firstError)) {
+            showToast(t(firstError[0]), "error");
+          }
+        } else {
+          showToast(t("message.error.create"), "error");
+        }
+      }
     }
   };
 
   const handleEditGroup = (group: GroupDisplay) => {
     setEditFormData({
       data: {
+        monHocId: group.monHocId,
         groupName: group.tenNhom,
         note: group.notes || "",
         subject: group.monHocId.toString(),

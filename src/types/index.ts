@@ -428,8 +428,6 @@ export interface NhomHocPhan {
 export interface NhomHocPhanBase {
   monHocId: number;
   tenNhom: string;
-  maMoi: string;
-  siSo: number | null;
   notes: string | null;
   hocKy: number;
   namHoc: number;
@@ -440,9 +438,7 @@ export interface NhomHocPhanBase {
 
 export type NhomHocPhanCreate = NhomHocPhanBase;
 
-export type NhomHocPhanUpdate = Partial<
-  Pick<NhomHocPhanBase, "tenNhom" | "notes" | "giangVienId" | "isHide">
->;
+export type NhomHocPhanUpdate = Partial<NhomHocPhanBase>;
 
 export interface NhomHocPhanSinhViensResponse {
   sinhViens: TaiKhoan[];
