@@ -86,7 +86,7 @@ export default function DifficultyLevelPage() {
   const showToast = useToastStore((s) => s.showToast);
 
   const insert = async (data: DoKho) => {
-    if (!validate(data)) return;
+    // if (!validate(data)) return;
     try {
       await createDoKho(data);
       showToast(t("message.success.create"), "success");

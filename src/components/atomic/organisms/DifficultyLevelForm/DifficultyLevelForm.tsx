@@ -4,6 +4,7 @@ import { Button, Icon } from "@/components/atomic/atoms";
 import { TextField } from "@/components/atomic/molecules/TextField/TextField";
 import type { DoKho } from "@/types";
 import { Overlay } from "../../molecules/Overlay/Overlay";
+import { DoKhoValidate, type DoKhoInput } from "@/validate/dokho.validate";
 
 interface DifficultyLevelFormProps {
   initialData?: DoKho | null;
@@ -34,7 +35,7 @@ export function DifficultyLevelForm({
   const isCreate = mode === "create";
   const isUpdate = mode === "update";
 
-  const [error, setError] = useState<string>("");
+  const [errors, setErrors] = useState<Partial<DoKhoInput>>({});
 
   const handleChange = (value: string) => {
     setFormData((prev) => ({
@@ -42,21 +43,23 @@ export function DifficultyLevelForm({
       tenDoKho: value,
     }));
 
-    // Xóa lỗi khi người dùng bắt đầu nhập lại
-    if (error) setError("");
+    // // Xóa lỗi khi người dùng bắt đầu nhập lại
+    // if (error) setError("");
   };
+
+  // const showToast = useToastStore((s) => s.showToast);
+
+  // const inputRefs = {
+  //   tenDoKho: useRef<HTMLInputElement>(null),
+  // };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    const errors = DoKhoValidate.create(formData);
+    setErrors(errors);
 
-    // Validate dữ liệu
-    // if (!formData.tenDoKho?.trim()) {
-    //   const errorMsg = "Tên mức độ khó không được để trống";
-    //   setError(errorMsg);
-    //   // Giữ nguyên logic dùng alert từ SubjectForm của bạn
-    //   alert(errorMsg);
-    //   return;
-    // } đổi validate sang page nha m
+    if (Object.keys(errors).length > 0) return;
+
     if (isCreate) onSaveCreate(formData);
     else if (isUpdate) {
       if (!id) {
@@ -98,8 +101,9 @@ export function DifficultyLevelForm({
             placeholder={t("difficultyLevelPage.form.namePlaceholder")}
             value={formData.tenDoKho}
             onChange={(e) => handleChange(e.target.value)}
-            error={error}
+            error={errors.tenDoKho}
             autoFocus
+            // ref={inputRefs.tenDoKho}
           />
           <p className="mt-2 text-xs italic text-text-secondary">
             {t("difficultyLevelPage.form.note")}
