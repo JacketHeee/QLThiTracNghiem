@@ -50,7 +50,6 @@ export function CourseGroupPage() {
   const [statusOpen, setStatusOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<CourseStatus>("active");
   const [searchValue, setSearchValue] = useState("");
-  const [groups, setGroups] = useState<GroupDisplay[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editFormData, setEditFormData] = useState<null | {
     data: Partial<CourseGroupFormData>;
@@ -80,10 +79,6 @@ export function CourseGroupPage() {
   }, [nhomHocPhans]);
 
   useEffect(() => {
-    setGroups(computedGroups);
-  }, [computedGroups]);
-
-  useEffect(() => {
     const handleClose = () => setOpenMenu(null);
     document.addEventListener("click", handleClose);
     return () => document.removeEventListener("click", handleClose);
@@ -91,7 +86,7 @@ export function CourseGroupPage() {
 
   const filteredGroups = useMemo(() => {
     const keyword = searchValue.trim().toLowerCase();
-    return groups.filter((group) => {
+    return computedGroups.filter((group) => {
       if (group.status !== statusFilter) return false;
       if (!keyword) return true;
       const matchName = group.tenNhom.toLowerCase().includes(keyword);
@@ -100,7 +95,7 @@ export function CourseGroupPage() {
         .includes(keyword);
       return matchName || matchSubject;
     });
-  }, [groups, searchValue, statusFilter]);
+  }, [computedGroups, searchValue, statusFilter]);
 
   const handleToggleMenu = (courseId: number, groupId: number) => {
     setOpenMenu((prev) =>
