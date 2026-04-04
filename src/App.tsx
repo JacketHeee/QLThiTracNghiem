@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { useThemeStore } from "./stores/theme.store";
 import { ToastContainer } from "./components/atomic/molecules/ToastContainer/ToastContainer";
 import { LoadingGlobal } from "./components/atomic/molecules/Loading/Loading";
+import { ConfirmationGlobal } from "./components/global/ConfirmationGlobal";
 
 export default function App() {
   useEffect(() => {
@@ -20,6 +21,7 @@ export default function App() {
       <Outlet />
       <ToastContainer />
       <LoadingGlobal />
+      <ConfirmationGlobal />
     </>
   );
 }

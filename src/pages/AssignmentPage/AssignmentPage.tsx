@@ -17,16 +17,19 @@ import { useTranslation } from "react-i18next";
 import type { AxiosError } from "axios";
 import { useAuthStore } from "@/stores/auth.store";
 import { useToastStore } from "@/stores/useToast.store";
+import { useLoadingStore } from "@/stores/useLoading.store";
+import { useConfirmStore } from "@/stores/useConfirm.store";
 
 export const AssignmentPage = () => {
   const { assigns } = useAssign();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { t } = useTranslation();
-  const { createPhanCongAsync, isCreating } = useCreateAssign();
-  const { deleteAsync, isDeleting } = useDeleteAssign();
+  const { createPhanCongAsync } = useCreateAssign();
+  const { deleteAsync } = useDeleteAssign();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCriteria, setFilterCriteria] = useState(1); // 1 for subject, 2 for teacher
+  const { startLoading, stopLoading } = useLoadingStore();
 
   const pageName = "phan_cong";
 
@@ -98,12 +101,13 @@ export const AssignmentPage = () => {
     setIsModalOpen(true);
   };
 
-  const showToast = useToastStore((s) => s.showToast);
+  const { showToast } = useToastStore();
   const onSave = async (data: AssignmentRequest) => {
+    startLoading();
     try {
       await createPhanCongAsync(data);
-      showToast(t("message.success.create"), "success");
       setIsModalOpen(false);
+      showToast(t("message.success.create"), "success");
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
       if (err.response?.status === 422) {
@@ -118,25 +122,35 @@ export const AssignmentPage = () => {
       } else {
         showToast(t("message.error.create"), "error");
       }
+    } finally {
+      stopLoading();
     }
   };
 
-  const handleAction = async (_action: string, item: Assign) => {
-    if (
-      confirm(
-        `Bạn có chắc muốn xóa phân công của giảng viên: ${item.giang_vien?.hoTen}?`
-      )
-    ) {
-      try {
-        await deleteAsync({
-          giangVienId: item.giangVienId,
-          monHocId: item.monHocId,
-        });
-        showToast(t("message.success.delete"), "success");
-        setIsModalOpen(false);
-      } catch {
-        showToast(t("message.error.delete"), "error");
-      }
+  const { openConfirm } = useConfirmStore();
+  const handleAction = (action: string, item: Assign) => {
+    if (action === "remove") {
+      openConfirm({
+        title: t("Xác nhận xóa"),
+        message: `Bạn có chắc muốn xóa phân công của giảng viên: ${item.giang_vien?.hoTen}?`,
+        type: "danger",
+        onConfirm: async () => {
+          startLoading();
+          try {
+            await deleteAsync({
+              giangVienId: item.giangVienId,
+              monHocId: item.monHocId,
+            });
+            showToast(t("message.success.delete"), "success");
+            if (typeof setIsModalOpen === "function") setIsModalOpen(false);
+          } catch (error: unknown) {
+            showToast(t("message.error.delete"), "error");
+            throw error;
+          } finally {
+            stopLoading();
+          }
+        },
+      });
     }
   };
 
@@ -158,12 +172,6 @@ export const AssignmentPage = () => {
   return (
     <MainContentLayout>
       {/* Toolbar */}
-      {/* Xử lý loading ở đây nhen */}
-      {(isCreating || isDeleting) && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
-          Loading...
-        </div>
-      )}
       <div className="flex flex-col gap-10 rounded-md bg-background-body-background px-2 py-2">
         <div className="flex justify-between">
           {/* Left: Filter & Search */}

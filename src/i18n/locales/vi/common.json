@@ -184,6 +184,7 @@
     },
     "addNew": "Tạo môn học mới",
     "confirmDelete": "Bạn có chắc muốn xóa môn: {{subjectName}}?",
+    "confirmDeleteTitle": "Xác nhận xóa môn học",
     "form": {
       "addTitle": "Thêm môn học mới",
       "updateTitle": "Cập nhật môn học",

@@ -3,9 +3,10 @@ import type { ReactNode } from "react";
 interface OverlayProps {
   onClose: () => void;
   children: ReactNode;
+  classname?: string;
 }
 
-export const Overlay = ({ onClose, children }: OverlayProps) => {
+export const Overlay = ({ onClose, children, classname }: OverlayProps) => {
   return (
     <div
       onClick={(e) => {
@@ -14,7 +15,7 @@ export const Overlay = ({ onClose, children }: OverlayProps) => {
           onClose();
         }
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-other-backdrop-overlay"
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-other-backdrop-overlay ${classname}`}
     >
       {children}
     </div>

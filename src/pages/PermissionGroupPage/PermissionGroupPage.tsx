@@ -11,6 +11,8 @@ import {
   useUpdateRole,
 } from "@/hooks/useRole";
 import { useAuthStore } from "@/stores/auth.store";
+import { useConfirmStore } from "@/stores/useConfirm.store";
+import { useLoadingStore } from "@/stores/useLoading.store";
 import { useToastStore } from "@/stores/useToast.store";
 import type {
   ErrorResponse,
@@ -151,13 +153,16 @@ export const PermissionGroupPage = () => {
     });
   };
   const showToast = useToastStore((s) => s.showToast);
+  const { startLoading, stopLoading } = useLoadingStore();
 
   const insertRole = async (data: RoleCreate) => {
     // if (!validateCreate(data)) return;
+    startLoading();
     try {
       await createRoleAsync(data);
-      showToast(t("message.success.create"), "success");
       closeModal();
+      showToast(t("message.success.create"), "success");
+      stopLoading();
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
       if (err.response?.status === 422) {
@@ -179,10 +184,12 @@ export const PermissionGroupPage = () => {
     if (!validateUpdate(data)) {
       return;
     }
+    startLoading();
     try {
       await updateRoleAsync({ id, data });
-      showToast(t("message.success.update"), "success");
       closeModal();
+      stopLoading();
+      showToast(t("message.success.update"), "success");
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
       if (err.response?.status === 422) {
@@ -200,17 +207,28 @@ export const PermissionGroupPage = () => {
     }
   };
 
-  const deleteRole = async (data: Role) => {
-    console.log("xóa ", data.tenNhomQuyen);
-    const isConfirm = window.confirm(t("permissionGroupPage.confirmDelete"));
-    if (!isConfirm) return;
-    try {
-      await deleteRoleAsync(data.id);
-      showToast(t("message.success.delete"), "success");
-      closeModal();
-    } catch {
-      showToast(t("message.error.delete"), "error");
-    }
+  const { openConfirm } = useConfirmStore();
+
+  const deleteRole = (data: Role) => {
+    openConfirm({
+      title: "Xác nhận xóa",
+      message:
+        "Bạn có chắc chắn muốn xóa nhóm người dùng này không? Hành động này không thể hoàn tác.",
+      type: "danger",
+      onConfirm: async () => {
+        startLoading();
+        try {
+          await deleteRoleAsync(data.id);
+          showToast(t("message.success.delete"), "success");
+          if (typeof closeModal === "function") closeModal();
+        } catch (error: unknown) {
+          showToast(t("message.error.delete"), "error");
+          throw error;
+        } finally {
+          stopLoading();
+        }
+      },
+    });
   };
 
   const detailRole = (id: number) => {

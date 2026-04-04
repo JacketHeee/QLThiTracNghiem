@@ -11,6 +11,7 @@ import StatSection from "@/components/atomic/organisms/StatSection/StatSection";
 import { useNavigate, useParams } from "react-router-dom";
 import { useExamStore } from "@/stores/useExamStore";
 import {
+  getDefaultAvatar,
   getProgressColor,
   getTestsStatus,
   getVariantDeThiWithStatus,
@@ -115,7 +116,15 @@ export default function ResultPage() {
           key: "hoTen",
           render: (val: any, item: StudentResult) => (
             <div className="flex items-center gap-3">
-              <Icon name={item.isAverage ? "groupUser" : "user"} size={20} />
+              {!item.isAverage ? (
+                <img
+                  src={getDefaultAvatar(val)}
+                  alt={""}
+                  className="h-5 w-5 rounded-full"
+                />
+              ) : (
+                <Icon name={"groupUser"} size={20} />
+              )}
               <span
                 className={item.isAverage ? "font-bold text-primary-main" : ""}
               >
@@ -229,17 +238,20 @@ export default function ResultPage() {
 
     // --- 2. MODE: THEO CÂU HỎI (Thống kê tỉ lệ đúng/sai từng câu) ---
     if (viewMode === "question") {
+      console.log("Manh test: ", allCauHois);
       return allCauHois.map((ch, index) => {
         // Chỉ lấy những bài làm đã nộp (DA_NOP)
         const validBaiLams = currentBaiLams.filter(
           (bl) => bl.status === "DA_NOP"
         );
+        console.log("Manh test: 1", validBaiLams);
 
         // Tìm xem trong những bài làm đó, có bao nhiêu người trả lời câu hỏi này
         const answersForThisQuestion = validBaiLams
           .map((bl) => bl.chitiet_bailams?.find((ct) => ct.cauHoiId === ch.id))
           .filter(Boolean); // Loại bỏ những người không trả lời câu này
 
+        console.log("Manh test: ", answersForThisQuestion);
         // Tính số câu đúng
         const correctCount = answersForThisQuestion.filter(
           (a) => a?.isCorrectChooser
@@ -517,7 +529,7 @@ export default function ResultPage() {
         <Overlay onClose={handleClose}>
           {" "}
           <main className="mb-20 flex max-h-[90vh] w-fit flex-col items-center overflow-y-auto rounded-lg bg-background-body-background px-8 py-8">
-            <ExamResultOverview />
+            <ExamResultOverview onCancel={handleClose} />
           </main>
         </Overlay>
       )}

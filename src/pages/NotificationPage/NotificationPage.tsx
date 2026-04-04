@@ -15,12 +15,17 @@ import type {
 import { useTranslation } from "react-i18next";
 import type { AxiosError } from "axios";
 import { useAuthStore } from "@/stores/auth.store";
+import { useLoadingStore } from "@/stores/useLoading.store";
+import { useToastStore } from "@/stores/useToast.store";
+import { useConfirmStore } from "@/stores/useConfirm.store";
 
 export const NotificationPage = () => {
   const { thongBaos } = useThongBao();
   const { t } = useTranslation();
   const { createThongBao, updateThongBao, deleteThongBao, isProcessing } =
     useThongBao();
+  const { startLoading, stopLoading } = useLoadingStore();
+  const { showToast } = useToastStore();
 
   const pageName = "thong_bao";
 
@@ -101,10 +106,12 @@ export const NotificationPage = () => {
 
   const insert = async (data: ThongBaoCreate) => {
     if (!validateCreate(data)) return;
+
+    startLoading();
     try {
       await createThongBao(data);
-      alert(t("message.success.create"));
       closeModal();
+      showToast(t("message.success.create"), "success");
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
       if (err.response?.status === 422) {
@@ -114,11 +121,13 @@ export const NotificationPage = () => {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(firstError[0], "error");
         }
       } else {
-        alert(t("message.error.create"));
+        showToast(t("message.error.create"), "error");
       }
+    } finally {
+      stopLoading();
     }
   };
 
@@ -126,10 +135,11 @@ export const NotificationPage = () => {
     if (!validateUpdate(data)) {
       return;
     }
+    startLoading();
     try {
       await updateThongBao({ id, data });
-      alert(t("message.success.update"));
       closeModal();
+      showToast(t("message.success.update"), "success");
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
       if (err.response?.status === 422) {
@@ -139,11 +149,13 @@ export const NotificationPage = () => {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(firstError[0], "success");
         }
       } else {
-        alert(t("message.error.update"));
+        showToast(t("message.error.update"), "success");
       }
+    } finally {
+      stopLoading();
     }
   };
 
@@ -158,16 +170,27 @@ export const NotificationPage = () => {
     });
   };
 
-  const deleteTB = async (id: number) => {
-    const isConfirm = window.confirm(t("notificationPage.confirmDelete"));
-    if (!isConfirm) return;
-    try {
-      await deleteThongBao(id);
-      alert(t("message.success.delete"));
-      closeModal();
-    } catch {
-      alert(t("message.error.delete"));
-    }
+  const { openConfirm } = useConfirmStore();
+  const deleteTB = (id: number) => {
+    openConfirm({
+      title: "Xác nhận xóa",
+      message:
+        "Bạn có chắc chắn muốn xóa thông báo này không? Hành động này không thể hoàn tác.",
+      type: "danger",
+      onConfirm: async () => {
+        startLoading();
+        try {
+          await deleteThongBao(id);
+          showToast(t("message.success.delete"), "success");
+          if (typeof closeModal === "function") closeModal();
+        } catch (error: unknown) {
+          showToast(t("message.error.delete"), "error");
+          throw error;
+        } finally {
+          stopLoading();
+        }
+      },
+    });
   };
 
   const validateCreate = (request: ThongBaoCreate): boolean => {

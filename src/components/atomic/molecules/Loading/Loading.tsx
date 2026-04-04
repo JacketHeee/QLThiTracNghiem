@@ -1,6 +1,6 @@
-import { useLoadingStore } from "@/stores/useLoading.store";
 import { Loader2 } from "lucide-react";
 import { Overlay } from "../Overlay/Overlay";
+import { useLoadingStore } from "@/stores/useLoading.store";
 
 export function LoadingGlobal() {
   const { isLoading, message } = useLoadingStore();
@@ -8,13 +8,15 @@ export function LoadingGlobal() {
   if (!isLoading) return null;
 
   return (
-    <Overlay onClose={() => {}}>
-      {/* onClose để trống vì không cho phép đóng khi đang loading quan trọng */}
+    <Overlay onClose={() => {}} classname="!z-[1000]">
       <div className="flex flex-col items-center gap-4 duration-200 animate-in fade-in">
-        <div className="relative flex items-center justify-center">
-          {/* Spinner chính */}
-          <Loader2 className="animate-spin text-primary-contrast" size={48} />
-          {/* Logo JF của Mạnh ở giữa nếu muốn (tùy chọn) */}
+        <div className="relative flex h-12 w-12 items-center justify-center">
+          <Loader2
+            className="animate-spin text-primary-contrast"
+            size={48}
+            // Đảm bảo không có CSS nào đè mất animation
+            style={{ animationDuration: "1s" }}
+          />
         </div>
 
         {message && (

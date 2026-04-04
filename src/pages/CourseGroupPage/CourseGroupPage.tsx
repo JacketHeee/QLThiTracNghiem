@@ -203,7 +203,7 @@ export function CourseGroupPage() {
     deleteMutation.isPending;
 
   return (
-    <MainContentLayout classname="w-full">
+    <MainContentLayout classname="w-full" hasFooter={false}>
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
           <div className="text-text-secondary">

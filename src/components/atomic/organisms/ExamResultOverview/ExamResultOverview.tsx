@@ -13,7 +13,13 @@ import { useExamStore } from "@/stores/useExamStore";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth.store";
 
-export default function ExamResultContent() {
+interface ExamResultContentProps {
+  onCancel?: () => void;
+}
+
+export default function ExamResultContent({
+  onCancel,
+}: ExamResultContentProps) {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
@@ -167,7 +173,9 @@ export default function ExamResultContent() {
         )}
       </div>
       {/* 3. Section Chi tiết câu hỏi (Ẩn/Hiện) */}
-      {config?.showDetailResults || isPreview ? (
+      {config?.showDetailResults ||
+      [1, 2].includes(user?.nhomQuyenId || 3) ||
+      isPreview ? (
         showDetail && (
           <div
             id="details-section"
@@ -221,10 +229,10 @@ export default function ExamResultContent() {
       )}
       {/* 2. Nút hành động */}
       <div className="flex justify-end gap-4 pt-2">
-        <Button variant="outline" onClick={handleBackHome}>
-          {isPreview ? "Thoát chế độ demo" : "Về trang chủ"}
+        <Button variant="outline" onClick={onCancel ?? handleBackHome}>
+          {isPreview ? "Thoát" : "Thoát"}
         </Button>
-        {config?.showDetailResults && (
+        {(config?.showDetailResults || [1, 2].includes(user?.id || 3)) && (
           <Button
             color="primary"
             variant="contained"

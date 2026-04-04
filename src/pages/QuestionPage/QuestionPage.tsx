@@ -27,6 +27,8 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useTranslation } from "react-i18next";
 import type { AxiosError } from "axios";
 import { useToastStore } from "@/stores/useToast.store";
+import { useLoadingStore } from "@/stores/useLoading.store";
+import { useConfirmStore } from "@/stores/useConfirm.store";
 
 export const QuestionPage = () => {
   const [selectedTab, setSelectedTab] = useState<QuestionStatus>("public");
@@ -37,6 +39,7 @@ export const QuestionPage = () => {
   const { updateCauHoi, isUpdating } = useUpdateCauHoi();
   const { deleteCauHoi, isDeleting } = useDeleteCauHoi();
   const { t } = useTranslation();
+  const { startLoading, stopLoading } = useLoadingStore();
 
   const pageName = "cau_hoi";
 
@@ -132,16 +135,33 @@ export const QuestionPage = () => {
     }
   };
 
-  const deleteQ = async (id: number) => {
-    const isConfirm = window.confirm("Bạn có chắc muốn xóa không?");
-    if (!isConfirm) return;
-    try {
-      await deleteCauHoi(id);
-      alert(t("message.success.delete"));
-      closeModal();
-    } catch {
-      alert(t("message.error.delete"));
-    }
+  const { openConfirm } = useConfirmStore();
+
+  const deleteQ = (id: number) => {
+    openConfirm({
+      title: "Xác nhận xóa câu hỏi",
+      message:
+        "Bạn có chắc chắn muốn xóa câu hỏi này không? Hành động này không thể hoàn tác.",
+      type: "danger",
+      confirmLabel: "Xóa ngay",
+      cancelLabel: "Hủy bỏ",
+      onConfirm: async () => {
+        startLoading();
+        try {
+          await deleteCauHoi(id);
+          showToast(t("message.success.delete"), "success");
+          if (typeof closeModal === "function") {
+            closeModal();
+          }
+        } catch (error: unknown) {
+          console.error("Delete question error:", error);
+          showToast(t("message.error.delete"), "error");
+          throw error;
+        } finally {
+          stopLoading();
+        }
+      },
+    });
   };
 
   const addToBank = (id: number) => {
@@ -153,10 +173,12 @@ export const QuestionPage = () => {
   const insertQ = async (data: CauHoiCreate) => {
     console.log("create", data);
     if (!validateCauHoiCreate(data)) return;
+
+    startLoading();
     try {
       await createCauHoi(data);
-      showToast(t("message.success.create"), "success");
       closeModal();
+      showToast(t("message.success.create"), "success");
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
       if (err.response?.status === 422) {
@@ -171,6 +193,8 @@ export const QuestionPage = () => {
       } else {
         showToast(t("message.error.create"), "error");
       }
+    } finally {
+      stopLoading();
     }
   };
 
@@ -178,10 +202,12 @@ export const QuestionPage = () => {
     if (!validateCauHoiUpdate(data)) {
       return;
     }
+
+    startLoading();
     try {
       await updateCauHoi({ id, data });
-      showToast(t("message.success.update"), "success");
       closeModal();
+      showToast(t("message.success.update"), "success");
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
       if (err.response?.status === 422) {
@@ -196,6 +222,8 @@ export const QuestionPage = () => {
       } else {
         showToast(t("message.error.update"), "error");
       }
+    } finally {
+      stopLoading();
     }
   };
 
