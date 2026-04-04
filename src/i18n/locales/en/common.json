@@ -212,5 +212,172 @@
     "remove": "Remove",
     "loading": "Loading...",
     "noData": "No data"
+  },
+  "common": {
+    "back": "Back",
+    "save": "Save",
+    "update": "Update",
+    "cancel": "Cancel",
+    "saveAccount": "Save Account",
+    "saveAssignment": "Save Assignment"
+  },
+  "permissionForm": {
+    "view": "View",
+    "create": "Create",
+    "update": "Update",
+    "delete": "Delete",
+    "addPermissionGroup": "Add Permission Group",
+    "groupName": "Group Name",
+    "groupNamePlaceholder": "E.g., Lecturer",
+    "permissionName": "Permission Name"
+  },
+  "permissionNames": {
+    "nguoi_dung": "Users",
+    "do_kho": "Difficulty",
+    "hoc_phan": "Course",
+    "cau_hoi": "Question",
+    "mon_hoc": "Subject",
+    "phan_cong": "Assignment",
+    "de_thi": "Exam",
+    "nhom_quyen": "Permission Group",
+    "thong_bao": "Notification"
+  },
+  "addAssignmentForm": {
+    "subjectCode": "Subject Code",
+    "subjectName": "Subject Name",
+    "credits": "Credits",
+    "theoryPeriods": "Theory Periods",
+    "practicePeriods": "Practice Periods",
+    "selectTeacherPrompt": "Please select a teacher before saving!",
+    "addManually": "Add Manually",
+    "teacher": "Teacher",
+    "selectTeacherPlaceholder": "Select teacher to assign",
+    "searchSubjectPlaceholder": "Search for subject..."
+  },
+  "userForm": {
+    "edit": "Edit",
+    "detail": "Detail",
+    "addManually": "Add Manually",
+    "addFromFile": "Add From File",
+    "username": "Username",
+    "usernamePlaceholder": "Enter username",
+    "email": "Email",
+    "emailPlaceholder": "Enter email address",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter full name",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "dateOfBirth": "Date of Birth",
+    "permissionGroup": "Permission Group",
+    "permissionGroupPlaceholder": "Select permission group",
+    "newPasswordPrompt": "New Password (leave blank if no change)",
+    "password": "Password",
+    "passwordPlaceholder": "Enter password",
+    "lockAccount": "Lock Account",
+    "isStudent": "Is Student?",
+    "quickResetPassword": "Quick Reset Password",
+    "dragDropPrompt": "Drag and drop file here or click to select file",
+    "selectExcelFile": "Select Excel File"
+  },
+  "userPage": {
+    "table": {
+      "username": "Username",
+      "fullName": "Full Name",
+      "gender": "Gender",
+      "dateOfBirth": "Date of Birth",
+      "role": "Role",
+      "joinDate": "Join Date",
+      "status": "Status"
+    },
+    "status": {
+      "active": "Active",
+      "locked": "Locked"
+    },
+    "roles": {
+      "admin": "Admin",
+      "teacher": "Teacher",
+      "student": "Student"
+    },
+    "filter": {
+      "rolePlaceholder": "Filter by role",
+      "all": "All"
+    },
+    "searchPlaceholder": "Search Student ID...",
+    "addNew": "Create new account",
+    "confirmDelete": "Are you sure you want to delete?",
+    "confirmResetPassword": "Are you sure you want to reset the password?",
+    "validation": {
+      "usernameRequired": "Username is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email format",
+      "fullNameRequired": "Full name is required",
+      "fullNameMaxLength": "Full name cannot exceed 255 characters",
+      "dobRequired": "Date of birth is required",
+      "dobInvalid": "Date of birth must be before today",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 6 characters",
+      "passwordLetterRequired": "Password must contain letters",
+      "passwordNumberRequired": "Password must contain numbers",
+      "passwordCaseRequired": "Password must contain uppercase and lowercase letters",
+      "roleRequired": "Please select a permission group"
+    }
+  },
+  "permissionGroupPage": {
+    "table": {
+      "groupCode": "Group Code",
+      "groupName": "Group Name",
+      "userCount": "User Count"
+    },
+    "memberUnit": "members",
+    "confirmDelete": "Are you sure you want to delete this role?",
+    "filter": {
+      "placeholder": "Select criteria",
+      "byName": "By Name",
+      "byID": "By ID"
+    },
+    "addNew": "Create New Permission Group"
+  },
+  "assignmentPage": {
+    "table": {
+      "subjectCode": "Subject Code",
+      "subjectName": "Subject Name",
+      "teacherCode": "Teacher Code",
+      "teacherName": "Teacher Name"
+    },
+    "filter": {
+      "placeholder": "Select criteria",
+      "bySubject": "By Subject",
+      "byTeacher": "By Teacher"
+    },
+    "addNew": "Create new assignment"
+  },
+  "testPage": {
+    "filter": {
+      "all": "All",
+      "opening": "Opening",
+      "closed": "Closed",
+      "notOpened": "Not Opened"
+    },
+    "searchPlaceholder": "Search",
+    "subject": "Subject",
+    "selectSubjectPlaceholder": "Select subject",
+    "addNew": "Create test"
+  },
+  "notificationPage": {
+    "confirmDelete": "Are you sure you want to delete this notification?",
+    "validation": {
+      "titleRequired": "Title is required",
+      "contentRequired": "Content is required",
+      "courseGroupRequired": "Please select at least one course group"
+    },
+    "filter": {
+      "placeholder": "Select status",
+      "all": "All",
+      "sent": "Sent",
+      "draft": "Draft"
+    },
+    "searchPlaceholder": "Search",
+    "addNew": "Create new notification"
   }
 }

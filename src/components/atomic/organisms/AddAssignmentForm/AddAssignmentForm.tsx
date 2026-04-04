@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { Overlay } from "../../molecules/Overlay/Overlay";
 import Tabs from "../../molecules/Tabs/Tabs";
 import SelectField from "../../atoms/Select/SelectField";
@@ -24,6 +25,7 @@ export default function AddAssignmentForm({
   onSave,
   phanCongs,
 }: AddAssignmentFormProps) {
+  const { t } = useTranslation();
   const [selectedTab, setSelectedTab] = useState("handmade");
   const { subjects } = useSubject();
   const { taikhoans } = useGetGvien();
@@ -54,16 +56,24 @@ export default function AddAssignmentForm({
         />
       ),
     },
-    { title: "Mã môn học", key: "id", className: "text-center" },
-    { title: "Tên môn học", key: "tenMonHoc" },
-    { title: "Số tín chỉ", key: "soTinChi", className: "text-center" },
     {
-      title: "Số tiết lý thuyết",
+      title: t("addAssignmentForm.subjectCode"),
+      key: "id",
+      className: "text-center",
+    },
+    { title: t("addAssignmentForm.subjectName"), key: "tenMonHoc" },
+    {
+      title: t("addAssignmentForm.credits"),
+      key: "soTinChi",
+      className: "text-center",
+    },
+    {
+      title: t("addAssignmentForm.theoryPeriods"),
       key: "soTietLyThuyet",
       className: "text-center",
     },
     {
-      title: "Số tiết thực hành",
+      title: t("addAssignmentForm.practicePeriods"),
       key: "soTietThucHanh",
       className: "text-center",
     },
@@ -95,7 +105,7 @@ export default function AddAssignmentForm({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!formData.giangVienId) {
-      alert("Vui lòng chọn giảng viên trước khi lưu!");
+      alert(t("addAssignmentForm.selectTeacherPrompt"));
       return;
     }
     onSave(formData);
@@ -112,7 +122,9 @@ export default function AddAssignmentForm({
           <Tabs
             value={selectedTab}
             onChange={setSelectedTab}
-            tabs={[{ value: "handmade", label: "Thêm thủ công" }]}
+            tabs={[
+              { value: "handmade", label: t("addAssignmentForm.addManually") },
+            ]}
           />
         </div>
 
@@ -120,11 +132,11 @@ export default function AddAssignmentForm({
           {/* Section: Chọn giảng viên */}
           <div className="mt-2 flex items-center gap-6">
             <span className="text-body-1 whitespace-nowrap font-medium text-text-primary">
-              Giảng viên
+              {t("addAssignmentForm.teacher")}
             </span>
             <SelectField
               classname="flex-1"
-              placeholder="Chọn giảng viên cần phân công"
+              placeholder={t("addAssignmentForm.selectTeacherPlaceholder")}
               options={selections}
               onSelect={(value) => handleSelectGiangVien(value)}
             />
@@ -134,7 +146,7 @@ export default function AddAssignmentForm({
           <div className="relative">
             <Input
               hasBoder={true}
-              placeholder="Tìm kiếm môn học..."
+              placeholder={t("addAssignmentForm.searchSubjectPlaceholder")}
               className="!w-full"
               icon={<Icon name="search" className="text-text-disabled" />}
             />
@@ -153,7 +165,7 @@ export default function AddAssignmentForm({
               color="standard"
               onClick={onClose}
             >
-              Hủy bỏ
+              {t("common.cancel")}
             </Button>
             <Button
               type="submit"
@@ -161,7 +173,7 @@ export default function AddAssignmentForm({
               color="primary"
               disabled={!formData.giangVienId}
             >
-              Lưu phân công
+              {t("common.saveAssignment")}
             </Button>
           </div>
         </div>

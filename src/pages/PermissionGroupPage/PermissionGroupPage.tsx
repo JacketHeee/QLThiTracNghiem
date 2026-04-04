@@ -22,45 +22,45 @@ import type { AxiosError } from "axios";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-const columns: TableColumn<Role>[] = [
-  {
-    title: "Mã nhóm",
-    key: "id",
-  },
-  {
-    title: "Tên nhóm quyền",
-    key: "tenNhomQuyen",
-    render: (value) => (
-      <span className="flex items-center gap-2">
-        <span
-          className={`h-2 w-2 rounded-full ${
-            value === "admin"
-              ? "bg-alert-error-content"
-              : value === "teacher"
-                ? "bg-alert-success-content"
-                : "bg-alert-info-content"
-          }`}
-        />
-        {value}
-      </span>
-    ),
-  },
-  {
-    title: "Số lượng người dùng",
-    key: "total_users",
-    className: "text-center",
-    render: (value) => (
-      <span className="text- text-helper-text rounded-md bg-action-focus px-2.5 py-1">
-        {value?.toLocaleString() || 0} thành viên
-      </span>
-    ),
-  },
-];
-
 const pageName = "nhom_quyen";
 
 export const PermissionGroupPage = () => {
   const { t } = useTranslation();
+
+  const columns: TableColumn<Role>[] = [
+    {
+      title: t("permissionGroupPage.table.groupCode"),
+      key: "id",
+    },
+    {
+      title: t("permissionGroupPage.table.groupName"),
+      key: "tenNhomQuyen",
+      render: (value) => (
+        <span className="flex items-center gap-2">
+          <span
+            className={`h-2 w-2 rounded-full ${
+              value === "admin"
+                ? "bg-alert-error-content"
+                : value === "teacher"
+                  ? "bg-alert-success-content"
+                  : "bg-alert-info-content"
+            }`}
+          />
+          {value}
+        </span>
+      ),
+    },
+    {
+      title: t("permissionGroupPage.table.userCount"),
+      key: "total_users",
+      className: "text-center",
+      render: (value) => (
+        <span className="text- text-helper-text rounded-md bg-action-focus px-2.5 py-1">
+          {value?.toLocaleString() || 0} {t("permissionGroupPage.memberUnit")}
+        </span>
+      ),
+    },
+  ];
 
   const { role } = useAuthStore();
   const roleDetails = !role ? [] : role.role_details;
@@ -187,7 +187,7 @@ export const PermissionGroupPage = () => {
 
   const deleteRole = async (data: Role) => {
     console.log("xóa ", data.tenNhomQuyen);
-    const isConfirm = window.confirm("Bạn có chắc muốn xóa vai trò này không?");
+    const isConfirm = window.confirm(t("permissionGroupPage.confirmDelete"));
     if (!isConfirm) return;
     try {
       await deleteRoleAsync(data.id);
@@ -227,7 +227,7 @@ export const PermissionGroupPage = () => {
       {/* Xử lý loading ở đây nhen */}
       {isCreating && isUpdating && isDeleting && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
-          Loading...
+          {t("tableActions.loading")}
         </div>
       )}
       <div className="flex flex-col gap-10 rounded-md bg-background-body-background px-2 py-2">
@@ -235,17 +235,17 @@ export const PermissionGroupPage = () => {
           {/* Left: Filter & Search */}
           <div className="flex gap-2">
             <SelectField
-              placeholder="Chọn tiêu chí"
+              placeholder={t("permissionGroupPage.filter.placeholder")}
               defaultIndex={0}
               options={[
-                { label: "Theo tên", value: 1 },
-                { label: "Theo ID", value: 2 },
+                { label: t("permissionGroupPage.filter.byName"), value: 1 },
+                { label: t("permissionGroupPage.filter.byID"), value: 2 },
               ]}
               onSelect={() => {}}
             />
             <Input
               hasBoder={true}
-              placeholder="Tìm kiếm"
+              placeholder={t("header.search")}
               icon={<Icon name="search" className="text-text-disabled" />}
             />
           </div>
@@ -259,7 +259,7 @@ export const PermissionGroupPage = () => {
                 onClick={openInsertModal}
               >
                 <Icon name="plus" size={20} />
-                Tạo nhóm quyền mới
+                {t("permissionGroupPage.addNew")}
               </Button>
             )}
             {modalState.open && (
