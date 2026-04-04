@@ -26,6 +26,7 @@ import { useTranslation } from "react-i18next";
 import type { AxiosError } from "axios";
 import type { ErrorResponse } from "@/types";
 import { useAuthStore } from "@/stores/auth.store";
+import { useToastStore } from "@/stores/useToast.store";
 
 export function UserPage() {
   const { taikhoans } = useUser();
@@ -163,12 +164,14 @@ export function UserPage() {
     openInsertModal();
   };
 
+  const showToast = useToastStore((s) => s.showToast);
+
   const insertUser = async (data: UserCreate) => {
     console.log("create", data);
     if (!validateCreate(data)) return;
     try {
       await createUserAsync(data);
-      alert(t("message.success.create"));
+      showToast(t("message.success.create"), "success");
       closeModal();
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
@@ -179,10 +182,10 @@ export function UserPage() {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(t(firstError[0]), "error");
         }
       } else {
-        alert(t("message.error.create"));
+        showToast(t("message.error.create"), "error");
       }
     }
   };
@@ -194,7 +197,7 @@ export function UserPage() {
     }
     try {
       await updateUserAsync({ id, data });
-      alert(t("message.success.update"));
+      showToast(t("message.success.update"), "success");
       closeModal();
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
@@ -205,10 +208,11 @@ export function UserPage() {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
+          showToast(firstError[0], "error");
           alert(firstError[0]);
         }
       } else {
-        alert(t("message.error.update"));
+        showToast(t("message.error.update"), "error");
       }
     }
   };
@@ -218,10 +222,10 @@ export function UserPage() {
     if (!isConfirm) return;
     try {
       await deleteUserAsync(data);
-      alert(t("message.success.delete"));
+      showToast(t("message.success.delete"), "success");
       closeModal();
     } catch {
-      alert(t("message.error.delete"));
+      showToast(t("message.error.delete"), "error");
     }
   };
 

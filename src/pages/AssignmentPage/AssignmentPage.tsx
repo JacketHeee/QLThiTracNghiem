@@ -16,6 +16,7 @@ import type {
 import { useTranslation } from "react-i18next";
 import type { AxiosError } from "axios";
 import { useAuthStore } from "@/stores/auth.store";
+import { useToastStore } from "@/stores/useToast.store";
 
 export const AssignmentPage = () => {
   const { assigns } = useAssign();
@@ -74,11 +75,12 @@ export const AssignmentPage = () => {
     setIsModalOpen(true);
   };
 
+  const showToast = useToastStore((s) => s.showToast);
   const onSave = async (data: AssignmentRequest) => {
     if (!validateCreate(data)) return;
     try {
       await createPhanCongAsync(data);
-      alert(t("message.success.create"));
+      showToast(t("message.success.create"), "success");
       setIsModalOpen(false);
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
@@ -89,10 +91,10 @@ export const AssignmentPage = () => {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(t(firstError[0]), "error");
         }
       } else {
-        alert(t("message.error.create"));
+        showToast(t("message.error.create"), "error");
       }
     }
   };
@@ -108,10 +110,10 @@ export const AssignmentPage = () => {
           giangVienId: item.giangVienId,
           monHocId: item.monHocId,
         });
-        alert(t("message.success.delete"));
+        showToast(t("message.success.delete"), "success");
         setIsModalOpen(false);
       } catch {
-        alert(t("message.error.delete"));
+        showToast(t("message.error.delete"), "error");
       }
     }
   };

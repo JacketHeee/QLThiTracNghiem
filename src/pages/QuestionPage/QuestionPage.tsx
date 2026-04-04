@@ -26,6 +26,7 @@ import {
 import { useAuthStore } from "@/stores/auth.store";
 import { useTranslation } from "react-i18next";
 import type { AxiosError } from "axios";
+import { useToastStore } from "@/stores/useToast.store";
 
 export const QuestionPage = () => {
   const [selectedTab, setSelectedTab] = useState<QuestionStatus>("public");
@@ -147,12 +148,14 @@ export const QuestionPage = () => {
     console.log("add cau hoi id ", id);
   };
 
+  const showToast = useToastStore((s) => s.showToast);
+
   const insertQ = async (data: CauHoiCreate) => {
     console.log("create", data);
     if (!validateCauHoiCreate(data)) return;
     try {
       await createCauHoi(data);
-      alert(t("message.success.create"));
+      showToast(t("message.success.create"), "success");
       closeModal();
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
@@ -163,10 +166,10 @@ export const QuestionPage = () => {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(firstError[0], "error");
         }
       } else {
-        alert(t("message.error.create"));
+        showToast(t("message.error.create"), "error");
       }
     }
   };
@@ -177,7 +180,7 @@ export const QuestionPage = () => {
     }
     try {
       await updateCauHoi({ id, data });
-      alert(t("message.success.update"));
+      showToast(t("message.success.update"), "success");
       closeModal();
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
@@ -188,10 +191,10 @@ export const QuestionPage = () => {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(firstError[0], "error");
         }
       } else {
-        alert(t("message.error.update"));
+        showToast(t("message.error.update"), "error");
       }
     }
   };
