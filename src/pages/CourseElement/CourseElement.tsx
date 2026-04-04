@@ -364,7 +364,7 @@ export default function CourseElement() {
             <Overlay onClose={handleClose}>
               {" "}
               <main className="mb-20 flex max-h-[90vh] w-fit flex-col items-center overflow-y-auto rounded-lg bg-background-body-background px-8 py-8">
-                <ExamResultOverview />
+                <ExamResultOverview onCancel={handleClose} />
               </main>
             </Overlay>
           )}

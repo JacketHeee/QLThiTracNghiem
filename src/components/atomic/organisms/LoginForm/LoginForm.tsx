@@ -9,6 +9,8 @@ import { useState, type FormEvent } from "react"; // Thêm FormEvent
 import { useTranslation } from "react-i18next";
 import type { ErrorResponse, LoginFormSubmit } from "@/types";
 import type { AxiosError } from "axios";
+import { useLoadingStore } from "@/stores/useLoading.store";
+import { useToastStore } from "@/stores/useToast.store";
 
 export default function LoginForm() {
   const navigate = useNavigate();
@@ -18,6 +20,8 @@ export default function LoginForm() {
   const [pass, setPass] = useState("admin");
 
   const { loginAsync, isLoadingLogin } = useLogin();
+  const { startLoading, stopLoading } = useLoadingStore();
+  const { showToast } = useToastStore();
 
   // Đổi tên và nhận event
   const handleSubmit = async (e: FormEvent) => {
@@ -29,6 +33,7 @@ export default function LoginForm() {
     };
 
     try {
+      startLoading();
       const res = await loginAsync(data);
       if (res.original.me.isStudent) {
         navigate("/courses");
@@ -36,6 +41,7 @@ export default function LoginForm() {
         navigate("/dashboard");
       }
     } catch (error: unknown) {
+      stopLoading();
       const err = error as AxiosError<ErrorResponse>;
       if (err.response?.status === 422) {
         const errors = err.response?.data?.errors;
@@ -44,22 +50,18 @@ export default function LoginForm() {
           : ["Lỗi hệ thống"];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(firstError[0], "error");
         }
       } else {
-        alert(t("message.login.failed"));
+        showToast(t("message.login.failed"), "error");
       }
+    } finally {
+      stopLoading();
     }
   };
 
   return (
     <div className="flex flex-col items-center gap-5">
-      {isLoadingLogin && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
-          Loading...
-        </div>
-      )}
-
       <Logo large={true} />
 
       {/* Chuyển đổi div thành form và gán onSubmit */}

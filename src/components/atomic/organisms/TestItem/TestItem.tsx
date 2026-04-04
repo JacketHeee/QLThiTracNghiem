@@ -11,6 +11,10 @@ import { ClassResultItem } from "../../molecules/ClassResultItem/ClassResultItem
 import { useDeThiStore } from "@/stores/useDeThi.store";
 import { StatusLabel } from "../../atoms/StatusLabel/StatusLabel";
 import { useDeleteDeThi } from "@/hooks/useDeThi";
+import { useLoadingStore } from "@/stores/useLoading.store";
+import { useConfirmStore } from "@/stores/useConfirm.store";
+import { useToastStore } from "@/stores/useToast.store";
+import { useTranslation } from "react-i18next";
 
 interface TestItemProps {
   data: DeThi;
@@ -24,7 +28,7 @@ export default function TestItem({ data, actions }: TestItemProps) {
   const navigate = useNavigate();
 
   const updateTestData = useDeThiStore((state) => state.updateTestData);
-  const { mutate: deleteDeThi } = useDeleteDeThi();
+  const { mutateAsync: deleteDeThi } = useDeleteDeThi();
 
   const handleJoinTest = () => {
     // 1. Lưu ID vào Zustand Persist (Nó sẽ tự động vào LocalStorage)
@@ -41,19 +45,28 @@ export default function TestItem({ data, actions }: TestItemProps) {
 
   const status = getTestsStatus(data.thoiGianBatDau, data.thoiGianKetThuc);
 
+  const { startLoading, stopLoading } = useLoadingStore();
+  const { openConfirm } = useConfirmStore();
+  const { showToast } = useToastStore();
+  const { t } = useTranslation();
+
   const handleDelete = () => {
-    if (
-      window.confirm(
-        "Bạn có chắc chắn muốn xóa đề thi này không? Hành động này không thể hoàn tác."
-      )
-    ) {
-      deleteDeThi(data.id, {
-        onSuccess: () => {
-          // Bạn có thể xử lý thêm ở đây, ví dụ điều hướng nếu đang ở trang chi tiết
-          navigate("/tests");
-        },
-      });
-    }
+    openConfirm({
+      title: "Xác nhận xóa",
+      message:
+        "Bạn có chắc chắn muốn xóa đề thi này không? Hành động này không thể hoàn tác.",
+      type: "danger",
+      onConfirm: async () => {
+        startLoading();
+        await deleteDeThi(data.id, {
+          onSuccess: () => {
+            showToast(t("message.success.delete"), "success");
+          },
+          onSettled: () => stopLoading(),
+          onError: () => showToast(t("message.error.delete"), "error"),
+        });
+      },
+    });
   };
 
   return (

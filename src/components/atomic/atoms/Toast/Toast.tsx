@@ -42,11 +42,11 @@ export function Toast({
   }, [duration, onClose]);
 
   return (
-    <div className="bg-background-body-background">
-      <div
-        className={`flex items-center gap-3 rounded-lg border bg-background-body-background px-4 py-3 shadow-lg duration-300 animate-in fade-in slide-in-from-top-5 ${toastStyles[type]} `}
-        role="alert"
-      >
+    <div
+      className={`overflow-hidden rounded-lg border bg-background-body-background shadow-lg duration-300 animate-in fade-in slide-in-from-top-5 ${toastStyles[type]} `}
+      role="alert"
+    >
+      <div className="flex items-center gap-3 bg-background-body-background px-4 py-3">
         <div className="flex-shrink-0">{toastIcons[type]}</div>
 
         <span className="text-body-2-semibold flex-1">{message}</span>

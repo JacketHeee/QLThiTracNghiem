@@ -27,6 +27,8 @@ import type { AxiosError } from "axios";
 import type { ErrorResponse } from "@/types";
 import { useAuthStore } from "@/stores/auth.store";
 import { useToastStore } from "@/stores/useToast.store";
+import { useLoadingStore } from "@/stores/useLoading.store";
+import { useConfirmStore } from "@/stores/useConfirm.store";
 
 export function UserPage() {
   const { taikhoans } = useUser();
@@ -36,6 +38,7 @@ export function UserPage() {
   const { updateUserAsync, isUpdating } = useUpdateUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState<number>(0);
+  const { startLoading, stopLoading } = useLoadingStore();
 
   const { deleteUserAsync, isDeleting } = useDeleteUser();
   const { resetPasswordUserAsync, isResetting } = useResetPassUser();
@@ -186,10 +189,11 @@ export function UserPage() {
   const insertUser = async (data: UserCreate) => {
     console.log("create", data);
     // if (!validateCreate(data)) return;
+    startLoading();
     try {
       await createUserAsync(data);
-      showToast(t("message.success.create"), "success");
       closeModal();
+      showToast(t("message.success.create"), "success");
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
       if (err.response?.status === 422) {
@@ -204,6 +208,8 @@ export function UserPage() {
       } else {
         showToast(t("message.error.create"), "error");
       }
+    } finally {
+      stopLoading();
     }
   };
 
@@ -212,6 +218,7 @@ export function UserPage() {
     // if (!validateUpdate(data)) {
     //   return;
     // }
+    startLoading();
     try {
       await updateUserAsync({ id, data });
       showToast(t("message.success.update"), "success");
@@ -231,19 +238,32 @@ export function UserPage() {
       } else {
         showToast(t("message.error.update"), "error");
       }
+    } finally {
+      stopLoading();
     }
   };
 
-  const deleteUser = async (data: number) => {
-    const isConfirm = window.confirm(t("userPage.confirmDelete"));
-    if (!isConfirm) return;
-    try {
-      await deleteUserAsync(data);
-      showToast(t("message.success.delete"), "success");
-      closeModal();
-    } catch {
-      showToast(t("message.error.delete"), "error");
-    }
+  const { openConfirm } = useConfirmStore();
+
+  const deleteUser = (id: number) => {
+    openConfirm({
+      title: "Xác nhận xóa",
+      message: "Bạn có chắc chắn muốn xóa người dùng?",
+      type: "danger",
+      onConfirm: async () => {
+        startLoading(); // Bật Global Loading
+        try {
+          await deleteUserAsync(id);
+          showToast(t("message.success.delete"), "success");
+          if (typeof closeModal === "function") closeModal();
+        } catch (error: unknown) {
+          showToast(t("message.error.delete"), "error");
+          throw error; // Ngắt loading nội bộ của Modal
+        } finally {
+          stopLoading(); // Tắt Global Loading
+        }
+      },
+    });
   };
 
   const resetPassword = async (id: number, password: string) => {
@@ -253,13 +273,17 @@ export function UserPage() {
     const isConfirm = window.confirm(t("userPage.confirmResetPassword"));
     if (!isConfirm) return;
     if (!validateChangePass(password)) return;
+
+    startLoading();
     try {
       console.log("update", id, data);
       await resetPasswordUserAsync({ id, data });
-      alert(t("message.success.update"));
       closeModal();
+      showToast(t("message.success.update"), "success");
     } catch {
-      alert(t("message.error.update"));
+      showToast(t("message.error.update"), "error");
+    } finally {
+      stopLoading();
     }
   };
 

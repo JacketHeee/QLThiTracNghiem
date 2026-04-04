@@ -7,6 +7,8 @@ import DynamicTable, {
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import { useDoKho } from "@/hooks/useDoKho";
 import { useAuthStore } from "@/stores/auth.store";
+import { useConfirmStore } from "@/stores/useConfirm.store";
+import { useLoadingStore } from "@/stores/useLoading.store";
 import { useToastStore } from "@/stores/useToast.store";
 import type { DoKho, ErrorResponse, RoleDetailItem } from "@/types";
 import type { AxiosError } from "axios";
@@ -17,6 +19,7 @@ export default function DifficultyLevelPage() {
   const { doKhos, isLoading } = useDoKho();
   const { t } = useTranslation();
   const { createDoKho, updateDoKho, deleteDoKho, isProcessing } = useDoKho();
+  const { openConfirm } = useConfirmStore();
 
   const pageName = "do_kho";
 
@@ -83,14 +86,16 @@ export default function DifficultyLevelPage() {
     },
   ];
 
-  const showToast = useToastStore((s) => s.showToast);
+  const { showToast } = useToastStore();
+  const { startLoading, stopLoading } = useLoadingStore();
 
   const insert = async (data: DoKho) => {
     // if (!validate(data)) return;
+    startLoading();
     try {
       await createDoKho(data);
-      showToast(t("message.success.create"), "success");
       closeModal();
+      showToast(t("message.success.create"), "success");
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
       if (err.response?.status === 422) {
@@ -105,6 +110,8 @@ export default function DifficultyLevelPage() {
       } else {
         showToast(t("message.error.create"), "error");
       }
+    } finally {
+      stopLoading();
     }
   };
 
@@ -112,10 +119,11 @@ export default function DifficultyLevelPage() {
     if (!validate(data)) {
       return;
     }
+    startLoading();
     try {
       await updateDoKho({ id, data });
-      showToast(t("message.success.update"), "success");
       closeModal();
+      showToast(t("message.success.update"), "success");
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
       if (err.response?.status === 422) {
@@ -130,32 +138,44 @@ export default function DifficultyLevelPage() {
       } else {
         showToast(t("message.error.update"), "error");
       }
+    } finally {
+      stopLoading();
     }
   };
 
-  const deleteDK = async (data: number) => {
-    //catch lỗi sau
-    const isConfirm = window.confirm(t("difficultyLevelPage.confirmDelete"));
-    if (!isConfirm) return;
-    try {
-      await deleteDoKho(data);
-      showToast(t("message.success.delete"), "success");
-      closeModal();
-    } catch (error: unknown) {
-      const err = error as AxiosError<ErrorResponse>;
-      if (err.response?.status === 422) {
-        //lỗi validate backend
-        const errors = err.response.data.errors;
+  const deleteDK = (data: number) => {
+    // 1. Gọi Modal thay vì window.confirm
+    openConfirm({
+      title: "Xác nhận xóa",
+      message: t("difficultyLevelPage.confirmDelete"),
+      type: "danger",
 
-        const firstError = Object.values(errors)?.[0];
+      // 2. Toàn bộ logic xử lý đưa vào onConfirm
+      onConfirm: async () => {
+        startLoading();
+        try {
+          // Không cần gọi startLoading() global nữa vì Modal đã có isLoading riêng
+          await deleteDoKho(data);
+          showToast(t("message.success.delete"), "success");
+          closeModal();
+        } catch (error: unknown) {
+          const err = error as AxiosError<ErrorResponse>;
 
-        if (Array.isArray(firstError)) {
-          showToast(firstError[0], "error");
+          if (err.response?.status === 422) {
+            const errors = err.response.data.errors;
+            const firstError = Object.values(errors)?.[0];
+            if (Array.isArray(firstError)) {
+              showToast(firstError[0], "error");
+            }
+          } else {
+            showToast(t("message.error.delete"), "error");
+          }
+          throw error;
+        } finally {
+          stopLoading();
         }
-      } else {
-        showToast(t("message.error.delete"), "error");
-      }
-    }
+      },
+    });
   };
 
   const validate = (request: DoKho): boolean => {

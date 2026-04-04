@@ -81,6 +81,7 @@ export const useExamActions = () => {
     onSuccess: (res) => {
       // Đồng bộ kết quả (bao gồm cả trường hợp ẩn chi tiết câu hỏi) vào Store
       setFinalResult(res.data);
+      console.log(res.data);
     },
   });
 

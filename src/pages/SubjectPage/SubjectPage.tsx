@@ -11,9 +11,12 @@ import type { RoleDetailItem, Subject } from "@/types";
 import { useSubject } from "@/hooks/useSubject";
 import { useAuthStore } from "@/stores/auth.store";
 import { useToastStore } from "@/stores/useToast.store";
+import { useLoadingStore } from "@/stores/useLoading.store";
+import { useConfirmStore } from "@/stores/useConfirm.store";
 
 export const SubjectPage = () => {
   const { t } = useTranslation("common");
+  const { startLoading, stopLoading } = useLoadingStore();
 
   const pageName = "mon_hoc";
 
@@ -88,36 +91,54 @@ export const SubjectPage = () => {
     setIsModalOpen(true);
   };
 
+  const { openConfirm } = useConfirmStore();
+
   const handleAction = (action: string, item: Subject) => {
     if (action === "edit" || action === "detail") {
-      setEditingSubject(item); // Dữ liệu dòng này sẽ được truyền vào initialData của Form
+      setEditingSubject(item);
       setIsModalOpen(true);
     } else if (action === "remove") {
-      if (
-        window.confirm(
-          t("subjectPage.confirmDelete", { subjectName: item.tenMonHoc })
-        )
-      ) {
-        deleteSubject(item.id); // Gọi API Delete thực tế
-        showToast(t("message.success.delete"), "success");
-      }
+      openConfirm({
+        title: t("subjectPage.confirmDeleteTitle"),
+        message: t("subjectPage.confirmDelete", {
+          subjectName: item.tenMonHoc,
+        }),
+        type: "danger",
+        onConfirm: async () => {
+          startLoading(); // Bật Global Loading
+          try {
+            await deleteSubject(item.id);
+            showToast(t("message.success.delete"), "success");
+          } catch (error) {
+            showToast(t("message.error.delete"), "error");
+            throw error; // Ngắt loading nội bộ của Modal
+          } finally {
+            stopLoading(); // Tắt Global Loading
+          }
+        },
+      });
     }
   };
 
   const showToast = useToastStore((s) => s.showToast);
-  const handleSave = (data: Subject) => {
+  const handleSave = async (data: Subject) => {
+    startLoading();
     try {
       if (editingSubject) {
         // Trường hợp Sửa
-        updateSubject(data);
-        showToast(t("message.success.update"), "success");
+        updateSubject(data, {
+          onSuccess: () => showToast(t("message.success.update"), "success"),
+          onSettled: () => stopLoading(),
+        });
       } else {
         // Trường hợp Thêm mới (loại bỏ id: 0 để backend tự sinh nếu cần)
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, ...payload } = data;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        createSubject(payload as any);
-        showToast(t("message.success.create"), "success");
+        createSubject(payload as any, {
+          onSuccess: () => showToast(t("message.success.create"), "success"),
+          onSettled: () => stopLoading(),
+        });
       }
       setIsModalOpen(false);
       setEditingSubject(null);
