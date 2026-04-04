@@ -22,12 +22,11 @@ export const AssignmentPage = () => {
   const { assigns } = useAssign();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const { t } = useTranslation();
-
   const { createPhanCongAsync, isCreating } = useCreateAssign();
-
   const { deleteAsync, isDeleting } = useDeleteAssign();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCriteria, setFilterCriteria] = useState(1); // 1 for subject, 2 for teacher
 
   const pageName = "phan_cong";
 
@@ -46,28 +45,52 @@ export const AssignmentPage = () => {
       return result;
     });
 
+  const filteredAssigns = assigns.filter((assign) => {
+    const searchTermLower = searchTerm.trim().toLowerCase();
+    if (!searchTermLower) return true;
+
+    const subjectName = assign.mon_hoc?.tenMonHoc?.toLowerCase() ?? "";
+    const subjectCode = assign.mon_hoc?.maMonHoc?.toLowerCase() ?? "";
+    const teacherName = assign.giang_vien?.hoTen?.toLowerCase() ?? "";
+    const teacherCode = assign.giang_vien?.username?.toLowerCase() ?? "";
+
+    if (filterCriteria === 1) {
+      // bySubject
+      return (
+        subjectName.includes(searchTermLower) ||
+        subjectCode.includes(searchTermLower)
+      );
+    }
+
+    // byTeacher
+    return (
+      teacherName.includes(searchTermLower) ||
+      teacherCode.includes(searchTermLower)
+    );
+  });
+
   const columns: TableColumn<Assign>[] = [
     {
       title: t("assignmentPage.table.subjectCode"),
       key: "monHocId",
       render: (_, item) => {
-        return item.mon_hoc.maMonHoc || "---";
+        return item.mon_hoc?.maMonHoc || "---";
       },
     },
     {
       title: t("assignmentPage.table.subjectName"),
       key: "mon_hoc",
-      render: (_, item) => item.mon_hoc.tenMonHoc || "---",
+      render: (_, item) => item.mon_hoc?.tenMonHoc || "---",
     },
     {
       title: t("assignmentPage.table.teacherCode"),
       key: "giangVienId",
-      render: (_, item) => item.giang_vien.username || "---",
+      render: (_, item) => item.giang_vien?.username || "---",
     },
     {
       title: t("assignmentPage.table.teacherName"),
       key: "giang_vien",
-      render: (_, item) => item.giang_vien.hoTen || "---",
+      render: (_, item) => item.giang_vien?.hoTen || "---",
     },
   ];
 
@@ -159,12 +182,14 @@ export const AssignmentPage = () => {
                   value: 2,
                 },
               ]}
-              onSelect={() => {}}
+              onSelect={(value) => setFilterCriteria(Number(value))}
             />
             <Input
               hasBoder={true}
               placeholder={t("header.search")}
               icon={<Icon name="search" className="text-text-disabled" />}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
@@ -197,8 +222,8 @@ export const AssignmentPage = () => {
       <div className="flex flex-col gap-2 rounded-md bg-background-body-background px-2 py-2">
         <DynamicTable
           columns={columns}
-          data={assigns}
-          rowKey={"giangVienId"}
+          data={filteredAssigns}
+          rowKey={(item) => `${item.giangVienId}-${item.monHocId}`}
           hasColumnActions
           hasView={false}
           onAction={handleAction}

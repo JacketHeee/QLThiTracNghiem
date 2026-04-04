@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { Button, Icon } from "@/components/atomic/atoms";
 import { TextField } from "@/components/atomic/molecules/TextField/TextField";
 import type { DoKho } from "@/types";
@@ -21,6 +22,7 @@ export function DifficultyLevelForm({
   mode,
   id,
 }: DifficultyLevelFormProps) {
+  const { t } = useTranslation();
   // Khởi tạo state dựa trên initialData
   const [formData, setFormData] = useState<DoKho>(
     initialData ?? {
@@ -74,7 +76,9 @@ export function DifficultyLevelForm({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-other-divider px-6 py-2">
           <h6 className="text-body-1 font-bold text-text-primary">
-            {initialData ? "Cập nhật mức độ khó" : "Thêm mức độ khó mới"}
+            {initialData
+              ? t("difficultyLevelPage.form.updateTitle")
+              : t("difficultyLevelPage.form.addTitle")}
           </h6>
           <Button
             type="button"
@@ -90,15 +94,15 @@ export function DifficultyLevelForm({
         {/* Body */}
         <div className="px-6 py-8">
           <TextField
-            label="Tên mức độ khó"
-            placeholder="Ví dụ: Thông hiểu, Vận dụng..."
+            label={t("difficultyLevelPage.form.nameLabel")}
+            placeholder={t("difficultyLevelPage.form.namePlaceholder")}
             value={formData.tenDoKho}
             onChange={(e) => handleChange(e.target.value)}
             error={error}
             autoFocus
           />
           <p className="mt-2 text-xs italic text-text-secondary">
-            * Cấp độ khó sẽ được hiển thị khi tạo câu hỏi đề thi.
+            {t("difficultyLevelPage.form.note")}
           </p>
         </div>
 
@@ -111,11 +115,13 @@ export function DifficultyLevelForm({
               color={"standard"}
               onClick={onCancel}
             >
-              Quay lại
+              {t("difficultyLevelPage.form.backButton")}
             </Button>
 
             <Button type="submit" variant={"contained"} color={"primary"}>
-              {initialData ? "Cập nhật" : "Lưu mức độ"}
+              {initialData
+                ? t("difficultyLevelPage.form.updateButton")
+                : t("difficultyLevelPage.form.saveButton")}
             </Button>
           </div>
         </div>

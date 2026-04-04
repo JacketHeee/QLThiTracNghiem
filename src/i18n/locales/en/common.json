@@ -54,7 +54,8 @@
       "assignments": "Assignments",
       "tests": "Tests",
       "notifications": "Notifications",
-      "permissionGroups": "Permission Groups"
+      "permissionGroups": "Permission Groups",
+      "difficultyLevel": "Difficulty Level"
     }
   },
   "header": {
@@ -379,5 +380,31 @@
     },
     "searchPlaceholder": "Search",
     "addNew": "Create new notification"
+  },
+  "difficultyLevelPage": {
+    "table": {
+      "code": "Difficulty Code",
+      "name": "Difficulty Name"
+    },
+    "filter": {
+      "placeholder": "Select criteria",
+      "byName": "By name",
+      "byID": "By ID"
+    },
+    "addNew": "Create new difficulty level",
+    "confirmDelete": "Are you sure you want to delete this difficulty level?",
+    "form": {
+      "addTitle": "Add New Difficulty Level",
+      "updateTitle": "Update Difficulty Level",
+      "nameLabel": "Difficulty Name",
+      "namePlaceholder": "Example: Comprehension, Application...",
+      "note": "* Difficulty level will be displayed when creating exam questions.",
+      "backButton": "Back",
+      "saveButton": "Save Difficulty",
+      "updateButton": "Update",
+      "validation": {
+        "nameRequired": "Difficulty name is required"
+      }
+    }
   }
 }

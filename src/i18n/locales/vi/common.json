@@ -380,5 +380,31 @@
     },
     "searchPlaceholder": "Tìm kiếm",
     "addNew": "Tạo thông báo mới"
+  },
+  "difficultyLevelPage": {
+    "table": {
+      "code": "Mã độ khó",
+      "name": "Tên độ khó"
+    },
+    "filter": {
+      "placeholder": "Chọn tiêu chí",
+      "byName": "Theo tên",
+      "byID": "Theo ID"
+    },
+    "addNew": "Tạo độ khó mới",
+    "confirmDelete": "Bạn có chắc muốn xóa độ khó này không?",
+    "form": {
+      "addTitle": "Thêm độ khó mới",
+      "updateTitle": "Cập nhật độ khó",
+      "nameLabel": "Tên độ khó",
+      "namePlaceholder": "Ví dụ: Thông hiểu, Vận dụng...",
+      "note": "* Cấp độ khó sẽ được hiển thị khi tạo câu hỏi đề thi.",
+      "backButton": "Quay lại",
+      "saveButton": "Lưu mức độ",
+      "updateButton": "Cập nhật",
+      "validation": {
+        "nameRequired": "Tên độ khó không được để trống"
+      }
+    }
   }
 }

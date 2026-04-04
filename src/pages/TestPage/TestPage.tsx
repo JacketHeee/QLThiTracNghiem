@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import TestItem from "@/components/atomic/organisms/TestItem/TestItem";
@@ -29,6 +30,26 @@ export const TestPage = () => {
 
       return result;
     });
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredTests = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return dethis;
+
+    return dethis.filter((item) => {
+      const testName = item.tenDe?.toLowerCase() ?? "";
+      const subjectName = item.mon_thi?.tenMonHoc?.toLowerCase() ?? "";
+      const subjectCode = item.mon_thi?.maMonHoc?.toLowerCase() ?? "";
+
+      return (
+        testName.includes(term) ||
+        subjectName.includes(term) ||
+        subjectCode.includes(term)
+      );
+    });
+  }, [dethis, searchTerm]);
+
   return (
     <MainContentLayout>
       <div className="flex justify-between rounded-md bg-background-body-background px-2 py-2">
@@ -51,6 +72,8 @@ export const TestPage = () => {
             hasBoder={true}
             placeholder={t("testPage.searchPlaceholder")}
             icon={<Icon name="search" className="text-text-disabled" />}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <SelectField
             label={t("testPage.subject")}
@@ -80,7 +103,7 @@ export const TestPage = () => {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        {dethis.map((item) => (
+        {filteredTests.map((item) => (
           <TestItem key={item.id} data={item} actions={actions} />
         ))}
       </div>
