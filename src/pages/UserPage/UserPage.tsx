@@ -26,14 +26,16 @@ import { useTranslation } from "react-i18next";
 import type { AxiosError } from "axios";
 import type { ErrorResponse } from "@/types";
 import { useAuthStore } from "@/stores/auth.store";
+import { useToastStore } from "@/stores/useToast.store";
 
 export function UserPage() {
   const { taikhoans } = useUser();
-  console.log("taikhoan", taikhoans);
   const [editingUser, setEditingUser] = useState<TaiKhoan | null>(null);
   const { t } = useTranslation();
   const { createUserAsync, isCreating } = useCreateUser();
   const { updateUserAsync, isUpdating } = useUpdateUser();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterRole, setFilterRole] = useState<number>(0);
 
   const { deleteUserAsync, isDeleting } = useDeleteUser();
   const { resetPasswordUserAsync, isResetting } = useResetPassUser();
@@ -54,6 +56,22 @@ export function UserPage() {
 
       return result;
     });
+
+  const filteredUsers = taikhoans.filter((user) => {
+    const matchesRole = () => {
+      if (filterRole === 0) return true; // "All"
+      if (filterRole === 3) return user.isStudent; // "Student"
+      return user.nhomQuyenId === filterRole; // Admin or Teacher
+    };
+
+    const searchTermLower = searchTerm.toLowerCase();
+    const matchesSearch =
+      user.username.toLowerCase().includes(searchTermLower) ||
+      user.hoTen.toLowerCase().includes(searchTermLower) ||
+      user.email.toLowerCase().includes(searchTermLower);
+
+    return matchesRole() && matchesSearch;
+  });
 
   const columns: TableColumn<TaiKhoan>[] = [
     {
@@ -163,12 +181,14 @@ export function UserPage() {
     openInsertModal();
   };
 
+  const showToast = useToastStore((s) => s.showToast);
+
   const insertUser = async (data: UserCreate) => {
     console.log("create", data);
     if (!validateCreate(data)) return;
     try {
       await createUserAsync(data);
-      alert(t("message.success.create"));
+      showToast(t("message.success.create"), "success");
       closeModal();
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
@@ -179,10 +199,10 @@ export function UserPage() {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(t(firstError[0]), "error");
         }
       } else {
-        alert(t("message.error.create"));
+        showToast(t("message.error.create"), "error");
       }
     }
   };
@@ -194,7 +214,7 @@ export function UserPage() {
     }
     try {
       await updateUserAsync({ id, data });
-      alert(t("message.success.update"));
+      showToast(t("message.success.update"), "success");
       closeModal();
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
@@ -205,10 +225,11 @@ export function UserPage() {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
+          showToast(firstError[0], "error");
           alert(firstError[0]);
         }
       } else {
-        alert(t("message.error.update"));
+        showToast(t("message.error.update"), "error");
       }
     }
   };
@@ -218,10 +239,10 @@ export function UserPage() {
     if (!isConfirm) return;
     try {
       await deleteUserAsync(data);
-      alert(t("message.success.delete"));
+      showToast(t("message.success.delete"), "success");
       closeModal();
     } catch {
-      alert(t("message.error.delete"));
+      showToast(t("message.error.delete"), "error");
     }
   };
 
@@ -440,13 +461,15 @@ export function UserPage() {
               { label: t("userPage.roles.teacher"), value: 2 },
               { label: t("userPage.roles.admin"), value: 1 },
             ]}
-            onSelect={(val) => console.log("Filter role:", val)}
-            // defaultIndex={0}
+            onSelect={(val) => setFilterRole(Number(val))}
+            defaultIndex={0}
           />
           <Input
             hasBoder={true}
             placeholder={t("userPage.searchPlaceholder")}
             icon={<Icon name="search" className="text-text-disabled" />}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
@@ -485,7 +508,7 @@ export function UserPage() {
       <div className="flex flex-col gap-2 rounded-md bg-background-body-background px-2 py-2">
         <DynamicTable
           columns={columns}
-          data={taikhoans}
+          data={filteredUsers}
           rowKey="id"
           hasColumnActions
           onAction={handleAction}

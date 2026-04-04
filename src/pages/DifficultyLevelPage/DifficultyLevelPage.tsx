@@ -7,6 +7,7 @@ import DynamicTable, {
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import { useDoKho } from "@/hooks/useDoKho";
 import { useAuthStore } from "@/stores/auth.store";
+import { useToastStore } from "@/stores/useToast.store";
 import type { DoKho, ErrorResponse, RoleDetailItem } from "@/types";
 import type { AxiosError } from "axios";
 import { useState } from "react";
@@ -75,18 +76,20 @@ export default function DifficultyLevelPage() {
   };
 
   const columns: TableColumn<DoKho>[] = [
-    { title: "Mã độ khó", key: "id" },
+    { title: t("difficultyLevelPage.table.code"), key: "id" },
     {
-      title: "Tên độ khó",
+      title: t("difficultyLevelPage.table.name"),
       key: "tenDoKho",
     },
   ];
+
+  const showToast = useToastStore((s) => s.showToast);
 
   const insert = async (data: DoKho) => {
     if (!validate(data)) return;
     try {
       await createDoKho(data);
-      alert(t("message.success.create"));
+      showToast(t("message.success.create"), "success");
       closeModal();
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
@@ -97,10 +100,10 @@ export default function DifficultyLevelPage() {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(firstError[0], "error");
         }
       } else {
-        alert(t("message.error.create"));
+        showToast(t("message.error.create"), "error");
       }
     }
   };
@@ -111,7 +114,7 @@ export default function DifficultyLevelPage() {
     }
     try {
       await updateDoKho({ id, data });
-      alert(t("message.success.update"));
+      showToast(t("message.success.update"), "success");
       closeModal();
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
@@ -122,21 +125,21 @@ export default function DifficultyLevelPage() {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(firstError[0], "error");
         }
       } else {
-        alert(t("message.error.update"));
+        showToast(t("message.error.update"), "error");
       }
     }
   };
 
   const deleteDK = async (data: number) => {
     //catch lỗi sau
-    const isConfirm = window.confirm("Bạn có chắc muốn xóa không?");
+    const isConfirm = window.confirm(t("difficultyLevelPage.confirmDelete"));
     if (!isConfirm) return;
     try {
       await deleteDoKho(data);
-      alert(t("message.success.delete"));
+      showToast(t("message.success.delete"), "success");
       closeModal();
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
@@ -147,17 +150,17 @@ export default function DifficultyLevelPage() {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(firstError[0], "error");
         }
       } else {
-        alert(t("message.error.delete"));
+        showToast(t("message.error.delete"), "error");
       }
     }
   };
 
   const validate = (request: DoKho): boolean => {
     if (!request.tenDoKho || request.tenDoKho.trim() === "") {
-      alert("Tên độ khó không được để trống");
+      showToast(t("difficultyLevelPage.form.validation.nameRequired"), "error");
       return false;
     }
     return true;
@@ -168,7 +171,7 @@ export default function DifficultyLevelPage() {
       {/* Xử lý loading ở đây nhen */}
       {isProcessing && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
-          Loading...
+          {t("tableActions.loading")}
         </div>
       )}
       {/* Toolbar */}
@@ -177,17 +180,17 @@ export default function DifficultyLevelPage() {
           {/* Left: Filter & Search */}
           <div className="flex gap-2">
             <SelectField
-              placeholder="Chọn tiêu chí"
+              placeholder={t("difficultyLevelPage.filter.placeholder")}
               defaultIndex={0}
               options={[
-                { label: "Theo tên", value: 1 },
-                { label: "Theo ID", value: 2 },
+                { label: t("difficultyLevelPage.filter.byName"), value: 1 },
+                { label: t("difficultyLevelPage.filter.byID"), value: 2 },
               ]}
               onSelect={() => {}}
             />
             <Input
               hasBoder={true}
-              placeholder="Tìm kiếm"
+              placeholder={t("header.search")}
               icon={<Icon name="search" className="text-text-disabled" />}
             />
           </div>
@@ -201,7 +204,7 @@ export default function DifficultyLevelPage() {
                 onClick={openInsertModal}
               >
                 <Icon name="plus" size={20} />
-                Tạo độ khó mới
+                {t("difficultyLevelPage.addNew")}
               </Button>
             )}
 

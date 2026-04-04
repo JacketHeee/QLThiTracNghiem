@@ -16,6 +16,7 @@ import {
 import { useTranslation } from "react-i18next";
 import type { NhomHocPhan, NhomHocPhanCreate, RoleDetailItem } from "@/types";
 import { useAuthStore } from "@/stores/auth.store";
+import { useToastStore } from "@/stores/useToast.store";
 
 type CourseStatus = "active" | "hidden";
 
@@ -132,10 +133,11 @@ export function CourseGroupPage() {
       await deleteMutation.mutateAsync(groupId);
       setOpenMenu(null);
     } catch (error) {
-      console.error("Failed to delete group:", error);
+      showToast(`Failed to delete group: ${error}`, "error");
     }
   };
 
+  const showToast = useToastStore((s) => s.showToast);
   const handleSave = async (data: CourseGroupFormData) => {
     try {
       const monHocId = parseInt(data.subject) || 1;
@@ -146,6 +148,7 @@ export function CourseGroupPage() {
 
       if (editFormData?.groupId) {
         // Update
+
         await updateMutation.mutateAsync({
           id: editFormData.groupId,
           data: {
@@ -173,7 +176,7 @@ export function CourseGroupPage() {
       setEditFormData(null);
       setIsFormOpen(false);
     } catch (error) {
-      console.error("Failed to save group:", error);
+      showToast(`Failed to save group: ${error}`, "error");
     }
   };
 

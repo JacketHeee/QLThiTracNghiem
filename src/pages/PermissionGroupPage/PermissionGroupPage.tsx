@@ -11,6 +11,7 @@ import {
   useUpdateRole,
 } from "@/hooks/useRole";
 import { useAuthStore } from "@/stores/auth.store";
+import { useToastStore } from "@/stores/useToast.store";
 import type {
   ErrorResponse,
   Role,
@@ -19,7 +20,7 @@ import type {
   RoleUpdate,
 } from "@/types";
 import type { AxiosError } from "axios";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const pageName = "nhom_quyen";
@@ -91,6 +92,19 @@ export const PermissionGroupPage = () => {
 
   const { roles } = useRole();
 
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredRoles = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return roles;
+
+    return roles.filter((item) => {
+      const groupName = item.tenNhomQuyen?.toLowerCase() ?? "";
+      const groupId = String(item.id ?? "").toLowerCase();
+      return groupName.includes(term) || groupId.includes(term);
+    });
+  }, [roles, searchTerm]);
+
   const { createRoleAsync, isCreating } = useCreateRole();
   const { updateRoleAsync, isUpdating } = useUpdateRole();
 
@@ -136,12 +150,13 @@ export const PermissionGroupPage = () => {
       id: id,
     });
   };
+  const showToast = useToastStore((s) => s.showToast);
 
   const insertRole = async (data: RoleCreate) => {
     if (!validateCreate(data)) return;
     try {
       await createRoleAsync(data);
-      alert(t("message.success.create"));
+      showToast(t("message.success.create"), "success");
       closeModal();
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
@@ -152,10 +167,10 @@ export const PermissionGroupPage = () => {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(firstError[0], "error");
         }
       } else {
-        alert(t("message.error.create"));
+        showToast(t("message.error.create"), "error");
       }
     }
   };
@@ -166,7 +181,7 @@ export const PermissionGroupPage = () => {
     }
     try {
       await updateRoleAsync({ id, data });
-      alert(t("message.success.update"));
+      showToast(t("message.success.update"), "success");
       closeModal();
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
@@ -177,10 +192,10 @@ export const PermissionGroupPage = () => {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(firstError[0], "error");
         }
       } else {
-        alert(t("message.error.update"));
+        showToast(t("message.error.update"), "error");
       }
     }
   };
@@ -191,10 +206,10 @@ export const PermissionGroupPage = () => {
     if (!isConfirm) return;
     try {
       await deleteRoleAsync(data.id);
-      alert(t("message.success.delete"));
+      showToast(t("message.success.delete"), "success");
       closeModal();
     } catch {
-      alert(t("message.error.delete"));
+      showToast(t("message.error.delete"), "error");
     }
   };
 
@@ -247,6 +262,8 @@ export const PermissionGroupPage = () => {
               hasBoder={true}
               placeholder={t("header.search")}
               icon={<Icon name="search" className="text-text-disabled" />}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
@@ -279,7 +296,7 @@ export const PermissionGroupPage = () => {
       <div className="flex flex-col gap-2 rounded-md bg-background-body-background px-2 py-2">
         <DynamicTable
           columns={columns}
-          data={roles}
+          data={filteredRoles}
           rowKey="id" // <--- Chỉ định key định danh ở đây
           hasColumnActions={true}
           onAction={handleAction}

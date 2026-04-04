@@ -16,17 +16,17 @@ import type {
 import { useTranslation } from "react-i18next";
 import type { AxiosError } from "axios";
 import { useAuthStore } from "@/stores/auth.store";
+import { useToastStore } from "@/stores/useToast.store";
 
 export const AssignmentPage = () => {
   const { assigns } = useAssign();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const { t } = useTranslation();
-
   const { createPhanCongAsync, isCreating } = useCreateAssign();
-
   const { deleteAsync, isDeleting } = useDeleteAssign();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCriteria, setFilterCriteria] = useState(1); // 1 for subject, 2 for teacher
 
   const pageName = "phan_cong";
 
@@ -45,28 +45,52 @@ export const AssignmentPage = () => {
       return result;
     });
 
+  const filteredAssigns = assigns.filter((assign) => {
+    const searchTermLower = searchTerm.trim().toLowerCase();
+    if (!searchTermLower) return true;
+
+    const subjectName = assign.mon_hoc?.tenMonHoc?.toLowerCase() ?? "";
+    const subjectCode = assign.mon_hoc?.maMonHoc?.toLowerCase() ?? "";
+    const teacherName = assign.giang_vien?.hoTen?.toLowerCase() ?? "";
+    const teacherCode = assign.giang_vien?.username?.toLowerCase() ?? "";
+
+    if (filterCriteria === 1) {
+      // bySubject
+      return (
+        subjectName.includes(searchTermLower) ||
+        subjectCode.includes(searchTermLower)
+      );
+    }
+
+    // byTeacher
+    return (
+      teacherName.includes(searchTermLower) ||
+      teacherCode.includes(searchTermLower)
+    );
+  });
+
   const columns: TableColumn<Assign>[] = [
     {
       title: t("assignmentPage.table.subjectCode"),
       key: "monHocId",
       render: (_, item) => {
-        return item.mon_hoc.maMonHoc || "---";
+        return item.mon_hoc?.maMonHoc || "---";
       },
     },
     {
       title: t("assignmentPage.table.subjectName"),
       key: "mon_hoc",
-      render: (_, item) => item.mon_hoc.tenMonHoc || "---",
+      render: (_, item) => item.mon_hoc?.tenMonHoc || "---",
     },
     {
       title: t("assignmentPage.table.teacherCode"),
       key: "giangVienId",
-      render: (_, item) => item.giang_vien.username || "---",
+      render: (_, item) => item.giang_vien?.username || "---",
     },
     {
       title: t("assignmentPage.table.teacherName"),
       key: "giang_vien",
-      render: (_, item) => item.giang_vien.hoTen || "---",
+      render: (_, item) => item.giang_vien?.hoTen || "---",
     },
   ];
 
@@ -74,11 +98,12 @@ export const AssignmentPage = () => {
     setIsModalOpen(true);
   };
 
+  const showToast = useToastStore((s) => s.showToast);
   const onSave = async (data: AssignmentRequest) => {
     if (!validateCreate(data)) return;
     try {
       await createPhanCongAsync(data);
-      alert(t("message.success.create"));
+      showToast(t("message.success.create"), "success");
       setIsModalOpen(false);
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
@@ -89,10 +114,10 @@ export const AssignmentPage = () => {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          showToast(t(firstError[0]), "error");
         }
       } else {
-        alert(t("message.error.create"));
+        showToast(t("message.error.create"), "error");
       }
     }
   };
@@ -108,10 +133,10 @@ export const AssignmentPage = () => {
           giangVienId: item.giangVienId,
           monHocId: item.monHocId,
         });
-        alert(t("message.success.delete"));
+        showToast(t("message.success.delete"), "success");
         setIsModalOpen(false);
       } catch {
-        alert(t("message.error.delete"));
+        showToast(t("message.error.delete"), "error");
       }
     }
   };
@@ -157,12 +182,14 @@ export const AssignmentPage = () => {
                   value: 2,
                 },
               ]}
-              onSelect={() => {}}
+              onSelect={(value) => setFilterCriteria(Number(value))}
             />
             <Input
               hasBoder={true}
               placeholder={t("header.search")}
               icon={<Icon name="search" className="text-text-disabled" />}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
@@ -195,8 +222,8 @@ export const AssignmentPage = () => {
       <div className="flex flex-col gap-2 rounded-md bg-background-body-background px-2 py-2">
         <DynamicTable
           columns={columns}
-          data={assigns}
-          rowKey={"giangVienId"}
+          data={filteredAssigns}
+          rowKey={(item) => `${item.giangVienId}-${item.monHocId}`}
           hasColumnActions
           hasView={false}
           onAction={handleAction}

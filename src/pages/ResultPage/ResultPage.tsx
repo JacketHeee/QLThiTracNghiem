@@ -26,6 +26,7 @@ import { useDoKho } from "@/hooks/useDoKho";
 import type { BaiLam, StudentResult } from "@/types";
 import { Overlay } from "@/components/atomic/molecules/Overlay/Overlay";
 import ExamResultOverview from "@/components/atomic/organisms/ExamResultOverview/ExamResultOverview";
+import { useLoadingStore } from "@/stores/useLoading.store";
 
 type ViewMode = "user" | "question" | "difficulty";
 
@@ -126,7 +127,8 @@ export default function ResultPage() {
         {
           title: "Phần trăm",
           key: "phanTram",
-          render: (val: BaiLam) => renderPercent(val?.tongDiem || -1),
+          render: (_val, item: StudentResult) =>
+            renderPercent(((item.baiLam?.tongDiem || 0) / 10) * 100),
         },
         {
           title: "Điểm",
@@ -161,7 +163,11 @@ export default function ResultPage() {
         title: viewMode === "difficulty" ? "Mức độ độ khó" : "Nội dung câu hỏi",
         key: "noiDung",
       },
-      { title: "Tỉ lệ đúng", key: "phanTram", render: renderPercent },
+      {
+        title: "Tỉ lệ đúng",
+        key: "phanTram",
+        render: (_, item) => renderPercent(item.phanTram),
+      },
       { title: "Điểm trung bình", key: "diem", className: "text-center" },
     ] as TableColumn<any>[];
   }, [viewMode]);
@@ -186,14 +192,14 @@ export default function ResultPage() {
         baiLam: baiLamMap.get(sv.id),
       }));
 
-      // Tính trung bình cộng điểm số của những người đã nộp bài
+      // Tính trung bình cộng điểm số của những người đã nộp bài VÀ đã có điểm
       const completedTests = extendedStudents.filter(
-        (s) => s.baiLam?.status === "DA_NOP"
+        (s) => s.baiLam?.status === "DA_NOP" && s.baiLam?.tongDiem != null
       );
       const avgScore =
         completedTests.length > 0
           ? completedTests.reduce(
-              (acc, curr) => acc + (curr.baiLam?.tongDiem || 0),
+              (acc, curr) => acc + Number(curr.baiLam?.tongDiem || 0),
               0
             ) / completedTests.length
           : 0;
@@ -224,19 +230,26 @@ export default function ResultPage() {
     // --- 2. MODE: THEO CÂU HỎI (Thống kê tỉ lệ đúng/sai từng câu) ---
     if (viewMode === "question") {
       return allCauHois.map((ch, index) => {
-        const studentAnswers = currentBaiLams
-          .filter((bl) => bl.status === "DA_NOP")
-          .flatMap(
-            (bl) =>
-              bl.chitiet_bailams?.filter((ct) => ct.cauHoiId === ch.id) || []
-          );
+        // Chỉ lấy những bài làm đã nộp (DA_NOP)
+        const validBaiLams = currentBaiLams.filter(
+          (bl) => bl.status === "DA_NOP"
+        );
 
-        const correctCount = studentAnswers.filter(
-          (a) => a.isCorrectChooser
+        // Tìm xem trong những bài làm đó, có bao nhiêu người trả lời câu hỏi này
+        const answersForThisQuestion = validBaiLams
+          .map((bl) => bl.chitiet_bailams?.find((ct) => ct.cauHoiId === ch.id))
+          .filter(Boolean); // Loại bỏ những người không trả lời câu này
+
+        // Tính số câu đúng
+        const correctCount = answersForThisQuestion.filter(
+          (a) => a?.isCorrectChooser
         ).length;
+
+        // Tỉ lệ % đúng = (Số người đúng / Tổng số người đã trả lời câu này)
+        const totalAnswers = answersForThisQuestion.length;
         const percent =
-          studentAnswers.length > 0
-            ? Math.round((correctCount / studentAnswers.length) * 100)
+          totalAnswers > 0
+            ? Math.round((correctCount / totalAnswers) * 100)
             : 0;
 
         return {
@@ -244,7 +257,8 @@ export default function ResultPage() {
           stt: index + 1,
           noiDung: ch.noiDungCauHoi,
           phanTram: percent,
-          diem: ((percent * Number(ch.diemMacDinh || 1)) / 100).toFixed(2),
+          // Điểm TB câu hỏi = % đúng * điểm của câu đó
+          diem: ((percent / 100) * Number(ch.diemMacDinh || 1)).toFixed(2),
         };
       });
     }
@@ -265,8 +279,7 @@ export default function ResultPage() {
         const correct = relevantAnswers.filter(
           (a) => a.isCorrectChooser
         ).length;
-        const total = relevantAnswers.length;
-        const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
+        const percent = Math.round((correct / 10) * 100);
 
         return {
           id: `dk-${dk.id}`,
@@ -287,16 +300,22 @@ export default function ResultPage() {
   );
 
   const { reviewExam } = useExamActions();
+
+  const { startLoading, stopLoading } = useLoadingStore();
   const handleViewResult = async (baiLamId: number) => {
     try {
+      startLoading();
       // Gọi action review bài thi (đã bao gồm logic setFinalResult vào Store)
       await reviewExam(baiLamId);
 
       // Sau khi dữ liệu đã vào Store thành công, mở Modal
       setOpenResultModal(true);
     } catch (error) {
+      stopLoading();
       console.error("Lỗi khi tải kết quả:", error);
       // Bạn có thể thêm Toast thông báo lỗi ở đây
+    } finally {
+      stopLoading();
     }
   };
 

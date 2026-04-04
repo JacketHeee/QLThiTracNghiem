@@ -8,6 +8,7 @@ import { useDoKho } from "@/hooks/useDoKho";
 import { useQuestions } from "@/hooks/useQuestion";
 import { useDeThiStore } from "@/stores/useDeThi.store";
 import { useExamStore } from "@/stores/useExamStore";
+import { useLoadingStore } from "@/stores/useLoading.store";
 import { useToastStore } from "@/stores/useToast.store";
 import type { CreateDeThiPayload, DeThi } from "@/types";
 import { formatFullDateTimeVN, mapDeThiToCreatePayload } from "@/utils";
@@ -78,10 +79,15 @@ export default function AddQuestionTestPage() {
     return counts;
   }, [cauHoi_deThi]);
 
+  const { startLoading, stopLoading } = useLoadingStore();
   const handleSave = () => {
     const data = mapDeThiToCreatePayload(
       testData as DeThi
     ) as CreateDeThiPayload;
+
+    startLoading(
+      isAddMode ? "Đang tạo đề thi mới..." : "Đang cập nhật đề thi..."
+    );
 
     if (isAddMode) {
       createDeThi(data, {
@@ -89,6 +95,9 @@ export default function AddQuestionTestPage() {
           // Có thể điều hướng người dùng sau khi lưu thành công
           console.log("Tạo bài thi", data.data);
           navigate(`/tests/${data.data.id}`);
+        },
+        onSettled: () => {
+          stopLoading();
         },
       });
     } else {
@@ -100,6 +109,9 @@ export default function AddQuestionTestPage() {
             console.log("Lưu bài thi", testData?.id || Number(id));
             showToast("Lưu thành công!", "success");
             navigate(`/tests/${data.data.id}`);
+          },
+          onSettled: () => {
+            stopLoading();
           },
         }
       );

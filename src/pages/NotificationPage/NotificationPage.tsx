@@ -2,7 +2,7 @@ import { Button, Icon, Input } from "@/components/atomic/atoms";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import NotificationItem from "@/components/atomic/molecules/NotificationItem/NotificationItem";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import AddNotificationForm from "@/components/atomic/organisms/AddNotificationForm/AddNotificationForm";
 import { useThongBao } from "@/hooks/useThongBao";
 import type {
@@ -38,6 +38,28 @@ export const NotificationPage = () => {
 
       return result;
     });
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredThongBaos = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return thongBaos;
+
+    return thongBaos.filter((item) => {
+      const title = item.tieuDe?.toLowerCase() ?? "";
+      const content = item.noiDung?.toLowerCase() ?? "";
+      const sender = item.nguoi_gui?.hoTen?.toLowerCase() ?? "";
+      const subjectName =
+        item.nhom_hoc_phans?.[0]?.mon_hoc?.tenMonHoc?.toLowerCase() ?? "";
+
+      return (
+        title.includes(term) ||
+        content.includes(term) ||
+        sender.includes(term) ||
+        subjectName.includes(term)
+      );
+    });
+  }, [searchTerm, thongBaos]);
 
   const defaultModalState = {
     open: false,
@@ -213,6 +235,8 @@ export const NotificationPage = () => {
             hasBoder={true}
             placeholder={t("notificationPage.searchPlaceholder")}
             icon={<Icon name="search" className="text-text-disabled" />}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
@@ -246,7 +270,7 @@ export const NotificationPage = () => {
       </div>
 
       <div className="flex flex-col gap-2">
-        {thongBaos.map((note) => (
+        {filteredThongBaos.map((note) => (
           <NotificationItem
             data={note}
             onView={(id) => detailTB(id)}
