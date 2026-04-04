@@ -243,7 +243,7 @@ export default function StatSection() {
                   position="top"
                   offset={12}
                   className="text-subtitle-2 fill-text-primary font-bold"
-                  formatter={(val: number) => (val > 0 ? val : "")}
+                  formatter={(val: any) => (val > 0 ? val : "")}
                 />
               </Bar>
             </BarChart>

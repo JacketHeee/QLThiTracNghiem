@@ -83,11 +83,14 @@ export function StudentForm({
                 <RadioGroup
                   name="gender"
                   options={[
-                    { label: "Nam", value: "Nam" },
-                    { label: "Nữ", value: "Nữ" },
+                    { label: "Nam", value: true }, // true đại diện cho "Nam"
+                    { label: "Nữ", value: false }, // false đại diện cho "Nữ"
                   ]}
-                  value={formData.gender}
-                  onChange={(val) => handleChange("gender", val)}
+                  value={formData.gender === "Nam"}
+                  onChange={(val: boolean) =>
+                    handleChange("gender", val ? "Nam" : "Nữ")
+                  }
+                  disabled={false}
                 />
               </div>
 
