@@ -16,12 +16,14 @@ export const useNhomHocPhan = () => {
   };
 };
 
-export const useNhomHocPhanStudent = (studentId: number) => {
+export const useNhomHocPhanStudent = (studentId: number | null) => {
   const query = useQuery({
     // QueryKey chứa ID để khi đổi sinh viên dữ liệu sẽ tự làm mới
     queryKey: ["nhomhocphans", "student", studentId],
-    queryFn: () => nhomHocPhanService.getByStudent(studentId),
-    select: (res) => res.data,
+    queryFn: () => {
+      return studentId ? nhomHocPhanService.getByStudent(studentId) : null;
+    },
+    select: (res) => res?.data,
     enabled: !!studentId, // Chỉ chạy khi có studentId
   });
 

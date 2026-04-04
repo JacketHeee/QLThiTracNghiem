@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { Button, Icon, Input, SelectField } from "@/components/atomic/atoms";
 import { Overlay } from "@/components/atomic/molecules/Overlay/Overlay";
-import { useUser } from "@/hooks/useUser";
 import { useSubject } from "@/hooks/useSubject";
 import { useTranslation } from "react-i18next";
 
 export interface CourseGroupFormData {
+  monHocId: number;
   groupName: string;
   note: string;
   subject: string;
   academicYear: number;
   semester: number;
   giangVienId: number | null;
-  maMoi: string;
+  maMoi: string | null;
   siSo: number | null;
 }
 
@@ -38,11 +38,11 @@ export function CourseGroupForm({
   onCancel,
   isSubmitting = false,
 }: CourseGroupFormProps) {
-  const { taikhoans } = useUser();
   const { subjects } = useSubject();
   const isEdit = Boolean(initialData);
   const { t } = useTranslation();
-  const [formData, setFormData] = useState<CourseGroupFormData>({
+  const defaultFormData = {
+    monHocId: initialData?.monHocId ?? 0,
     groupName: initialData?.groupName ?? "",
     note: initialData?.note ?? "",
     subject: initialData?.subject ?? "",
@@ -51,7 +51,9 @@ export function CourseGroupForm({
     giangVienId: initialData?.giangVienId ?? null,
     maMoi: initialData?.maMoi ?? "",
     siSo: initialData?.siSo ?? null,
-  });
+  };
+  const [formData, setFormData] =
+    useState<CourseGroupFormData>(defaultFormData);
   const [errors, setErrors] = useState<
     Partial<Record<keyof CourseGroupFormData, string>>
   >({});
@@ -65,15 +67,7 @@ export function CourseGroupForm({
       newErrors.groupName = "Tên nhóm không được vượt quá 255 ký tự";
     }
 
-    if (formData.maMoi && formData.maMoi.length > 50) {
-      newErrors.maMoi = "Mã mời không được vượt quá 50 ký tự";
-    }
-
-    if (formData.siSo !== null && formData.siSo <= 0) {
-      newErrors.siSo = "Sĩ số phải là số dương";
-    }
-
-    if (!formData.subject) {
+    if (!formData.monHocId) {
       newErrors.subject = "Vui lòng chọn môn học";
     }
 
@@ -83,10 +77,6 @@ export function CourseGroupForm({
 
     if (!formData.semester || formData.semester < 1 || formData.semester > 2) {
       newErrors.semester = "Học kỳ phải là 1 hoặc 2";
-    }
-
-    if (!formData.giangVienId) {
-      newErrors.giangVienId = "Vui lòng chọn giảng viên";
     }
 
     setErrors(newErrors);
@@ -101,15 +91,8 @@ export function CourseGroupForm({
 
   const subjectOptions = subjects.map((subject) => ({
     label: subject.tenMonHoc,
-    value: subject.id.toString(),
+    value: subject.id,
   }));
-
-  const giangVienOptions = taikhoans
-    .filter((user) => user.nhomQuyenId === 2)
-    .map((user) => ({
-      label: user.hoTen,
-      value: user.id,
-    }));
 
   return (
     <Overlay onClose={onCancel}>
@@ -170,7 +153,7 @@ export function CourseGroupForm({
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-1 text-text-primary">
               <div className="text-input-text font-semibold text-text-secondary">
                 {t("courseGroup.form.inviteCode")}
@@ -214,7 +197,7 @@ export function CourseGroupForm({
                 <div className="text-sm text-error-main">{errors.siSo}</div>
               )}
             </div>
-          </div>
+          </div> */}
 
           <div className="flex flex-col gap-1">
             <SelectField
@@ -222,8 +205,9 @@ export function CourseGroupForm({
               placeholder={t("courseGroup.form.subjectPlaceholder")}
               options={subjectOptions}
               defaultIndex={findOptionIndex(subjectOptions, formData.subject)}
+              value={formData.monHocId}
               onSelect={(value) =>
-                setFormData((prev) => ({ ...prev, subject: String(value) }))
+                setFormData((prev) => ({ ...prev, monHocId: Number(value) }))
               }
             />
             {errors.subject && (
@@ -231,18 +215,16 @@ export function CourseGroupForm({
             )}
           </div>
 
-          <div className="flex flex-col gap-1">
+          {/* <div className="flex flex-col gap-1">
             <SelectField
               label={t("courseGroup.form.lecturer")}
               placeholder={t("courseGroup.form.lecturerPlaceholder")}
               options={giangVienOptions}
-              defaultIndex={findOptionIndex(
-                giangVienOptions.map((opt) => ({
-                  label: opt.label,
-                  value: String(opt.value),
-                })),
-                formData.giangVienId ? String(formData.giangVienId) : undefined
-              )}
+              // defaultIndex={findOptionIndex(
+              //   giangVienOptions,
+              //   formData.giangVienId ? formData.giangVienId : undefined
+              // )}
+              value={formData.giangVienId!}
               onSelect={(value) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -255,7 +237,7 @@ export function CourseGroupForm({
                 {errors.giangVienId}
               </div>
             )}
-          </div>
+          </div> */}
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-1">
