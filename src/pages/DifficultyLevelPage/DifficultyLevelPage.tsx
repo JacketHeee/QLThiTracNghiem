@@ -102,6 +102,14 @@ export default function DifficultyLevelPage() {
         //lỗi validate backend
         const errors = err.response?.data?.errors;
 
+        if (errors?.tenDoKho?.length) {
+          showToast(
+            t("difficultyLevelPage.form.validation.nameExists"),
+            "error"
+          );
+          return;
+        }
+
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
@@ -130,6 +138,14 @@ export default function DifficultyLevelPage() {
         //lỗi validate backend
         const errors = err.response.data.errors;
 
+        if (errors?.tenDoKho?.length) {
+          showToast(
+            t("difficultyLevelPage.form.validation.nameExists"),
+            "error"
+          );
+          return;
+        }
+
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
@@ -146,7 +162,7 @@ export default function DifficultyLevelPage() {
   const deleteDK = (data: number) => {
     // 1. Gọi Modal thay vì window.confirm
     openConfirm({
-      title: "Xác nhận xóa",
+      title: t("difficultyLevelPage.confirmDeleteTitle"),
       message: t("difficultyLevelPage.confirmDelete"),
       type: "danger",
 

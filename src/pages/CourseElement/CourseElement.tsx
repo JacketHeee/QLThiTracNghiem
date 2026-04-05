@@ -21,8 +21,10 @@ import {
 } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function CourseElement() {
+  const { t } = useTranslation();
   const [selectedTab, setSelectedTab] = useState("news");
   const [now, setNow] = useState(new Date());
 
@@ -185,7 +187,7 @@ export default function CourseElement() {
                   }
                 }}
               >
-                Kết quả
+                {t("common.result")}
               </Button>
             )}
           </div>

@@ -18,33 +18,33 @@ export class UserValidate {
     const errors: UserError = {};
 
     if (!data.username || data.username.trim() === "") {
-      errors.username = "Tên đăng nhập không được để trống";
+      errors.username = "userPage.validation.usernameRequired";
     }
 
     if (!data.email || data.email.trim() === "") {
-      errors.email = "Email không được để trống";
+      errors.email = "userPage.validation.emailRequired";
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(data.email)) {
-        errors.email = "Email không hợp lệ";
+        errors.email = "userPage.validation.emailInvalid";
       }
     }
 
     if (!data.hoTen || data.hoTen.trim() === "") {
-      errors.hoTen = "Họ tên không được để trống";
+      errors.hoTen = "userPage.validation.fullNameRequired";
     }
 
     if (!data.ngaySinh) {
-      errors.ngaySinh = "Ngày sinh không được để trống";
+      errors.ngaySinh = "userPage.validation.dobRequired";
     }
 
     // 🔥 chỉ có ở CREATE
     if (!data.password || data.password.trim() === "") {
-      errors.password = "Mật khẩu không được để trống";
+      errors.password = "userPage.validation.passwordRequired";
     }
 
     if (!data.isStudent && data.nhomQuyenId === null) {
-      errors.nhomQuyenId = "Vui lòng chọn nhóm quyền";
+      errors.nhomQuyenId = "userPage.validation.roleRequired";
     }
 
     return errors;
@@ -55,28 +55,28 @@ export class UserValidate {
     const errors: UserError = {};
 
     if (!data.username || data.username.trim() === "") {
-      errors.username = "Tên đăng nhập không được để trống";
+      errors.username = "userPage.validation.usernameRequired";
     }
 
     if (!data.email || data.email.trim() === "") {
-      errors.email = "Email không được để trống";
+      errors.email = "userPage.validation.emailRequired";
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(data.email)) {
-        errors.email = "Email không hợp lệ";
+        errors.email = "userPage.validation.emailInvalid";
       }
     }
 
     if (!data.hoTen || data.hoTen.trim() === "") {
-      errors.hoTen = "Họ tên không được để trống";
+      errors.hoTen = "userPage.validation.fullNameRequired";
     }
 
     if (!data.ngaySinh) {
-      errors.ngaySinh = "Ngày sinh không được để trống";
+      errors.ngaySinh = "userPage.validation.dobRequired";
     }
 
     if (!data.isStudent && data.nhomQuyenId === null) {
-      errors.nhomQuyenId = "Vui lòng chọn nhóm quyền";
+      errors.nhomQuyenId = "userPage.validation.roleRequired";
     }
 
     return errors;

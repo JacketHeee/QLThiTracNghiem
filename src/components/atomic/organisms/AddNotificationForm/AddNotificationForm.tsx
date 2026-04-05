@@ -12,6 +12,7 @@ import {
   ThongBaoValidate,
   type ThongBaoError,
 } from "@/validate/thongbao.validate";
+import { useTranslation } from "react-i18next";
 
 interface AddNotificationFormProps {
   onClose: () => void;
@@ -34,6 +35,7 @@ export default function AddNotificationForm({
   selectedItem,
   mode,
 }: AddNotificationFormProps) {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const defaultFormData: ThongBaoCreate = {
     tieuDe: "",
@@ -192,13 +194,13 @@ export default function AddNotificationForm({
   let title = "";
   switch (mode) {
     case "create":
-      title = "Tạo thông báo mới";
+      title = t("notificationForm.title.create");
       break;
     case "update":
-      title = "Sửa thông báo";
+      title = t("notificationForm.title.update");
       break;
     case "view":
-      title = "Chi tiết thông báo";
+      title = t("notificationForm.title.view");
       break;
 
     default:
@@ -213,8 +215,8 @@ export default function AddNotificationForm({
         </div>
         <div className="flex flex-col gap-5 rounded-md bg-background-body-background p-5 text-text-secondary">
           <TextField
-            label="Tiêu đề"
-            placeholder="Thông báo khai giảng học kỳ ..."
+            label={t("notificationForm.fields.title.label")}
+            placeholder={t("notificationForm.fields.title.placeholder")}
             value={formData.tieuDe}
             onChange={(e) => handleChange("tieuDe", e.target.value)}
             disabled={isView}
@@ -222,8 +224,8 @@ export default function AddNotificationForm({
           />
           {/*  */}
           <TextArea
-            label="Nội dung thông báo"
-            placeholder="Nhập nội dung thông báo"
+            label={t("notificationForm.fields.content.label")}
+            placeholder={t("notificationForm.fields.content.placeholder")}
             value={formData.noiDung}
             onChange={(e) => handleChange("noiDung", e.target.value)}
             disabled={isView}
@@ -233,10 +235,12 @@ export default function AddNotificationForm({
           {/*  */}
           <div className="flex flex-col rounded-md border border-other-outlined-border">
             <div className="flex-bet-center gap-3 rounded-t-md bg-action-hover px-8 py-5 text-text-secondary">
-              <span className="text-body-1-semibold">Giao cho</span>
+              <span className="text-body-1-semibold">
+                {t("notificationForm.assign.label")}
+              </span>
               <SelectField
                 classname="!flex-[unset] bg-background-body-background"
-                placeholder="Chọn môn học"
+                placeholder={t("notificationForm.assign.placeholder")}
                 options={subjects}
                 value={subjects ? subjects[0]?.value : 0}
                 onSelect={(value) => {
@@ -249,7 +253,7 @@ export default function AddNotificationForm({
             <div className="flex flex-col px-5 pb-2 text-text-secondary">
               <div className="p-4">
                 <Checkbox
-                  label="Chọn tất cả"
+                  label={t("notificationForm.selectAll")}
                   onChange={(e) => handleCheckAll(e.target.checked)}
                   disabled={isView}
                 />
@@ -276,7 +280,7 @@ export default function AddNotificationForm({
           {/*  */}
           <div className="flex justify-end gap-2">
             <Button variant={"outline"} onClick={onClose}>
-              Quay lại
+              {t("notificationForm.actions.back")}
             </Button>
             {!isView && (
               <Button
@@ -284,7 +288,9 @@ export default function AddNotificationForm({
                 color={"primary"}
                 onClick={handleSend}
               >
-                {isCreate ? "Gửi thông báo" : "Lưu"}
+                {isCreate
+                  ? t("notificationForm.actions.send")
+                  : t("notificationForm.actions.save")}
               </Button>
             )}
           </div>

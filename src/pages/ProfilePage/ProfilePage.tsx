@@ -73,7 +73,7 @@ export default function ProfilePage() {
   const changePassword = async () => {
     console.log("change", formChangePass);
     if (!user) {
-      console.log("Lỗi chưa set user");
+      console.log(t("profile.errors.userNotSet"));
       return;
     }
 
@@ -86,6 +86,11 @@ export default function ProfilePage() {
       if (err.response?.status === 422) {
         //lỗi validate backend
         const errors = err.response?.data?.errors;
+
+        if (errors?.currentPassword?.length) {
+          alert(t("profile.validation.currentPasswordMismatch"));
+          return;
+        }
 
         const firstError = Object.values(errors)?.[0];
 
@@ -103,22 +108,22 @@ export default function ProfilePage() {
       !formChangePass.newPassword ||
       formChangePass.newPassword.trim() === ""
     ) {
-      alert("Mật khẩu không được để trống");
+      alert(t("profile.validation.passwordRequired"));
       return false;
     }
 
     if (formChangePass.newPassword.length < 6) {
-      alert("Mật khẩu phải có ít nhất 6 ký tự");
+      alert(t("profile.validation.passwordMinLength"));
       return false;
     }
 
     if (!/[a-zA-Z]/.test(formChangePass.newPassword)) {
-      alert("Mật khẩu phải chứa chữ cái");
+      alert(t("profile.validation.passwordLetterRequired"));
       return false;
     }
 
     if (!/[0-9]/.test(formChangePass.newPassword)) {
-      alert("Mật khẩu phải chứa số");
+      alert(t("profile.validation.passwordNumberRequired"));
       return false;
     }
 
@@ -126,19 +131,19 @@ export default function ProfilePage() {
       !/[A-Z]/.test(formChangePass.newPassword) ||
       !/[a-z]/.test(formChangePass.newPassword)
     ) {
-      alert("Mật khẩu phải có chữ hoa và chữ thường");
+      alert(t("profile.validation.passwordCaseRequired"));
       return false;
     }
 
     if (
       formChangePass.newPassword_confirmation !== formChangePass.newPassword
     ) {
-      alert("Mật khẩu xác nhận không khớp");
+      alert(t("profile.validation.passwordConfirmMismatch"));
       return false;
     }
 
     if (formChangePass.newPassword === formChangePass.currentPassword) {
-      alert("Mật khẩu mới phải khác mật khẩu hiện tại");
+      alert(t("profile.validation.passwordDifferent"));
       return false;
     }
     return true;
@@ -155,7 +160,7 @@ export default function ProfilePage() {
               <div className="h-32 w-32 overflow-hidden rounded-full border-4 border-background-paper bg-grey-grey-200 shadow-md">
                 <img
                   src={getDefaultAvatar(user?.hoTen || "User")}
-                  alt="Avatar"
+                  alt={t("profile.avatarAlt")}
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -177,8 +182,8 @@ export default function ProfilePage() {
             value={activeTab}
             onChange={(item) => setActiveTab(item as "info" | "password")}
             tabs={[
-              { value: "info", label: " Thông tin tài khoản" },
-              { value: "password", label: "Đổi mật khẩu" },
+              { value: "info", label: t("profile.tabs.info") },
+              { value: "password", label: t("profile.tabs.password") },
             ]}
           />
         </div>
@@ -190,7 +195,7 @@ export default function ProfilePage() {
         <div className="w-full shrink-0 md:w-[320px]">
           <div className="rounded-xl border border-other-outlined-border bg-background-paper p-6 shadow-sm">
             <h3 className="text-h6 mb-5 font-bold text-text-primary">
-              Giới thiệu
+              {t("profile.about.title")}
             </h3>
             <div className="space-y-4">
               <div className="text-body-2 flex items-center gap-3 text-text-secondary">
@@ -203,7 +208,7 @@ export default function ProfilePage() {
               </div>
               <div className="text-body-2 flex items-center gap-3 text-text-secondary">
                 <MapPin size={18} className="text-text-disabled" />
-                <span>TP. Hồ Chí Minh</span>
+                <span>{t("profile.about.location")}</span>
               </div>
               <div className="text-body-2 flex items-center gap-3 text-text-secondary">
                 <Globe size={18} className="text-text-disabled" />
@@ -211,7 +216,7 @@ export default function ProfilePage() {
                   href="https://facebook.com/manh"
                   className="text-alert-info-content hover:underline"
                 >
-                  facebook.com/manh
+                  {t("profile.about.socialLink")}
                 </a>
               </div>
             </div>
@@ -225,7 +230,7 @@ export default function ProfilePage() {
               <div className="min-w-[600px] space-y-4 duration-500 animate-in fade-in">
                 <div className="flex items-center justify-between border-b border-other-divider pb-5">
                   <h2 className="text-h6 font-bold text-text-primary">
-                    Chi tiết tài khoản
+                    {t("profile.details.title")}
                   </h2>
                   <CheckCircle2
                     className="text-alert-success-content"
@@ -234,36 +239,51 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
-                  <TextField label="Họ và tên" value={user?.hoTen} readOnly />
-                  <TextField label="Mã định danh" value={user?.ma} readOnly />
                   <TextField
-                    label="Email liên hệ"
+                    label={t("profile.details.fullName")}
+                    value={user?.hoTen}
+                    readOnly
+                  />
+                  <TextField
+                    label={t("profile.details.identityCode")}
+                    value={user?.ma}
+                    readOnly
+                  />
+                  <TextField
+                    label={t("profile.details.contactEmail")}
                     value={user?.email}
                     readOnly
                   />
-                  <TextField label="Số điện thoại" value={user?.sdt} readOnly />
                   <TextField
-                    label="Ngày sinh"
+                    label={t("profile.details.phone")}
+                    value={user?.sdt}
+                    readOnly
+                  />
+                  <TextField
+                    label={t("profile.details.birthDate")}
                     value={user?.ngaySinh}
                     readOnly
                   />
 
                   <div className="flex flex-col gap-1">
                     <label className="text-body-2-semibold text-text-secondary">
-                      Giới tính
+                      {t("profile.details.gender")}
                     </label>
                     <div className="text-body-2 py-2 font-medium text-text-primary">
-                      {user?.laGioiTinhNu ? "Nữ" : "Nam"}
+                      {user?.laGioiTinhNu
+                        ? t("profile.details.genderFemale")
+                        : t("profile.details.genderMale")}
                     </div>
                   </div>
 
                   <div className="mt-2 rounded-lg border border-success-background bg-success-background p-3 md:col-span-2">
                     <p className="text-caption font-bold uppercase tracking-widest text-alert-success-content">
-                      TRẠNG THÁI HỆ THỐNG
+                      {t("profile.systemStatus.title")}
                     </p>
                     <p className="text-body-2 mt-1.5 leading-relaxed text-text-primary">
-                      Tài khoản của bạn đang hoạt động bình thường trên hệ thống{" "}
-                      <strong>NDT15</strong>.
+                      {t("profile.systemStatus.description", {
+                        system: "NDT15",
+                      })}
                     </p>
                   </div>
                 </div>
@@ -273,10 +293,10 @@ export default function ProfilePage() {
               <div className="min-w-[600px] space-y-4 duration-500 animate-in slide-in-from-right-4">
                 <div className="border-b border-other-divider pb-4">
                   <h2 className="text-h6 font-bold text-text-primary">
-                    Bảo mật & Mật khẩu
+                    {t("profile.password.title")}
                   </h2>
                   <p className="text-helper-text mt-1 text-text-secondary">
-                    Vui lòng không chia sẻ mật khẩu cho bất kỳ ai.
+                    {t("profile.password.subtitle")}
                   </p>
                 </div>
                 <form
@@ -292,7 +312,7 @@ export default function ProfilePage() {
                       }))
                     }
                     type="password"
-                    label="Mật khẩu hiện tại"
+                    label={t("profile.password.current")}
                     placeholder="••••••••"
                   />
                   <div className="h-px w-full bg-other-divider"></div>
@@ -305,8 +325,8 @@ export default function ProfilePage() {
                       }))
                     }
                     type="password"
-                    label="Mật khẩu mới"
-                    placeholder="Nhập mật khẩu mới"
+                    label={t("profile.password.new")}
+                    placeholder={t("profile.password.newPlaceholder")}
                   />
                   <TextField
                     value={formChangePass.newPassword_confirmation}
@@ -317,8 +337,8 @@ export default function ProfilePage() {
                       }))
                     }
                     type="password"
-                    label="Xác nhận mật khẩu mới"
-                    placeholder="Nhập lại mật khẩu mới"
+                    label={t("profile.password.confirm")}
+                    placeholder={t("profile.password.confirmPlaceholder")}
                   />
                   <div className="flex justify-end gap-4 pt-4">
                     <Button
@@ -328,7 +348,7 @@ export default function ProfilePage() {
                       className="font-bold"
                       onClick={() => changePassword()}
                     >
-                      Cập nhật mật khẩu
+                      {t("profile.password.update")}
                     </Button>
                     <Button
                       variant="outline"
@@ -336,7 +356,7 @@ export default function ProfilePage() {
                       size="large"
                       className="font-bold"
                     >
-                      Hủy bỏ
+                      {t("profile.password.cancel")}
                     </Button>
                   </div>
                 </form>

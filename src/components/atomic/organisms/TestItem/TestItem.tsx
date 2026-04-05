@@ -60,9 +60,8 @@ export default function TestItem({ data, actions }: TestItemProps) {
 
   const handleDelete = () => {
     openConfirm({
-      title: "Xác nhận xóa",
-      message:
-        "Bạn có chắc chắn muốn xóa đề thi này không? Hành động này không thể hoàn tác.",
+      title: t("testItem.confirmDeleteTitle"),
+      message: t("testItem.confirmDelete"),
       type: "danger",
       onConfirm: async () => {
         startLoading();
@@ -87,16 +86,16 @@ export default function TestItem({ data, actions }: TestItemProps) {
 
         <div className="flex gap-2">
           <Button color={"primary"} onClick={handleJoinTest}>
-            Xem chi tiết
+            {t("testItem.actions.viewDetail")}
           </Button>
           {actions.includes("update") && (
             <Button color={"primary"} onClick={handleEditTest}>
-              Sửa
+              {t("testItem.actions.edit")}
             </Button>
           )}
           {actions.includes("delete") && (
             <Button color={"primary"} onClick={handleDelete}>
-              Xóa
+              {t("testItem.actions.delete")}
             </Button>
           )}
         </div>
@@ -128,7 +127,7 @@ export default function TestItem({ data, actions }: TestItemProps) {
         <div className="flex flex-col gap-2 text-text-secondary">
           <div className="flex items-center gap-1">
             <Icon name="documentDuplicate" size={20} />
-            <span className="text-body-1">Giao cho học phần</span>
+            <span className="text-body-1">{t("testItem.assignTo")}</span>
             <span className="text-body-1-semibold text">
               {data.mon_thi.tenMonHoc}
             </span>
@@ -136,8 +135,10 @@ export default function TestItem({ data, actions }: TestItemProps) {
           <div className="flex items-center gap-1">
             <Icon name="clock" size={20} />
             <span className="text-body-1">
-              Diễn ra từ {formatFullDateTimeVN(data.thoiGianBatDau)} đến{" "}
-              {formatFullDateTimeVN(data.thoiGianKetThuc)}
+              {t("testItem.duration", {
+                start: formatFullDateTimeVN(data.thoiGianBatDau),
+                end: formatFullDateTimeVN(data.thoiGianKetThuc),
+              })}
             </span>
           </div>
         </div>

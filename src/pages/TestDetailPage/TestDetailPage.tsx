@@ -11,8 +11,10 @@ import { useExamStore } from "@/stores/useExamStore";
 import { formatFullDateTimeVN } from "@/utils";
 import { Info, Trash } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function TestDetailPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const testData = useDeThiStore((state) => state.testData);
   const { mutate: deleteDeThi } = useDeleteDeThi();
@@ -23,7 +25,7 @@ export default function TestDetailPage() {
 
   const { deThi, isLoading } = useDeThiDetail(idDethi);
 
-  if (isLoading) return <div>Đang tải dữ liệu...</div>;
+  if (isLoading) return <div>{t("testDetailPage.loading")}</div>;
 
   const displayData = deThi || testData;
 
@@ -45,11 +47,7 @@ export default function TestDetailPage() {
   };
 
   const handleDelete = () => {
-    if (
-      window.confirm(
-        "Bạn có chắc chắn muốn xóa đề thi này không? Hành động này không thể hoàn tác."
-      )
-    ) {
+    if (window.confirm(t("testDetailPage.deleteConfirm"))) {
       deleteDeThi(displayData?.id as number, {
         onSuccess: () => {
           // Bạn có thể xử lý thêm ở đây, ví dụ điều hướng nếu đang ở trang chi tiết
@@ -65,7 +63,7 @@ export default function TestDetailPage() {
       <div className="flex flex-col rounded-md bg-background-body-background p-8 pb-0">
         <div className="text-h6 flex gap-2 text-alert-info-content">
           <Icon name="testsOverview" size={32} />
-          <span>Tổng quan</span>
+          <span>{t("testDetailPage.overview.title")}</span>
         </div>
         <div className="flex justify-between gap-2">
           <div className="flex flex-col gap-3 pb-8 pt-5">
@@ -77,7 +75,9 @@ export default function TestDetailPage() {
               <div className="flex flex-col gap-2 text-text-secondary">
                 <div className="flex items-center gap-1">
                   <Icon name="documentDuplicate" size={20} />
-                  <span className="text-body-1">Giao cho học phần</span>
+                  <span className="text-body-1">
+                    {t("testDetailPage.overview.assignTo")}
+                  </span>
                   <span className="text-body-1-semibold text">
                     {displayData?.mon_thi?.tenMonHoc}
                   </span>
@@ -85,35 +85,36 @@ export default function TestDetailPage() {
                 <div className="flex items-center gap-1">
                   <Icon name="clock" size={20} />
                   <span className="text-body-1">
-                    Diễn ra từ{" "}
-                    {formatFullDateTimeVN(displayData?.thoiGianBatDau)} đến{" "}
-                    {formatFullDateTimeVN(displayData?.thoiGianKetThuc)}
+                    {t("testDetailPage.overview.duration", {
+                      start: formatFullDateTimeVN(displayData?.thoiGianBatDau),
+                      end: formatFullDateTimeVN(displayData?.thoiGianKetThuc),
+                    })}
                   </span>
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Button variant={"outline"} onClick={handlePreview}>
-                <Icon name="play" /> Xem demo
+                <Icon name="play" /> {t("testDetailPage.actions.preview")}
               </Button>
 
               <Dropdown
                 trigger={
                   <Button>
-                    <Icon name="detail" /> Hành động
+                    <Icon name="detail" /> {t("testDetailPage.actions.menu")}
                   </Button>
                 }
               >
                 {/* Header nhỏ sử dụng Typography text-table-header và màu disabled */}
                 <div className="text-table-header px-4 py-2 uppercase text-text-disabled">
-                  Tùy chọn đề thi
+                  {t("testDetailPage.actions.menuTitle")}
                 </div>
 
                 <DropdownItem
                   icon={<Info size={16} />}
                   onClick={handleViewTest}
                 >
-                  Xem chi tiết
+                  {t("testDetailPage.actions.viewDetail")}
                 </DropdownItem>
 
                 {/* <DropdownItem icon={<Copy size={16} />} onClick={() => {}}>
@@ -127,7 +128,7 @@ export default function TestDetailPage() {
                   icon={<Trash size={16} />}
                   onClick={handleDelete}
                 >
-                  Xóa đề thi
+                  {t("testDetailPage.actions.delete")}
                 </DropdownItem>
               </Dropdown>
             </div>
@@ -146,13 +147,15 @@ export default function TestDetailPage() {
               className="absolute left-1/2 top-1/2 w-auto -translate-x-1/2 -translate-y-1/2 whitespace-nowrap bg-background-body-background shadow-lg"
             >
               <Icon name="edit" />
-              Chỉnh sửa bài thi
+              {t("testDetailPage.actions.edit")}
             </Button>
           </div>
         </div>
       </div>
       <div className="flex flex-col rounded-md bg-background-body-background">
-        <div className="text-h6 px-8 py-6 text-text-secondary">Đã giao cho</div>
+        <div className="text-h6 px-8 py-6 text-text-secondary">
+          {t("testDetailPage.assignedToSection")}
+        </div>
         {displayData?.nhom_hoc_phans?.map((item) => (
           <ClassResultItem
             key={item.id}

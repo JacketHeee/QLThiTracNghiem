@@ -2,6 +2,7 @@ import { Button, Icon } from "@/components/atomic/atoms";
 import type { ThongBaoResponse } from "@/types";
 import { formatDateTimeVN } from "@/utils";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface INotificationItemProps {
   data: ThongBaoResponse;
@@ -19,6 +20,7 @@ export default function NotificationItem({
   onDelete,
   actions,
 }: INotificationItemProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col rounded-md bg-background-body-background">
       {/* header */}
@@ -30,21 +32,23 @@ export default function NotificationItem({
               : "border-text-disabled text-text-disabled"
           }`}
         >
-          {data.status ? "Đang mở" : "Đã đóng"}
+          {data.status
+            ? t("notificationItem.status.open")
+            : t("notificationItem.status.closed")}
         </span>
 
         <div className="flex gap-2">
           <Button color={"primary"} onClick={() => onView?.(data.id)}>
-            Xem chi tiết
+            {t("notificationItem.actions.view")}
           </Button>
           {actions.includes("update") && (
             <Button color={"primary"} onClick={() => onEdit?.(data.id)}>
-              Sửa
+              {t("notificationItem.actions.edit")}
             </Button>
           )}
           {actions.includes("delete") && (
             <Button color={"primary"} onClick={() => onDelete?.(data.id)}>
-              Xóa
+              {t("notificationItem.actions.delete")}
             </Button>
           )}
         </div>
@@ -67,7 +71,9 @@ export default function NotificationItem({
         <div className="flex flex-col gap-2 text-text-secondary">
           <div className="flex items-center gap-1">
             <Icon name="documentDuplicate" size={20} />
-            <span className="text-body-1">Giao cho học phần:</span>
+            <span className="text-body-1">
+              {t("notificationItem.assignedTo")}
+            </span>
             <span className="text-body-1-semibold text">
               {" "}
               {data?.nhom_hoc_phans?.[0]?.mon_hoc?.tenMonHoc ?? ""}
@@ -76,8 +82,11 @@ export default function NotificationItem({
           <div className="flex items-center gap-1">
             <Icon name="clock" size={20} />
             <span className="text-body-1">
-              Ngày tạo: {formatDateTimeVN(data.thoiGianGui)} • Người gửi:{" "}
-              {data.nguoi_gui.hoTen}
+              {t("notificationItem.createdAt", {
+                date: formatDateTimeVN(data.thoiGianGui),
+              })}
+              {" • "}
+              {t("notificationItem.sender", { name: data.nguoi_gui.hoTen })}
               <span className="text-body-1 font-medium">{""}</span>
             </span>
           </div>

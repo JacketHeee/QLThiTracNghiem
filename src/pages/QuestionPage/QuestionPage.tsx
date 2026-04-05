@@ -166,12 +166,11 @@ export const QuestionPage = () => {
 
   const deleteQ = (id: number) => {
     openConfirm({
-      title: "Xác nhận xóa câu hỏi",
-      message:
-        "Bạn có chắc chắn muốn xóa câu hỏi này không? Hành động này không thể hoàn tác.",
+      title: t("questionPage.deleteConfirm.title"),
+      message: t("questionPage.deleteConfirm.message"),
       type: "danger",
-      confirmLabel: "Xóa ngay",
-      cancelLabel: "Hủy bỏ",
+      confirmLabel: t("questionPage.deleteConfirm.confirm"),
+      cancelLabel: t("questionPage.deleteConfirm.cancel"),
       onConfirm: async () => {
         startLoading();
         try {
@@ -204,7 +203,7 @@ export const QuestionPage = () => {
         id: id,
         data: { nguoiTaoId: user.id },
       });
-      showToast("Đã thêm câu hỏi vào ngân hàng!", "success");
+      showToast(t("questionPage.toast.addToBank"), "success");
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
       if (err.response?.status === 422) {
@@ -231,7 +230,7 @@ export const QuestionPage = () => {
       showToast(t("message.success.update"), "success");
     } catch (error) {
       console.log(error);
-      showToast("message.error.update", "error");
+      showToast(t("message.error.update"), "error");
     } finally {
       stopLoading();
     }
@@ -244,7 +243,7 @@ export const QuestionPage = () => {
       showToast(t("message.success.update"), "success");
     } catch (error) {
       console.log(error);
-      showToast("message.error.update", "error");
+      showToast(t("message.error.update"), "error");
     } finally {
       stopLoading();
     }
@@ -257,7 +256,7 @@ export const QuestionPage = () => {
       showToast(t("message.success.update"), "success");
     } catch (error) {
       console.log(error);
-      showToast("message.error.update", "error");
+      showToast(t("message.error.update"), "error");
     } finally {
       stopLoading();
     }
@@ -324,22 +323,22 @@ export const QuestionPage = () => {
 
   const validateCauHoiCreate = (request: CauHoiCreate): boolean => {
     if (!request.noiDungCauHoi || request.noiDungCauHoi.trim() === "") {
-      alert("Nội dung câu hỏi không được để trống");
+      alert(t("questionPage.validation.questionRequired"));
       return false;
     }
 
     if (!request.monHocId) {
-      alert("Vui lòng chọn môn học");
+      alert(t("questionPage.validation.subjectRequired"));
       return false;
     }
 
     if (!request.chuongId) {
-      alert("Vui lòng chọn chương");
+      alert(t("questionPage.validation.chapterRequired"));
       return false;
     }
 
     if (!request.doKhoId) {
-      alert("Vui lòng chọn độ khó");
+      alert(t("questionPage.validation.difficultyRequired"));
       return false;
     }
 
@@ -348,21 +347,21 @@ export const QuestionPage = () => {
 
   const validateCauHoiUpdate = (request: CauHoiUpdate): boolean => {
     if (!request.noiDungCauHoi || request.noiDungCauHoi.trim() === "") {
-      alert("Nội dung câu hỏi không được để trống");
+      alert(t("questionPage.validation.questionRequired"));
       return false;
     }
     //
     if (!request.monHocId) {
-      alert("Vui lòng chọn môn học");
+      alert(t("questionPage.validation.subjectRequired"));
       return false;
     }
     if (!request.chuongId) {
-      alert("Vui lòng chọn chương");
+      alert(t("questionPage.validation.chapterRequired"));
       return false;
     }
 
     if (!request.doKhoId) {
-      alert("Vui lòng chọn độ khó");
+      alert(t("questionPage.validation.difficultyRequired"));
       return false;
     }
 
@@ -374,7 +373,7 @@ export const QuestionPage = () => {
       {/* Xử lý loading ở đây nhen */}
       {isCreating && isUpdating && isDeleting && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
-          Loading...
+          {t("tableActions.loading")}
         </div>
       )}
       <div className="flex flex-col gap-3 rounded-md bg-background-body-background">
@@ -383,9 +382,9 @@ export const QuestionPage = () => {
             value={selectedTab}
             onChange={(val) => handleTabSelect(val as QuestionStatus)}
             tabs={[
-              { value: "public", label: "Công khai" },
-              { value: "private", label: "Cá nhân" },
-              { value: "archive", label: "Lưu trữ" },
+              { value: "public", label: t("questionPage.tabs.public") },
+              { value: "private", label: t("questionPage.tabs.private") },
+              { value: "archive", label: t("questionPage.tabs.archive") },
             ]}
           />
           {selectedTab === "private" && actions.includes("create") && (
@@ -394,15 +393,15 @@ export const QuestionPage = () => {
               variant="contained"
               color="primary"
             >
-              Thêm câu hỏi <Icon name="arrowDown" />
+              {t("questionPage.actions.addQuestion")} <Icon name="arrowDown" />
             </Button>
           )}
         </div>
 
         <div className="flex gap-5 px-3">
           <SelectField
-            label="Môn học"
-            placeholder="Chọn môn học"
+            label={t("questionPage.filters.subject.label")}
+            placeholder={t("questionPage.filters.subject.placeholder")}
             options={subjects.map((item) => ({
               label: item.tenMonHoc,
               value: item.id,
@@ -410,8 +409,8 @@ export const QuestionPage = () => {
             onSelect={() => {}}
           />
           <SelectField
-            label="Chương"
-            placeholder="Chọn chương"
+            label={t("questionPage.filters.chapter.label")}
+            placeholder={t("questionPage.filters.chapter.placeholder")}
             options={[
               { label: "Nhận biết", value: "Nhận biết" },
               { label: "Thông hiểu", value: "Thông hiểu" },
@@ -421,8 +420,8 @@ export const QuestionPage = () => {
             onSelect={() => {}}
           />
           <SelectField
-            label="Độ khó"
-            placeholder="Chọn độ khó"
+            label={t("questionPage.filters.difficulty.label")}
+            placeholder={t("questionPage.filters.difficulty.placeholder")}
             options={doKhos.map((item) => ({
               label: item.tenDoKho,
               value: item.id,
@@ -436,7 +435,9 @@ export const QuestionPage = () => {
         <div className="flex gap-5 px-3 pb-3">
           <Input
             className="flex-1"
-            placeholder={`Tìm kiếm trong ${filteredQuestions.length} câu hỏi...`}
+            placeholder={t("questionPage.search.placeholder", {
+              count: filteredQuestions.length,
+            })}
             hasBoder={true}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -481,7 +482,7 @@ export const QuestionPage = () => {
         ) : (
           <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-other-outlined-border bg-background-body-background py-20">
             <span className="italic text-text-secondary">
-              Không tìm thấy câu hỏi nào phù hợp
+              {t("questionPage.empty")}
             </span>
           </div>
         )}

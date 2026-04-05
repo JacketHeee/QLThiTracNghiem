@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function AddQuestionTestPage() {
   const location = useLocation();
@@ -37,6 +38,7 @@ export default function AddQuestionTestPage() {
   const { user } = useAuthStore();
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_isOpenQuestionForm, setIsOpenQuestionForm] = useState(false);
   const { mutate: createDeThi } = useCreateDeThi();
@@ -87,7 +89,9 @@ export default function AddQuestionTestPage() {
       testData as DeThi
     ) as CreateDeThiPayload;
     startLoading(
-      isAddMode ? "Đang tạo đề thi mới..." : "Đang cập nhật đề thi..."
+      isAddMode
+        ? t("addQuestionTestPage.loading.create")
+        : t("addQuestionTestPage.loading.update")
     );
 
     if (isAddMode) {
@@ -108,7 +112,7 @@ export default function AddQuestionTestPage() {
           onSuccess: (data) => {
             // Có thể điều hướng người dùng sau khi lưu thành công
             console.log("Lưu bài thi", testData?.id || Number(id));
-            showToast("Lưu thành công!", "success");
+            showToast(t("addQuestionTestPage.toast.saveSuccess"), "success");
             navigate(`/tests/${data.data.id}`);
           },
           onSettled: () => {
@@ -136,14 +140,14 @@ export default function AddQuestionTestPage() {
             }}
           >
             <Icon name="out" />
-            Quay lại
+            {t("addQuestionTestPage.actions.back")}
           </Button>
           <strong className="text-body-1 font-medium text-primary-contrast">
             {isEditMode
-              ? "Chỉnh sửa danh sách câu hỏi"
+              ? t("addQuestionTestPage.title.edit")
               : isViewMode
-                ? "Danh sách câu hỏi"
-                : "Thêm câu hỏi"}
+                ? t("addQuestionTestPage.title.view")
+                : t("addQuestionTestPage.title.create")}
           </strong>
           <Button
             variant={"contained"}
@@ -151,14 +155,17 @@ export default function AddQuestionTestPage() {
             onClick={handlePreview}
           >
             <Icon name="eye" />
-            Xem demo
+            {t("addQuestionTestPage.actions.preview")}
           </Button>
         </div>
       </div>
       <div className="flex flex-1 items-stretch bg-background-body p-5">
         <div className="flex w-[450px] flex-col gap-3 border-r border-other-outlined-border pr-5">
           <div className="flex-bet-center gap-2">
-            <Input placeholder="Tìm kiếm câu hỏi" disabled={isViewMode} />
+            <Input
+              placeholder={t("addQuestionTestPage.filters.search")}
+              disabled={isViewMode}
+            />
             <Button
               disabled={isViewMode}
               variant={"outline"}
@@ -166,7 +173,8 @@ export default function AddQuestionTestPage() {
               className="bg-background-body-background"
               onClick={() => setIsOpenQuestionForm(true)}
             >
-              <Icon name="question" /> Thêm câu hỏi
+              <Icon name="question" />{" "}
+              {t("addQuestionTestPage.actions.addQuestion")}
             </Button>
 
             {/* <AddQuestionForm
@@ -176,15 +184,17 @@ export default function AddQuestionTestPage() {
           </div>
           <div className="flex-bet-center gap-2">
             <SelectField
-              placeholder="Chọn chương"
+              placeholder={t("addQuestionTestPage.filters.chapter")}
               classname="bg-background-body-background"
               options={[{ label: "Chương 1: Đây là chương 1", value: 1 }]}
               onSelect={() => {}}
               disabled={isViewMode}
             />
             <SelectField
-              label="Độ khó"
-              placeholder="Chọn độ khó"
+              label={t("addQuestionTestPage.filters.difficulty.label")}
+              placeholder={t(
+                "addQuestionTestPage.filters.difficulty.placeholder"
+              )}
               options={doKhos.map((item) => ({
                 label: item.tenDoKho,
                 value: item.id,
@@ -226,7 +236,7 @@ export default function AddQuestionTestPage() {
           {/*  */}
           <div className="flex-bet-center border-b border-other-outlined-border px-5 py-2.5">
             <div className="flex items-center gap-2 text-text-secondary">
-              <span>Số lượng: </span>
+              <span>{t("addQuestionTestPage.count.label")} </span>
               <div className="flex gap-2">
                 {doKhos.map((kho) => {
                   const count = difficultyCounts[kho.id] || 0;
@@ -255,7 +265,9 @@ export default function AddQuestionTestPage() {
                   onClick={handleSave}
                 >
                   <Icon name="clipboard" />
-                  {isEditMode ? "Lưu thay đổi" : "Thêm bài kiểm tra"}
+                  {isEditMode
+                    ? t("addQuestionTestPage.actions.saveEdit")
+                    : t("addQuestionTestPage.actions.addTest")}
                 </Button>
               )}
             </div>
@@ -281,7 +293,7 @@ export default function AddQuestionTestPage() {
                       className="rounded-none border-b border-other-outlined-border"
                       disabled={index === 0} // Vị trí đầu tiên không thể lên nữa
                       onClick={() => moveQuestion(index, "up")}
-                      tooltip="Di chuyển lên"
+                      tooltip={t("addQuestionTestPage.tooltips.moveUp")}
                       isToolTipLeft
                     >
                       <Icon name="arrowUp" />
@@ -292,7 +304,7 @@ export default function AddQuestionTestPage() {
                       className="rounded-none border-b border-other-outlined-border"
                       disabled={index === cauHoi_deThi.length - 1} // Vị trí cuối không thể xuống
                       onClick={() => moveQuestion(index, "down")}
-                      tooltip="Di chuyển xuống"
+                      tooltip={t("addQuestionTestPage.tooltips.moveDown")}
                       isToolTipLeft
                     >
                       <Icon name="up" />
@@ -302,7 +314,7 @@ export default function AddQuestionTestPage() {
                       color={"primary"}
                       className="rounded-none border-b border-other-outlined-border"
                       onClick={() => removeQuestion(item.id)}
-                      tooltip="Gỡ khỏi đề"
+                      tooltip={t("addQuestionTestPage.tooltips.removeFromTest")}
                       isToolTipLeft
                     >
                       <Icon name="remove" />
@@ -320,6 +332,7 @@ export default function AddQuestionTestPage() {
 
 export const TestInfoSummary = () => {
   const { testData } = useDeThiStore();
+  const { t } = useTranslation();
 
   return (
     <div className="flex justify-center">
@@ -337,12 +350,14 @@ export const TestInfoSummary = () => {
             {/* infor */}
             <div className="flex flex-col gap-2.5">
               <span className="text-caption-semibold uppercase tracking-wider text-text-primary">
-                Thông tin cơ bản
+                {t("addQuestionTestPage.summary.basicInfo.title")}
               </span>
               <div className="flex flex-col gap-2 text-text-secondary">
                 <div className="flex items-center gap-1">
                   <Icon name="documentDuplicate" size={20} />
-                  <span className="text-body-2">Giao cho học phần</span>
+                  <span className="text-body-2">
+                    {t("addQuestionTestPage.summary.basicInfo.assignTo")}
+                  </span>
                   <span className="text-body-2-semibold text">
                     {testData?.mon_thi?.tenMonHoc}
                   </span>
@@ -350,14 +365,18 @@ export const TestInfoSummary = () => {
                 <div className="flex items-center gap-1">
                   <Icon name="pause" size={20} />
                   <span className="text-body-2">
-                    Diễn ra từ {formatFullDateTimeVN(testData?.thoiGianBatDau)}{" "}
-                    đến {formatFullDateTimeVN(testData?.thoiGianKetThuc)}
+                    {t("addQuestionTestPage.summary.basicInfo.duration", {
+                      start: formatFullDateTimeVN(testData?.thoiGianBatDau),
+                      end: formatFullDateTimeVN(testData?.thoiGianKetThuc),
+                    })}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Icon name="clock" size={20} />
                   <span className="text-body-2">
-                    Thời gian làm bài: {testData?.thoiGianLamBai} phút
+                    {t("addQuestionTestPage.summary.basicInfo.workTime", {
+                      minutes: testData?.thoiGianLamBai,
+                    })}
                   </span>
                 </div>
               </div>
@@ -368,22 +387,24 @@ export const TestInfoSummary = () => {
             {/* Nhóm Bảo mật */}
             <div className="flex flex-col gap-2.5">
               <span className="text-caption-semibold uppercase tracking-wider text-text-primary">
-                An toàn & Bảo mật
+                {t("addQuestionTestPage.summary.security.title")}
               </span>
               <ul className="flex flex-col gap-2">
                 {testData?.cau_hinh_thi?.hasMonitoring && (
                   <li className="text-body-2 flex items-center gap-2 text-text-secondary">
                     <Eye size={18} className="text-text-tertiary mt-0.5" />
-                    Giám sát thi đang bật
+                    {t("addQuestionTestPage.summary.security.monitoringOn")}
                   </li>
                 )}
 
                 {testData?.cau_hinh_thi?.isLimitSwitchTab && (
                   <li className="text-body-2 flex items-center gap-2 text-alert-error-content">
                     <ShieldAlert size={18} className="mt-0.5" />
-                    Giới hạn chuyển tab:{" "}
+                    {t("addQuestionTestPage.summary.security.switchLimit")}{" "}
                     <span className="font-semibold">
-                      {testData?.cau_hinh_thi?.tabSwitchLimit} lần
+                      {t("addQuestionTestPage.summary.security.switchTimes", {
+                        count: testData?.cau_hinh_thi?.tabSwitchLimit,
+                      })}
                     </span>
                   </li>
                 )}
@@ -391,14 +412,14 @@ export const TestInfoSummary = () => {
                 {testData?.cau_hinh_thi?.allowCopy === false && (
                   <li className="text-body-2 flex items-center gap-2 text-text-secondary">
                     <CopyX size={18} className="text-text-tertiary mt-0.5" />
-                    Không cho phép sao chép nội dung
+                    {t("addQuestionTestPage.summary.security.copyBlocked")}
                   </li>
                 )}
 
                 {testData?.cau_hinh_thi?.allowPrint === false && (
                   <li className="text-body-2 flex items-center gap-2 text-text-secondary">
                     <Printer size={18} className="text-text-tertiary mt-0.5" />
-                    Đã chặn tính năng in ấn
+                    {t("addQuestionTestPage.summary.security.printBlocked")}
                   </li>
                 )}
               </ul>
@@ -409,14 +430,14 @@ export const TestInfoSummary = () => {
             {/* Nhóm Quy tắc */}
             <div className="flex flex-col gap-2.5">
               <span className="text-caption-semibold uppercase tracking-wider text-text-primary">
-                Quy tắc làm bài
+                {t("addQuestionTestPage.summary.rules.title")}
               </span>
               <ul className="flex flex-col gap-2">
                 {(testData?.cau_hinh_thi?.shuffleQuestions ||
                   testData?.cau_hinh_thi?.shuffleAnswers) && (
                   <li className="text-body-2 flex items-center gap-2 text-text-secondary">
                     <Shuffle size={18} className="text-text-tertiary mt-0.5" />
-                    Tự động trộn câu hỏi và đáp án
+                    {t("addQuestionTestPage.summary.rules.shuffle")}
                   </li>
                 )}
 
@@ -426,13 +447,13 @@ export const TestInfoSummary = () => {
                       size={18}
                       className="text-text-tertiary mt-0.5"
                     />
-                    Sinh viên có thể làm tiếp bài đang dở
+                    {t("addQuestionTestPage.summary.rules.resume")}
                   </li>
                 )}
                 {testData?.cau_hinh_thi?.showDetailResults && (
                   <li className="text-body-2 flex items-center gap-2 text-text-secondary">
                     <Info size={18} className="text-text-tertiary mt-0.5" />
-                    Hiển thị chi tiết kết quả
+                    {t("addQuestionTestPage.summary.rules.showDetail")}
                   </li>
                 )}
 
@@ -442,7 +463,7 @@ export const TestInfoSummary = () => {
                       size={18}
                       className="text-text-tertiary mt-0.5"
                     />
-                    Hiển thị điểm số
+                    {t("addQuestionTestPage.summary.rules.showScore")}
                   </li>
                 )}
               </ul>
