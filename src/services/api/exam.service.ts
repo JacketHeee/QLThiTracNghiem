@@ -1,5 +1,10 @@
 import axiosClient from "./axios";
-import type { ApiResponse, BaiLam, ExamResponseData } from "@/types";
+import type {
+  ApiResponse,
+  BaiLam,
+  ExamResponseData,
+  ExamReviewResponse,
+} from "@/types";
 
 export const examService = {
   /**
@@ -58,4 +63,13 @@ export const examService = {
   },
 
   getAll: (): Promise<ApiResponse<BaiLam[]>> => axiosClient.get("/bailams"),
+
+  getByHocPhanAndDeThi: (
+    nhomHocPhanId: number,
+    deThiId: number
+  ): Promise<ApiResponse<ExamReviewResponse>> => {
+    return axiosClient.get(
+      `/bailams/get_o_hphan_dethi/${nhomHocPhanId}/${deThiId}`
+    );
+  },
 };
