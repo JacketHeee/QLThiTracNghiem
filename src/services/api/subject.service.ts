@@ -13,6 +13,9 @@ export const subjectService = {
   getById: (id: number): Promise<ApiResponse<Subject>> =>
     axiosClient.get(`/monhocs/${id}`),
 
+  getOGvien: (id: number): Promise<ApiResponse<Subject[]>> =>
+    axiosClient.get(`/monhocs/get_o_gvien/${id}`),
+
   create: (data: Omit<Subject, "id">): Promise<ApiResponse<Subject>> =>
     axiosClient.post("/monhocs", data),
 

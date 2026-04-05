@@ -50,6 +50,22 @@ export const useNhomHocPhanDetail = (id: number) => {
   };
 };
 
+export const useNhomHocPhanOGvien = (id?: number) => {
+  const query = useQuery({
+    queryKey: ["nhomhocphans", "gvien", id],
+    queryFn: () => nhomHocPhanService.getOGvien(id!),
+    enabled: !!id,
+    select: (res) => res.data.filter((item) => !item.isDeleted),
+  });
+
+  return {
+    nhomHocPhanGvien: query.data || [],
+    isLoadingHpGv: query.isLoading,
+    isErrorHpGv: query.isError,
+    refetch: query.refetch,
+  };
+};
+
 export const useNhomHocPhanGiangVien = (id: number) => {
   const query = useQuery({
     queryKey: ["nhomhocphans", "giangvien", id],
