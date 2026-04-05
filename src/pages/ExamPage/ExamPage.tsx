@@ -7,7 +7,7 @@ import DynamicTable, {
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import type { DeThi } from "@/types";
 import { useDeThiStudent } from "@/hooks/useDeThi";
-import { checkTimeValid, splitDateTime } from "@/utils";
+import { formatFullDateTimeVN, getTestsStatus } from "@/utils";
 import { dethiService } from "@/services/api/dethi.service";
 import { useDeThiStore } from "@/stores/useDeThi.store";
 import { useAuthStore } from "@/stores/auth.store";
@@ -33,7 +33,7 @@ export const ExamPage = () => {
     {
       title: "STT",
       key: "id",
-      render: (_, item) => dethis.indexOf(item) + 1,
+      render: (_, item) => deThiDisplay.indexOf(item) + 1,
       className: "w-16 text-center",
     },
     {
@@ -43,14 +43,19 @@ export const ExamPage = () => {
     },
     { title: "Tên bài kiểm tra", key: "tenDe" },
     {
-      title: "Ngày thi",
+      title: "Thời gian bắt đầu",
       key: "thoiGianBatDau",
-      render: (_, item) => splitDateTime(item.thoiGianBatDau).date,
+      render: (_, item) => formatFullDateTimeVN(item.thoiGianBatDau),
     },
     {
-      title: "Giờ bắt đầu",
-      key: "thoiGianBatDau",
-      render: (_, item) => splitDateTime(item.thoiGianBatDau).time,
+      title: "Thời gian kết thúc",
+      key: "thoiGianKetThuc",
+      render: (_, item) => formatFullDateTimeVN(item.thoiGianKetThuc),
+    },
+    {
+      title: "Thời lượng",
+      key: "thoiGianLamBai",
+      render: (i) => i + " Phút",
     },
   ];
 
@@ -75,7 +80,6 @@ export const ExamPage = () => {
 
   const deThiDisplay = (dethis || []).filter((dt) => {
     const baiLam = baiLams?.find((i) => i.deThiId === dt.id);
-
     return !baiLam;
   });
 
@@ -101,24 +105,26 @@ export const ExamPage = () => {
           rowKey="id"
           hasColumnActions={true}
           renderActions={(item) => {
-            const isValid = checkTimeValid(
+            const status = getTestsStatus(
               item.thoiGianBatDau,
               item.thoiGianKetThuc,
               now
             );
-
             return (
               <Button
-                variant={isValid ? "contained" : "outline"}
-                color="primary"
+                variant={status.status === "OPENING" ? "contained" : "outline"}
+                color={status.status === "CLOSED" ? "standard" : "primary"}
                 size="small"
-                disabled={!isValid}
+                disabled={status.status !== "OPENING"}
                 onClick={() => {
                   handleStartExam(item.id);
                 }}
-                className={isValid ? "animate-pulse-subtle" : ""}
               >
-                {isValid ? "Bắt đầu ngay" : "Chưa đến giờ"}
+                {status.status !== "OPENING"
+                  ? status.status === "UPCOMING"
+                    ? "Sắp đến"
+                    : "Trễ hạn"
+                  : "Bắt đầu làm ngay"}
               </Button>
             );
           }}

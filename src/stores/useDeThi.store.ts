@@ -64,9 +64,7 @@ export const useDeThiStore = create<DeThiState & DeThiActions>()(
 
       updateTestData: (fields) =>
         set((state) => ({
-          testData: state.testData
-            ? { ...state.testData, ...fields }
-            : (fields as DeThi),
+          testData: state.testData ? { ...state.testData, ...fields } : fields,
         })),
 
       updateCauHinh: (newConfig) =>

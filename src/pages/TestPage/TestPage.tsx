@@ -17,7 +17,7 @@ export const TestPage = () => {
   const { subjects } = useSubject();
   const pageName = "de_thi";
 
-  const { role } = useAuthStore();
+  const { role, user } = useAuthStore();
 
   const roleDetails = !role ? [] : role.role_details;
   const actions = roleDetails
@@ -38,41 +38,15 @@ export const TestPage = () => {
   const [statusFilter, setStatusFilter] = useState<number>(1); // 1: Tất cả
   const [isDesc, setIsDesc] = useState(true);
 
-  // const filteredTests = useMemo(() => {
-  //   let result = [...dethis];
-
-  //   const term = searchTerm.trim().toLowerCase();
-  //   if (term) {
-  //     result = result.filter((item) => {
-  //       const testName = item.tenDe?.toLowerCase() ?? "";
-  //       const subjectName = item.mon_thi?.tenMonHoc?.toLowerCase() ?? "";
-  //       const subjectCode = item.mon_thi?.maMonHoc?.toLowerCase() ?? "";
-  //       return (
-  //         testName.includes(term) ||
-  //         subjectName.includes(term) ||
-  //         subjectCode.includes(term)
-  //       );
-  //     });
-  //   }
-  //   // const term = searchTerm.trim().toLowerCase();
-  //   // if (!term) return dethis;
-
-  //   // return dethis.filter((item) => {
-  //   //   const testName = item.tenDe?.toLowerCase() ?? "";
-  //   //   const subjectName = item.mon_thi?.tenMonHoc?.toLowerCase() ?? "";
-  //   //   const subjectCode = item.mon_thi?.maMonHoc?.toLowerCase() ?? "";
-
-  //   //   return (
-  //   //     testName.includes(term) ||
-  //   //     subjectName.includes(term) ||
-  //   //     subjectCode.includes(term)
-  //   //   );
-  //   // });
-  // }, [dethis, searchTerm]);
-
+  console.log(user?.id);
+  console.log(dethis);
+  const myDeThis = (dethis || []).filter(
+    (i) => i.nguoiTaoId === (user?.id || 3)
+  );
+  console.log(myDeThis);
   // LOGIC LỌC VÀ SẮP XẾP CHÍNH XÁC THEO INTERFACE
   const filteredTests = useMemo(() => {
-    let result = [...dethis];
+    let result = myDeThis;
 
     // 1. Lọc theo từ khóa tìm kiếm (Tên đề, Tên môn, Mã môn)
     const term = searchTerm.trim().toLowerCase();
@@ -120,7 +94,7 @@ export const TestPage = () => {
     });
 
     return result;
-  }, [dethis, searchTerm, selectedSubject, statusFilter, isDesc]);
+  }, [myDeThis, searchTerm, selectedSubject, statusFilter, isDesc]);
   return (
     <MainContentLayout>
       <div className="flex justify-between rounded-md bg-background-body-background px-2 py-2">

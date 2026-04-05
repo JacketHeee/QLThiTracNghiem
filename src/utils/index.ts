@@ -98,18 +98,18 @@ export const formatDateTimeVN = (isoString: string | Date): string => {
  * @param endTime Chuỗi ISO datetime kết thúc
  */
 export const getTestsStatus = (
-  startTime: string | null | undefined,
-  endTime: string | null | undefined
+  startTime: string | null | undefined, //isostring
+  endTime: string | null | undefined,
+  nowNe: Date
 ): StatusResult => {
-  const now = new Date();
-
   // Trường hợp dữ liệu lỗi hoặc thiếu
   if (!startTime || !endTime) {
     return { label: "N/A", status: "CLOSED" };
   }
+  const now = nowNe.getTime();
 
-  const start = new Date(startTime);
-  const end = new Date(endTime);
+  const start = new Date(startTime).getTime();
+  const end = new Date(endTime).getTime();
 
   if (now < start) {
     return { label: "Chưa mở", status: "UPCOMING" };
@@ -133,18 +133,28 @@ export const getVariantDeThiWithStatus = (status: string) => {
   }
 };
 // utils/time.ts
+// utils/time.ts
 export const checkTimeValid = (
   startTime: string,
   endTime: string,
   now: Date
 ): boolean => {
-  const startDateTime = new Date(startTime);
-  const endDateTime = new Date(endTime);
+  // 1. Chuyển đổi an toàn
+  const start = new Date(startTime).getTime();
+  const end = new Date(endTime).getTime();
+  const current = now.getTime();
 
-  if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime()))
+  console.log(start, end, current);
+
+  // 2. Kiểm tra định dạng ngày tháng hợp lệ
+  if (isNaN(start) || isNaN(end)) {
+    console.error("Định dạng thời gian không hợp lệ:", { startTime, endTime });
     return false;
+  }
 
-  return now >= startDateTime && now <= endDateTime;
+  // 3. Logic so sánh:
+  // Cho phép lệch nhẹ 1 giây (1000ms) để bù trừ độ trễ của setInterval
+  return current >= start - 1000 && current <= end;
 };
 
 /**
@@ -321,7 +331,7 @@ export const mapDeThiToCreatePayload = (
 
   return {
     monThiId: source.mon_thi.id || 1,
-    nguoiTaoId: source.nguoiTaoId || 3,
+    nguoiTaoId: source.nguoiTaoId || 1,
     tenDe: source.tenDe || "Tên mặc định",
     // Giữ nguyên ISO String
     thoiGianBatDau: source.thoiGianBatDau,

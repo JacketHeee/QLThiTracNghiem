@@ -12,29 +12,30 @@ import { dethiService } from "@/services/api/dethi.service";
 import { useAuthStore } from "@/stores/auth.store";
 import { useDeThiStore } from "@/stores/useDeThi.store";
 import { useLoadingStore } from "@/stores/useLoading.store";
-import type { DeThi, ThongBao } from "@/types";
-import { getDefaultAvatar, getProgressColor } from "@/utils";
-import { useMemo, useState } from "react";
+import type { DeThi, DeThiSvien, ThongBao } from "@/types";
+import {
+  calculateDuration,
+  getDefaultAvatar,
+  getProgressColor,
+  getTestsStatus,
+} from "@/utils";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
-interface IClasswork {
-  id: number;
-  name: string;
-  attempts: string;
-  percentage?: number;
-  score?: string;
-  duration?: string;
-  status: "completed" | "todo";
-}
 
 export default function CourseElement() {
   const [selectedTab, setSelectedTab] = useState("news");
+  const [now, setNow] = useState(new Date());
+
+  // Cập nhật thời gian mỗi phút để cập nhật trạng thái nút "Bắt đầu"
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000 * 60);
+    return () => clearInterval(timer);
+  }, []);
 
   const navigate = useNavigate();
 
   const { id } = useParams();
   const { nhomHocPhan } = useGetNhomWithThongBao(Number(id));
-  console.log(nhomHocPhan);
   const thongBaos = nhomHocPhan ? nhomHocPhan.thong_baos : [];
   const deThis = nhomHocPhan ? nhomHocPhan.de_this : [];
   const sinhViens = nhomHocPhan ? nhomHocPhan.sinh_viens : [];
@@ -43,36 +44,6 @@ export default function CourseElement() {
   const { user } = useAuthStore();
 
   const { dethis } = useDeThiSvienNhp(nhomHocPhan?.id, user?.id);
-  const deThiOfUser = dethis ? dethis.de_this : [];
-
-  const deThiDisplay: IClasswork[] = deThiOfUser.map((item) => {
-    const baiLam = item.bai_lam;
-
-    return {
-      id: baiLam?.id || 0,
-      name: item.tenDe,
-
-      // nếu có bài làm thì show, không thì 0 lần làm
-      attempts: baiLam ? "1 lần" : "Chưa làm",
-
-      // điểm %
-      percentage:
-        baiLam?.tongDiem !== null && baiLam?.tongDiem !== undefined
-          ? (baiLam.tongDiem / 10) * 100
-          : undefined,
-
-      // điểm hiển thị dạng string
-      score:
-        baiLam?.tongDiem !== null && baiLam?.tongDiem !== undefined
-          ? `${baiLam.tongDiem}`
-          : undefined,
-
-      // thời gian làm bài (phút)
-      duration: item.thoiGianLamBai ? `${item.thoiGianLamBai} phút` : undefined,
-
-      status: baiLam ? "completed" : "todo",
-    };
-  });
 
   const { startLoading, stopLoading } = useLoadingStore();
 
@@ -100,77 +71,126 @@ export default function CourseElement() {
 
   const [openResultModal, setOpenResultModal] = useState(false);
   // --- Table Configurations ---
-  const classworkColumns: TableColumn<IClasswork>[] = [
+  const classworkColumns: TableColumn<DeThiSvien>[] = [
     {
       title: "Tên bài kiểm tra",
-      key: "name",
+      key: "tenDe",
       className: "w-[45%]",
-      render: (_, item) => (
-        <div className="flex items-start gap-4 py-2">
-          <div className="mt-1">
-            <Icon name="documentDuplicate" />
+      render: (_, item) => {
+        // 1. Tính toán trạng thái một lần duy nhất cho mỗi hàng
+        const testStatus = getTestsStatus(
+          item.thoiGianBatDau,
+          item.thoiGianKetThuc,
+          now
+        );
+        const isOpening = testStatus.status === "OPENING";
+        const isUpcoming = testStatus.status === "UPCOMING";
+
+        // 2. Xác định nhãn nút dựa trên trạng thái
+        const buttonLabel = isUpcoming
+          ? "Chưa mở"
+          : isOpening
+            ? "Bắt đầu làm"
+            : "Quá hạn";
+
+        return (
+          <div className="flex items-start gap-4 py-2">
+            <div className="mt-1">
+              <Icon name="documentDuplicate" />
+            </div>
+            <div>
+              <h3 className="text-body-2 font-bold leading-tight text-text-primary">
+                {item.tenDe}
+              </h3>
+              <p className="text-caption mt-1 text-text-secondary">
+                Thời lượng: {item.thoiGianLamBai} phút
+              </p>
+
+              {/* Chỉ hiện nút khi chưa làm bài */}
+              {!item.bai_lam && (
+                <Button
+                  className="mt-2"
+                  size="medium"
+                  color={isOpening ? "primary" : "standard"} // Đổi màu linh hoạt
+                  variant="contained"
+                  onClick={() => handleStartExam(item.id)}
+                  disabled={!isOpening} // Chỉ cho bấm khi đang mở
+                >
+                  {buttonLabel}
+                </Button>
+              )}
+            </div>
           </div>
-          <div>
-            <h3 className="text-body-2 font-bold leading-tight text-text-primary">
-              {item.name}
-            </h3>
-            <p className="text-caption mt-1 text-text-secondary">
-              Số lần làm: {item.attempts}
-            </p>
-            {item.status === "todo" && (
-              <Button
-                className="mt-2"
-                size={"medium"}
-                color={"success"}
-                variant={"contained"}
-                onClick={() => handleStartExam(item.id)}
-              >
-                Bắt đầu
-              </Button>
-            )}
-          </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       title: "Phần trăm",
-      key: "percentage",
+      key: "bai_lam",
       className: "text-center",
-      render: (val) =>
-        val !== undefined ? (
+      render: (_, item) => {
+        if (!item.bai_lam) {
+          return "---";
+        }
+
+        const percent = Math.round(((item.bai_lam.tongDiem || 0) / 10) * 100);
+
+        return (
           <div className="flex items-center justify-center gap-3">
             <div className="h-2 w-24 overflow-hidden rounded-full bg-action-hover">
               <div
-                className={`h-full ${getProgressColor(val)}`}
-                style={{ width: `${val}%` }}
-              ></div>
+                className={`h-full transition-all duration-300 ${getProgressColor(percent)}`}
+                style={{ width: `${percent}%` }}
+              />
             </div>
-            <span className="text-text-primary">{val}%</span>
+            <span className="min-w-[40px] text-left font-medium text-text-primary">
+              {percent}%
+            </span>
           </div>
-        ) : null,
+        );
+      },
     },
     {
       title: "Điểm số",
-      key: "score",
+      key: "bai_lam",
+      render: (_, item) => item.bai_lam?.tongDiem ?? "---",
     },
     {
       title: "Thời gian làm",
-      key: "duration",
-      render: (val, item) => (
-        <div className="flex items-center justify-between pl-4">
-          <span className="text-body-2">{val || ""}</span>
-          {item.status === "completed" && (
-            <Button
-              variant={"contained"}
-              color={"success"}
-              size={"medium"}
-              onClick={() => handleViewResult(item.id)}
-            >
-              Kết quả
-            </Button>
-          )}
-        </div>
-      ),
+      key: "bai_lam",
+      render: (_val, item) => {
+        if (!item.bai_lam) {
+          return "---";
+        }
+
+        const duration = calculateDuration(
+          item.bai_lam.thoiGianBatDau,
+          item.bai_lam.thoiGianNopBai
+        );
+
+        const isSubmitted = item.bai_lam.status === "DA_NOP";
+
+        return (
+          <div className="flex items-center justify-between pl-4">
+            <span className="text-body-2 text-text-primary">{duration}</span>
+
+            {isSubmitted && (
+              <Button
+                variant="contained"
+                color="success"
+                size="medium"
+                onClick={() => {
+                  if (item.bai_lam?.id) {
+                    handleViewResult(item.bai_lam.id);
+                  }
+                }}
+              >
+                Kết quả
+              </Button>
+            )}
+          </div>
+        );
+      },
     },
   ];
 
@@ -303,7 +323,7 @@ export default function CourseElement() {
               <div className="w-full overflow-hidden rounded-md border border-other-outlined-border bg-background-body-background shadow-sm">
                 <DynamicTable
                   columns={classworkColumns}
-                  data={deThiDisplay}
+                  data={dethis?.de_this || []}
                   rowKey="id"
                 />
               </div>

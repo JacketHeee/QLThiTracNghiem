@@ -8,6 +8,7 @@ import RighSidebar from "@/components/atomic/organisms/RightSidebar/RightSidebar
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import { useDeThiDetail } from "@/hooks/useDeThi";
 import { useSubject } from "@/hooks/useSubject";
+import { useAuthStore } from "@/stores/auth.store";
 import { useDeThiStore } from "@/stores/useDeThi.store";
 import { useEffect, useMemo } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -30,8 +31,11 @@ export default function TestFormPage() {
   const testData = useDeThiStore((s) => s.testData);
   const initTestData = useDeThiStore((s) => s.initTestData);
   const setTestData = useDeThiStore((s) => s.setTestData);
+  const updateTestData = useDeThiStore((s) => s.updateTestData);
   const updateCauHinh = useDeThiStore((s) => s.updateCauHinh);
   const resetStore = useDeThiStore((s) => s.resetStore);
+
+  const { user } = useAuthStore();
 
   // 1. Fetch dữ liệu nếu không phải mode Add
   const { deThi, isLoading } = useDeThiDetail(urlId, {
@@ -49,6 +53,7 @@ export default function TestFormPage() {
     if (isAddMode) {
       resetStore();
       initTestData();
+      updateTestData({ nguoiTaoId: user?.id || 1 });
       return;
     }
 

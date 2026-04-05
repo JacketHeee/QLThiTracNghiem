@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Icon } from "../../atoms";
 import { useNavigate } from "react-router-dom";
 import type { DeThi } from "@/types";
@@ -43,7 +43,15 @@ export default function TestItem({ data, actions }: TestItemProps) {
     navigate(`${data.id}/edit`);
   };
 
-  const status = getTestsStatus(data.thoiGianBatDau, data.thoiGianKetThuc);
+  const [now, setNow] = useState(new Date());
+
+  // Cập nhật thời gian mỗi phút để cập nhật trạng thái nút "Bắt đầu"
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000 * 60);
+    return () => clearInterval(timer);
+  }, []);
+
+  const status = getTestsStatus(data.thoiGianBatDau, data.thoiGianKetThuc, now);
 
   const { startLoading, stopLoading } = useLoadingStore();
   const { openConfirm } = useConfirmStore();

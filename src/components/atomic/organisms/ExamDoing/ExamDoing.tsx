@@ -10,6 +10,7 @@ import type { Question } from "@/types";
 import { shuffleArray } from "@/utils";
 import { useAuthStore } from "@/stores/auth.store";
 import { useExamActions } from "@/hooks/useExamActions";
+import { useLoadingStore } from "@/stores/useLoading.store";
 
 export const ExamDoing = () => {
   const navigate = useNavigate();
@@ -226,9 +227,12 @@ export const ExamDoing = () => {
     }
   }, [testData?.cau_hinh_thi]);
 
+  const { startLoading, stopLoading } = useLoadingStore();
+
   const handleFinish = async () => {
     if (!currentExam?.id) return;
 
+    startLoading();
     try {
       // 1. Format đáp án để gửi lên API
       const formattedAnswers = Object.entries(answers).map(([qId, aId]) => ({
@@ -274,6 +278,8 @@ export const ExamDoing = () => {
     } catch (error) {
       console.error("Submit error:", error);
       // Bạn nên thêm thông báo lỗi ở đây (ví dụ: Toast)
+    } finally {
+      stopLoading();
     }
   };
 

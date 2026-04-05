@@ -7,6 +7,7 @@ import { formatMinutesToTime } from "@/utils";
 import type { BaiLam } from "@/types";
 import { useAuthStore } from "@/stores/auth.store";
 import { useExamActions } from "@/hooks/useExamActions";
+import { useLoadingStore } from "@/stores/useLoading.store";
 
 export const ExamInstruction = () => {
   const { initExam, mode } = useExamStore();
@@ -15,6 +16,7 @@ export const ExamInstruction = () => {
 
   const { testData } = useDeThiStore();
   const { user } = useAuthStore();
+  const { startLoading, stopLoading } = useLoadingStore();
 
   const handleStart = async () => {
     // TRƯỜNG HỢP 1: CHẾ ĐỘ PREVIEW (Dành cho Admin/Giáo viên xem thử)
@@ -35,6 +37,8 @@ export const ExamInstruction = () => {
       return;
     }
 
+    startLoading();
+
     // TRƯỜNG HỢP 2: THI THẬT (STUDENT)
     try {
       // 1. Gọi API qua Hook (Hook này đã lo việc fetch Detail và startTest rồi)
@@ -51,6 +55,8 @@ export const ExamInstruction = () => {
     } catch (error) {
       console.error("Lỗi khi bắt đầu thi:", error);
       // Có thể hiện thông báo lỗi bằng Toast ở đây
+    } finally {
+      stopLoading();
     }
   };
 

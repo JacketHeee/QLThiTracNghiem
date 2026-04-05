@@ -1,21 +1,13 @@
 import { dethiService } from "@/services/api/dethi.service";
-import { useAuthStore } from "@/stores/auth.store";
 import { useDeThiStore } from "@/stores/useDeThi.store";
 import type { CreateDeThiPayload } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useDeThi = () => {
-  const { user } = useAuthStore();
   const query = useQuery({
     queryKey: ["dethis"],
     queryFn: dethiService.getAll,
-    select: (res) => {
-      const allDeThi = res.data || [];
-
-      if (!user?.id) return [];
-      return allDeThi.filter((q) => q.nguoiTaoId === user.id);
-    },
-    enabled: !!user?.id,
+    select: (res) => res.data,
   });
 
   return {

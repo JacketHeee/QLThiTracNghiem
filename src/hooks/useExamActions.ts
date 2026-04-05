@@ -61,6 +61,20 @@ export const useExamActions = (nhomHocPhanId?: number, deThiId?: number) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: ({ baiLamId, answers }: { baiLamId: number; answers: any[] }) =>
       examService.submitTest(baiLamId, answers),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["dethis", "student"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["dethis"],
+      });
+
+      // 3. Làm mới danh sách bài làm (nếu có bảng lịch sử bài làm)
+      queryClient.invalidateQueries({
+        queryKey: ["bailams"],
+      });
+    },
   });
 
   // Hook 4: Cập nhật vi phạm

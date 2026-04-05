@@ -327,7 +327,8 @@ export default function ResultPage() {
 
   const status = getTestsStatus(
     testData?.thoiGianBatDau,
-    testData?.thoiGianKetThuc
+    testData?.thoiGianKetThuc,
+    new Date()
   );
 
   const { reviewExam } = useExamActions();

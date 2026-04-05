@@ -52,7 +52,6 @@ export default function AddQuestionTestPage() {
   const removeQuestion = useDeThiStore((s) => s.removeQuestion);
   const moveQuestion = useDeThiStore((s) => s.moveQuestion);
   const showToast = useToastStore((s) => s.showToast);
-  const setTestData = useDeThiStore((s) => s.setTestData);
 
   // Selector an toàn cho danh sách câu hỏi trong đề
   const cauHoi_deThi = useMemo(
@@ -84,12 +83,9 @@ export default function AddQuestionTestPage() {
 
   const { startLoading, stopLoading } = useLoadingStore();
   const handleSave = () => {
-    console.log(testData);
-    setTestData({ ...testData, nguoiTaoId: user?.id });
     const data = mapDeThiToCreatePayload(
       testData as DeThi
     ) as CreateDeThiPayload;
-
     startLoading(
       isAddMode ? "Đang tạo đề thi mới..." : "Đang cập nhật đề thi..."
     );

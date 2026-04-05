@@ -80,7 +80,8 @@ export default function ExamResultContent({
     if (isPreview) {
       navigate(-2); // Nếu là preview thường mở tab mới, hoặc điều hướng về trang quản trị
     } else {
-      navigate("/");
+      navigate(-2);
+      // navigate("/courses");
     } // Hoặc dashboard route của bạn
   };
 
