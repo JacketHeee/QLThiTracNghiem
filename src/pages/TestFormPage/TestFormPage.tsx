@@ -7,9 +7,10 @@ import { TextField } from "@/components/atomic/molecules/TextField/TextField";
 import RighSidebar from "@/components/atomic/organisms/RightSidebar/RightSidebar";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import { useDeThiDetail } from "@/hooks/useDeThi";
-import { useSubject } from "@/hooks/useSubject";
+import { useMonHocOGvien, useSubject } from "@/hooks/useSubject";
 import { useAuthStore } from "@/stores/auth.store";
 import { useDeThiStore } from "@/stores/useDeThi.store";
+import type { Subject } from "@/types";
 import { useEffect, useMemo } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
@@ -35,7 +36,19 @@ export default function TestFormPage() {
   const updateCauHinh = useDeThiStore((s) => s.updateCauHinh);
   const resetStore = useDeThiStore((s) => s.resetStore);
 
-  const { user } = useAuthStore();
+  const { user, role } = useAuthStore();
+
+  const { monHocGvien } = useMonHocOGvien(user?.id);
+
+  const listSelectionSubject = useMemo<Subject[]>(() => {
+    if (!user || !role) return [];
+
+    if (role.tenNhomQuyen === "teacher") {
+      return monHocGvien;
+    } else {
+      return subjects;
+    }
+  }, [user, role, subjects, monHocGvien]);
 
   // 1. Fetch dữ liệu nếu không phải mode Add
   const { deThi, isLoading } = useDeThiDetail(urlId, {
@@ -83,14 +96,14 @@ export default function TestFormPage() {
     const currentSubId = testData?.mon_thi?.id;
     if (!currentSubId) return [];
 
-    const sub = subjects.find((s) => s.id === currentSubId);
+    const sub = listSelectionSubject.find((s) => s.id === currentSubId);
     return (
       sub?.nhom_hoc_phans.map((item) => ({
         label: item.tenNhom,
         value: item.id,
       })) || []
     );
-  }, [testData?.mon_thi?.id, subjects]);
+  }, [testData?.mon_thi?.id, listSelectionSubject]);
 
   // Chặn render khi đang fetch dữ liệu cũ
   if (isLoading && (isEditMode || isViewMode)) return <div>Loading...</div>;
@@ -176,13 +189,13 @@ export default function TestFormPage() {
                 <SelectField
                   classname="!flex-[unset] bg-background-body-background"
                   placeholder="Chọn môn học"
-                  options={subjects.map((item) => ({
+                  options={listSelectionSubject.map((item) => ({
                     label: item.tenMonHoc,
                     value: item.id,
                   }))}
                   value={testData?.mon_thi?.id}
                   onSelect={(val) => {
-                    const sub = subjects.find((s) => s.id === val);
+                    const sub = listSelectionSubject.find((s) => s.id === val);
                     // Khi đổi môn, reset luôn danh sách nhóm học phần đã chọn trong store
                     setTestData({
                       ...testData,
@@ -201,7 +214,7 @@ export default function TestFormPage() {
                 disabled={isViewMode}
                 onChange={(newIds) => {
                   // Tìm lại các object nhom_hoc_phan tương ứng với các ID đã chọn
-                  const currentSub = subjects.find(
+                  const currentSub = listSelectionSubject.find(
                     (s) => s.id === testData?.mon_thi?.id
                   );
                   const selectedGroups =
