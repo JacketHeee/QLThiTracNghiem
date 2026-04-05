@@ -9,6 +9,8 @@ import {
   useResetInviteCode,
 } from "@/hooks/useNhomHocPhan";
 import { useTranslation } from "react-i18next";
+import type { AxiosError } from "axios";
+import type { ErrorResponse } from "@/types";
 
 interface CourseGroupStudentFormProps {
   isOpen: boolean;
@@ -41,7 +43,7 @@ export default function CourseGroupStudentForm({
     { value: "invite", label: t("courseGroupStudent.form.joinByInvite") },
     { value: "import", label: t("courseGroupStudent.form.importExcel") },
   ];
-
+  //
   if (!isOpen) return null;
 
   const handleChooseFile = () => {
@@ -75,8 +77,19 @@ export default function CourseGroupStudentForm({
       setFileName("Không có tệp được chọn");
       if (fileInputRef.current) fileInputRef.current.value = "";
       onClose(); // Close the form on success
-    } catch (error) {
-      console.error("Failed to import students:", error);
+    } catch (error: unknown) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.status === 404) {
+        //lỗi validate backend
+        const errors = err.response?.data?.errors;
+        const firstError = Object.values(errors)?.[0];
+        console.log(firstError);
+        if (firstError && "username" in firstError) {
+          alert(`sinh viên ${firstError.username} không có trong hệ thống`);
+        }
+      } else {
+        alert(t("message.success.update"));
+      }
     }
   };
 
