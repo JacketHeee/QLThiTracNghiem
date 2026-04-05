@@ -340,7 +340,6 @@ export type PriorityLevel = 1 | 2 | 3;
 
 export interface NhomHocPhanJoinGroup {
   sinhVienId: number;
-  nhomHocPhanId: number;
   maMoi: string;
 }
 

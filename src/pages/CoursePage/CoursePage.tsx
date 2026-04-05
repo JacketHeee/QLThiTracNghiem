@@ -2,14 +2,57 @@ import { Button, Icon, Input } from "@/components/atomic/atoms";
 import CourseItem from "@/components/atomic/organisms/CourseItem/CourseItem";
 import TestUpload from "@/components/atomic/organisms/TestUpload/TestUpload";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
-import { useNhomHocPhanStudent } from "@/hooks/useNhomHocPhan";
+import {
+  useJoinNhomHocPhan,
+  useNhomHocPhanStudent,
+} from "@/hooks/useNhomHocPhan";
 import { useAuthStore } from "@/stores/auth.store";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { JoinClassForm } from "../../components/atomic/organisms/JoinGroupForm/JoinClassForm";
+import type { ErrorResponse } from "@/types";
+import type { AxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 
 export const CoursePage = () => {
   const { user } = useAuthStore();
-  // console.log(user);
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const handleJoin = () => {
+    setIsOpenModal(true);
+  };
+
+  const onClose = () => {
+    setIsOpenModal(false);
+  };
+
+  const { t } = useTranslation();
+  const { mutateAsync } = useJoinNhomHocPhan(); // load: isPending
+
+  const onSubmit = async (code: string) => {
+    try {
+      if (!user) return;
+      await mutateAsync({
+        sinhVienId: user.id,
+        maMoi: code,
+      });
+      alert(t("message.success.create"));
+      onClose();
+    } catch (error: unknown) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.status === 422) {
+        //lỗi validate backend
+        const errors = err.response?.data?.errors;
+
+        const firstError = Object.values(errors)?.[0];
+
+        if (Array.isArray(firstError)) {
+          alert(firstError[0]);
+        }
+      } else {
+        alert(t("message.error.create"));
+      }
+    }
+  };
 
   const { nhomHocPhans } = useNhomHocPhanStudent(user?.id || null);
   console.log(nhomHocPhans);
@@ -32,7 +75,7 @@ export const CoursePage = () => {
             <Icon name="arrowUpDown" />
           </Button>
 
-          <Button variant={"contained"} color={"primary"}>
+          <Button variant={"contained"} color={"primary"} onClick={handleJoin}>
             <Icon name="plus" size={20} />
             Tham gia lớp học mới
           </Button>
@@ -63,6 +106,7 @@ export const CoursePage = () => {
           <TestUpload />
         </div>
       )}
+      {isOpenModal && <JoinClassForm onCancel={onClose} onSubmit={onSubmit} />}
     </MainContentLayout>
   );
 };
