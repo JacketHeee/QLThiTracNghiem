@@ -8,7 +8,7 @@ import DynamicTable from "@/components/atomic/organisms/DynamicTable/DynamicTabl
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import { useEffect, useMemo, useState } from "react";
 import StatSection from "@/components/atomic/organisms/StatSection/StatSection";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useExamStore } from "@/stores/useExamStore";
 import {
   getDefaultAvatar,
@@ -28,6 +28,7 @@ import type { BaiLam, StudentResult } from "@/types";
 import { Overlay } from "@/components/atomic/molecules/Overlay/Overlay";
 import ExamResultOverview from "@/components/atomic/organisms/ExamResultOverview/ExamResultOverview";
 import { useLoadingStore } from "@/stores/useLoading.store";
+import { useDeThiDetail } from "@/hooks/useDeThi";
 
 type ViewMode = "user" | "question" | "difficulty";
 
@@ -39,11 +40,15 @@ export default function ResultPage() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
   const navigate = useNavigate();
 
-  const { id } = useParams();
-
   const { testData } = useDeThiStore();
-  const { nhomHocPhan } = useNhomHocPhanDetail(Number(id));
-  const { sinhViens } = useNhomHocPhanSinhViens(Number(testData?.id));
+  const { pathname } = useLocation();
+  const parts = pathname.split("/");
+  // parts sẽ là ["", "tests", "22", "result", "23"]
+
+  console.log(pathname);
+  useDeThiDetail(Number(parts[2]) || 0);
+  const { nhomHocPhan } = useNhomHocPhanDetail(Number(parts[4]));
+  const { sinhViens } = useNhomHocPhanSinhViens(Number(parts[4]));
   const [openResultModal, setOpenResultModal] = useState(false);
   const handleClose = () => setOpenResultModal(false);
 
@@ -223,6 +228,8 @@ export default function ResultPage() {
           tongDiem: sumScoreExams / (sinhViens.length || 1),
         },
       } as StudentResult;
+
+      console.log(data_2);
 
       const result = [avgRow, ...data_2];
       return result;

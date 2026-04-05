@@ -7,14 +7,16 @@ import DynamicTable, {
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import type { DeThi } from "@/types";
 import { useDeThiStudent } from "@/hooks/useDeThi";
-import { checkTimeValid, getTestsStatus, splitDateTime } from "@/utils";
+import { checkTimeValid, splitDateTime } from "@/utils";
 import { dethiService } from "@/services/api/dethi.service";
 import { useDeThiStore } from "@/stores/useDeThi.store";
 import { useAuthStore } from "@/stores/auth.store";
+import { useExamActions } from "@/hooks/useExamActions";
 
 export const ExamPage = () => {
   const { user } = useAuthStore();
   const { dethis } = useDeThiStudent(user ? user.id : null); //ở đây
+  const { baiLams } = useExamActions();
   const navigate = useNavigate();
   const [now, setNow] = useState(new Date());
 
@@ -71,9 +73,11 @@ export const ExamPage = () => {
     }
   };
 
-  const handleViewResult = (item: DeThi) => {
-    navigate(`/tests/${item.id}/take/result/latest`);
-  };
+  const deThiDisplay = (dethis || []).filter((dt) => {
+    const baiLam = baiLams?.find((i) => i.deThiId === dt.id);
+
+    return !baiLam;
+  });
 
   return (
     <MainContentLayout classname="w-full">
@@ -93,7 +97,7 @@ export const ExamPage = () => {
       <div className="mt-6 flex flex-col gap-2 rounded-md bg-background-body-background p-2 shadow-sm">
         <DynamicTable
           columns={columns}
-          data={dethis}
+          data={deThiDisplay}
           rowKey="id"
           hasColumnActions={true}
           renderActions={(item) => {
@@ -102,21 +106,6 @@ export const ExamPage = () => {
               item.thoiGianKetThuc,
               now
             );
-
-            if (
-              getTestsStatus(item.thoiGianBatDau, item.thoiGianKetThuc)
-                .status === "CLOSED"
-            ) {
-              return (
-                <Button
-                  variant="text"
-                  color="primary"
-                  onClick={() => handleViewResult(item)}
-                >
-                  Kết quả
-                </Button>
-              );
-            }
 
             return (
               <Button

@@ -1,12 +1,21 @@
 import { dethiService } from "@/services/api/dethi.service";
+import { useAuthStore } from "@/stores/auth.store";
+import { useDeThiStore } from "@/stores/useDeThi.store";
 import type { CreateDeThiPayload } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useDeThi = () => {
+  const { user } = useAuthStore();
   const query = useQuery({
     queryKey: ["dethis"],
     queryFn: dethiService.getAll,
-    select: (res) => res.data,
+    select: (res) => {
+      const allDeThi = res.data || [];
+
+      if (!user?.id) return [];
+      return allDeThi.filter((q) => q.nguoiTaoId === user.id);
+    },
+    enabled: !!user?.id,
   });
 
   return {
@@ -51,19 +60,27 @@ export const useDeThiDetail = (
   deThiId: number | null,
   options?: { enabled?: boolean }
 ) => {
+  const updateTestData = useDeThiStore((state) => state.updateTestData);
+
   const query = useQuery({
     queryKey: ["dethis", "detail", deThiId],
-    queryFn: () => dethiService.getById(deThiId!),
-    select: (res) => res.data,
-    enabled: !!deThiId && options?.enabled !== false, // Chỉ chạy khi có ID đề thi
-    staleTime: 1000 * 60 * 5, // Dữ liệu đề thi ít thay đổi, có thể cache 5 phút
+    queryFn: async () => {
+      const res = await dethiService.getById(deThiId!);
+      // Cập nhật Store ngay khi dữ liệu vừa về từ API
+      if (res.data) {
+        updateTestData(res.data);
+      }
+      return res.data;
+    },
+    enabled: !!deThiId && options?.enabled !== false,
+    staleTime: 1000 * 60 * 5,
   });
 
   return {
     deThi: query.data,
-    // Truy cập trực tiếp vào cấu hình thi từ dữ liệu trả về
     cauHinh: query.data?.cau_hinh_thi,
     isLoading: query.isLoading,
+    isFetching: query.isFetching, // Thêm cái này để quản lý UI tốt hơn
     isError: query.isError,
   };
 };

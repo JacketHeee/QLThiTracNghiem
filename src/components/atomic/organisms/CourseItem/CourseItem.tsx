@@ -38,10 +38,7 @@ export default function CourseItem({
         <div className="absolute -bottom-5 right-4 z-10">
           <div className="h-[74px] w-[74px] overflow-hidden rounded-full border border-other-outlined-border bg-action-active shadow-sm">
             <img
-              src={
-                data.giang_vien?.urlAvatar ||
-                getDefaultAvatar(data.giang_vien?.hoTen || "user")
-              }
+              src={getDefaultAvatar(data.giang_vien?.hoTen || "user")}
               alt={"teacher"}
               className="h-full w-full object-cover"
               loading="lazy"

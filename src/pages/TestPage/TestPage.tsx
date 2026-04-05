@@ -13,10 +13,12 @@ import { Link } from "react-router-dom";
 export const TestPage = () => {
   const { t } = useTranslation();
   const { dethis } = useDeThi();
+
   const { subjects } = useSubject();
   const pageName = "de_thi";
 
   const { role } = useAuthStore();
+
   const roleDetails = !role ? [] : role.role_details;
   const actions = roleDetails
     .filter((item: RoleDetailItem) => item.tenChucNang === pageName)
@@ -32,24 +34,93 @@ export const TestPage = () => {
     });
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState<number | string>(-1);
+  const [statusFilter, setStatusFilter] = useState<number>(1); // 1: Tất cả
+  const [isDesc, setIsDesc] = useState(true);
 
+  // const filteredTests = useMemo(() => {
+  //   let result = [...dethis];
+
+  //   const term = searchTerm.trim().toLowerCase();
+  //   if (term) {
+  //     result = result.filter((item) => {
+  //       const testName = item.tenDe?.toLowerCase() ?? "";
+  //       const subjectName = item.mon_thi?.tenMonHoc?.toLowerCase() ?? "";
+  //       const subjectCode = item.mon_thi?.maMonHoc?.toLowerCase() ?? "";
+  //       return (
+  //         testName.includes(term) ||
+  //         subjectName.includes(term) ||
+  //         subjectCode.includes(term)
+  //       );
+  //     });
+  //   }
+  //   // const term = searchTerm.trim().toLowerCase();
+  //   // if (!term) return dethis;
+
+  //   // return dethis.filter((item) => {
+  //   //   const testName = item.tenDe?.toLowerCase() ?? "";
+  //   //   const subjectName = item.mon_thi?.tenMonHoc?.toLowerCase() ?? "";
+  //   //   const subjectCode = item.mon_thi?.maMonHoc?.toLowerCase() ?? "";
+
+  //   //   return (
+  //   //     testName.includes(term) ||
+  //   //     subjectName.includes(term) ||
+  //   //     subjectCode.includes(term)
+  //   //   );
+  //   // });
+  // }, [dethis, searchTerm]);
+
+  // LOGIC LỌC VÀ SẮP XẾP CHÍNH XÁC THEO INTERFACE
   const filteredTests = useMemo(() => {
+    let result = [...dethis];
+
+    // 1. Lọc theo từ khóa tìm kiếm (Tên đề, Tên môn, Mã môn)
     const term = searchTerm.trim().toLowerCase();
-    if (!term) return dethis;
+    if (term) {
+      result = result.filter((item) => {
+        const testName = item.tenDe?.toLowerCase() ?? "";
+        // Truy cập qua relation mon_thi: Subject
+        const subjectName = item.mon_thi?.tenMonHoc?.toLowerCase() ?? "";
+        const subjectCode = item.mon_thi?.maMonHoc?.toLowerCase() ?? "";
 
-    return dethis.filter((item) => {
-      const testName = item.tenDe?.toLowerCase() ?? "";
-      const subjectName = item.mon_thi?.tenMonHoc?.toLowerCase() ?? "";
-      const subjectCode = item.mon_thi?.maMonHoc?.toLowerCase() ?? "";
+        return (
+          testName.includes(term) ||
+          subjectName.includes(term) ||
+          subjectCode.includes(term)
+        );
+      });
+    }
 
-      return (
-        testName.includes(term) ||
-        subjectName.includes(term) ||
-        subjectCode.includes(term)
+    // 2. Lọc theo ID môn học (Sử dụng monThiId từ DeThi interface)
+    if (selectedSubject !== -1) {
+      result = result.filter(
+        (item) => item.monThiId === Number(selectedSubject)
       );
-    });
-  }, [dethis, searchTerm]);
+    }
 
+    // 3. Lọc theo trạng thái thi (Upcoming, Opening, Closed)
+    if (statusFilter !== 1) {
+      const now = new Date().getTime();
+      result = result.filter((item) => {
+        const start = new Date(item.thoiGianBatDau).getTime();
+        const end = new Date(item.thoiGianKetThuc).getTime();
+
+        if (statusFilter === 2) return now >= start && now <= end; // OPENING
+        if (statusFilter === 3) return now > end; // CLOSED
+        if (statusFilter === 4) return now < start; // UPCOMING
+        return true;
+      });
+    }
+
+    // 4. Sắp xếp theo created_at (Mới nhất lên đầu nếu isDesc = true)
+    result.sort((a, b) => {
+      const timeA = new Date(a.created_at).getTime();
+      const timeB = new Date(b.created_at).getTime();
+      return isDesc ? timeB - timeA : timeA - timeB;
+    });
+
+    return result;
+  }, [dethis, searchTerm, selectedSubject, statusFilter, isDesc]);
   return (
     <MainContentLayout>
       <div className="flex justify-between rounded-md bg-background-body-background px-2 py-2">
@@ -66,7 +137,7 @@ export const TestPage = () => {
                 value: 4,
               },
             ]}
-            onSelect={() => {}}
+            onSelect={(opt) => setStatusFilter(Number(opt))}
           />
           <Input
             hasBoder={true}
@@ -78,17 +149,25 @@ export const TestPage = () => {
           <SelectField
             label={t("testPage.subject")}
             placeholder={t("testPage.selectSubjectPlaceholder")}
-            options={subjects.map((item) => ({
-              label: item.tenMonHoc,
-              value: item.id,
-            }))}
-            onSelect={() => {}}
+            options={[
+              { label: "Tất cả", value: -1 },
+              ...subjects.map((item) => ({
+                label: item.tenMonHoc,
+                value: item.id,
+              })),
+            ]}
+            onSelect={(opt) => setSelectedSubject(opt)}
           />
         </div>
 
         {/* Right */}
-        <div className="flex gap-2">
-          <Button variant={"outline"}>
+        <div className="flex justify-center gap-2">
+          <Button
+            variant={!isDesc ? "outline" : "contained"}
+            color={!isDesc ? "standard" : "primary"}
+            onClick={() => setIsDesc(!isDesc)}
+            tooltip="Mới nhất"
+          >
             <Icon name="arrowUpDown" />
           </Button>
 

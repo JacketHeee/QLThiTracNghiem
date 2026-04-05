@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Button, Icon } from "@/components/atomic/atoms";
 import { ClassResultItem } from "@/components/atomic/molecules/ClassResultItem/ClassResultItem";
 import {
@@ -15,7 +14,6 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export default function TestDetailPage() {
   const navigate = useNavigate();
-  const updateTestData = useDeThiStore((state) => state.updateTestData);
   const testData = useDeThiStore((state) => state.testData);
   const { mutate: deleteDeThi } = useDeleteDeThi();
 
@@ -24,12 +22,6 @@ export default function TestDetailPage() {
   const idDethi = Number(params.id);
 
   const { deThi, isLoading } = useDeThiDetail(idDethi);
-
-  useEffect(() => {
-    if (deThi) {
-      updateTestData({ ...deThi });
-    }
-  }, [deThi, updateTestData]);
 
   if (isLoading) return <div>Đang tải dữ liệu...</div>;
 

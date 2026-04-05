@@ -144,7 +144,7 @@ export default function DynamicTable<T>({
                 colSpan={columns.length + (hasColumnActions ? 1 : 0)}
                 className="px-6 py-10 text-center italic text-text-disabled"
               >
-                {t("tableActions.loading")}
+                {"Không có dữ liệu"}
               </td>
             </tr>
           )}

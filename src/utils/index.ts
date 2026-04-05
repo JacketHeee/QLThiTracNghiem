@@ -320,9 +320,9 @@ export const mapDeThiToCreatePayload = (
     Math.round((10 - scorePerQuestion * (totalQuestions - 1)) * 100) / 100;
 
   return {
-    monThiId: source.mon_thi.id,
+    monThiId: source.mon_thi.id || 1,
     nguoiTaoId: source.nguoiTaoId || 3,
-    tenDe: source.tenDe,
+    tenDe: source.tenDe || "Tên mặc định",
     // Giữ nguyên ISO String
     thoiGianBatDau: source.thoiGianBatDau,
     thoiGianKetThuc: source.thoiGianKetThuc,

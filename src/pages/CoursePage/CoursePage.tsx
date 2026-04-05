@@ -12,6 +12,7 @@ export const CoursePage = () => {
   // console.log(user);
 
   const { nhomHocPhans } = useNhomHocPhanStudent(user?.id || null);
+  console.log(nhomHocPhans);
   const [isOpenHideClass, setIsOpenHideClass] = useState(false);
   return (
     <MainContentLayout hasFooter={false}>
