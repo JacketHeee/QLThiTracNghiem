@@ -119,8 +119,6 @@ export const QuestionPage = () => {
 
   // Thay thế đoạn khai báo allQuestions và useMemo cũ
   const filteredQuestions = useMemo(() => {
-    console.log(personalQuestions);
-
     return displayQuestions.filter((q: Question) => {
       const matchSearch = q.noiDungCauHoi
         .toLowerCase()
@@ -132,7 +130,7 @@ export const QuestionPage = () => {
       return matchSearch && matchDifficulty;
     });
     //sửa lại chỉ lấy thay đổi display
-  }, [displayQuestions, selectedTab, searchQuery, filterDifficulty]);
+  }, [displayQuestions, searchQuery, filterDifficulty]);
 
   const handleTabSelect = (status: QuestionStatus) => {
     setSelectedTab(status);
@@ -199,12 +197,14 @@ export const QuestionPage = () => {
       console.log("Tạo không thành công, lỗi chưa fetch user");
       return;
     }
+
+    startLoading();
     try {
       await copyCauHoi({
         id: id,
         data: { nguoiTaoId: user.id },
       });
-      alert("Đã thêm câu hỏi vào ngân hàng!");
+      showToast("Đã thêm câu hỏi vào ngân hàng!", "success");
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
       if (err.response?.status === 422) {
@@ -217,38 +217,49 @@ export const QuestionPage = () => {
           showToast(t(firstError[0]), "error");
         }
       } else {
-        alert(t("message.error.create"));
+        showToast(t("message.error.create"), "error");
       }
+    } finally {
+      stopLoading();
     }
   };
 
   const publicQuestion = async (cauHoiId: number) => {
+    startLoading();
     try {
       await publicQuestionAsync(cauHoiId);
-      alert(t("message.success.update"));
+      showToast(t("message.success.update"), "success");
     } catch (error) {
       console.log(error);
-      alert("message.error.update");
+      showToast("message.error.update", "error");
+    } finally {
+      stopLoading();
     }
   };
 
   const archiveQuestion = async (cauHoiId: number) => {
+    startLoading();
     try {
       await archiveQuestionAsync(cauHoiId);
-      alert(t("message.success.update"));
+      showToast(t("message.success.update"), "success");
     } catch (error) {
       console.log(error);
-      alert("message.error.update");
+      showToast("message.error.update", "error");
+    } finally {
+      stopLoading();
     }
   };
 
   const restoreQuestion = async (cauHoiId: number) => {
+    startLoading();
     try {
       await restoreQuestionAsync(cauHoiId);
-      alert(t("message.success.update"));
+      showToast(t("message.success.update"), "success");
     } catch (error) {
       console.log(error);
-      alert("message.error.update");
+      showToast("message.error.update", "error");
+    } finally {
+      stopLoading();
     }
   };
 

@@ -40,7 +40,6 @@ export default function ResultPage() {
   const navigate = useNavigate();
 
   const { id } = useParams();
-  console.log(id);
 
   const { testData } = useDeThiStore();
   const { nhomHocPhan } = useNhomHocPhanDetail(Number(id));
@@ -48,7 +47,7 @@ export default function ResultPage() {
   const [openResultModal, setOpenResultModal] = useState(false);
   const handleClose = () => setOpenResultModal(false);
 
-  const { baiLams } = useExamActions();
+  const { examResults } = useExamActions(nhomHocPhan?.id, testData?.id);
 
   const handleStartExam = () => {
     // Chuyển hướng thẳng vào trang làm bài (mặc định mode là STUDENT)
@@ -106,7 +105,7 @@ export default function ResultPage() {
       return [
         {
           title: "MSSV",
-          key: "ma", // SỬA: từ 'mssv' thành 'ma' theo TaiKhoan interface
+          key: "username", // SỬA: từ 'mssv' thành 'ma' theo TaiKhoan interface
           render: (val: any, item: StudentResult) => (
             <span>{item.isAverage ? "" : val}</span>
           ),
@@ -143,8 +142,7 @@ export default function ResultPage() {
           title: "Điểm",
           key: "baiLam",
           className: "text-center",
-          render: (val: BaiLam) =>
-            val?.tongDiem != null ? `${val.tongDiem}/10` : "—",
+          render: (_, item) => item?.baiLam?.tongDiem || "—",
         },
         {
           title: "Thời gian vào",
@@ -184,85 +182,69 @@ export default function ResultPage() {
   const { doKhos } = useDoKho();
 
   const tableData = useMemo(() => {
-    const currentDeThiId = testData?.id;
     const allCauHois = testData?.cau_hois || [];
-    // Chỉ lấy bài làm của đề thi đang xét
-    const currentBaiLams = (baiLams || []).filter(
-      (bl) => bl.deThiId === currentDeThiId
+    const currentBaiLams = examResults?.baiLams || [];
+    const validBaiLams = currentBaiLams.filter(
+      (bl) => bl.baiLam.status === "DA_NOP"
     );
 
     // --- 1. MODE: THEO NGƯỜI LÀM (USER) ---
     if (viewMode === "user") {
-      const baiLamMap = new Map(currentBaiLams.map((bl) => [bl.thiSinhId, bl]));
+      let sumScoreExams = 0;
 
-      const extendedStudents: StudentResult[] = (sinhViens || []).map((sv) => ({
-        ...sv,
-        nhomHocPhan: nhomHocPhan || undefined,
-        baiLam: baiLamMap.get(sv.id),
-      }));
-
-      // Tính trung bình cộng điểm số của những người đã nộp bài VÀ đã có điểm
-      const completedTests = extendedStudents.filter(
-        (s) => s.baiLam?.status === "DA_NOP" && s.baiLam?.tongDiem != null
-      );
-      const avgScore =
-        completedTests.length > 0
-          ? completedTests.reduce(
-              (acc, curr) => acc + Number(curr.baiLam?.tongDiem || 0),
-              0
-            ) / completedTests.length
-          : 0;
-
-      const avgRow = {
-        id: -1,
-        ma: "AVG",
-        hoTen: "Trung bình lớp",
-        isAverage: true,
-        baiLam: { tongDiem: avgScore } as BaiLam,
-      } as StudentResult;
-
-      let result = [avgRow, ...extendedStudents];
+      const data_2 = sinhViens.map((item) => {
+        const baiLamSinhVien = validBaiLams.find(
+          (i) => i.baiLam.thiSinhId === item.id
+        );
+        sumScoreExams += Number(baiLamSinhVien?.baiLam.tongDiem) || 0;
+        return {
+          ...item,
+          isAverage: false,
+          nhomHocPhan: nhomHocPhan,
+          baiLam: baiLamSinhVien?.baiLam,
+        } as StudentResult;
+      });
 
       if (sortOrder) {
-        result = [
-          avgRow,
-          ...[...extendedStudents].sort((a, b) => {
-            const scoreA = a.baiLam?.tongDiem ?? -1;
-            const scoreB = b.baiLam?.tongDiem ?? -1;
-            return sortOrder === "asc" ? scoreA - scoreB : scoreB - scoreA;
-          }),
-        ];
+        data_2.sort((a, b) => {
+          const scoreA = Number(a.baiLam?.tongDiem) || 0;
+          const scoreB = Number(b.baiLam?.tongDiem) || 0;
+          return sortOrder === "asc" ? scoreA - scoreB : scoreB - scoreA;
+        });
       }
+
+      const avgRow = {
+        ...data_2[0],
+        id: -1,
+        username: "31235600",
+        hoTen: "Trung bình lớp",
+        isAverage: true,
+        baiLam: {
+          tongDiem: sumScoreExams / (sinhViens.length || 1),
+        },
+      } as StudentResult;
+
+      const result = [avgRow, ...data_2];
       return result;
     }
 
     // --- 2. MODE: THEO CÂU HỎI (Thống kê tỉ lệ đúng/sai từng câu) ---
     if (viewMode === "question") {
-      console.log("Manh test: ", allCauHois);
-      return allCauHois.map((ch, index) => {
-        // Chỉ lấy những bài làm đã nộp (DA_NOP)
-        const validBaiLams = currentBaiLams.filter(
-          (bl) => bl.status === "DA_NOP"
-        );
-        console.log("Manh test: 1", validBaiLams);
+      const questionsData = allCauHois.map((ch, index) => {
+        const dapAnDung = ch.cau_tra_lois.find((item) => item.isCorrectAnswer);
 
-        // Tìm xem trong những bài làm đó, có bao nhiêu người trả lời câu hỏi này
-        const answersForThisQuestion = validBaiLams
-          .map((bl) => bl.chitiet_bailams?.find((ct) => ct.cauHoiId === ch.id))
-          .filter(Boolean); // Loại bỏ những người không trả lời câu này
+        // 2. Đếm số lượng người trả lời đúng
+        const correctCount = validBaiLams.filter((bl) => {
+          const cauHoiTrongBaiLam = bl.cauHois.find(
+            (item) => item.id === ch.id
+          );
+          return cauHoiTrongBaiLam?.dapAnDaChon === dapAnDung?.id;
+        }).length;
 
-        console.log("Manh test: ", answersForThisQuestion);
-        // Tính số câu đúng
-        const correctCount = answersForThisQuestion.filter(
-          (a) => a?.isCorrectChooser
-        ).length;
-
-        // Tỉ lệ % đúng = (Số người đúng / Tổng số người đã trả lời câu này)
-        const totalAnswers = answersForThisQuestion.length;
         const percent =
-          totalAnswers > 0
-            ? Math.round((correctCount / totalAnswers) * 100)
-            : 0;
+          ((correctCount * 1.0) /
+            (sinhViens.length !== 0 ? sinhViens.length : 1)) *
+          100;
 
         return {
           id: ch.id,
@@ -273,38 +255,68 @@ export default function ResultPage() {
           diem: ((percent / 100) * Number(ch.diemMacDinh || 1)).toFixed(2),
         };
       });
+
+      if (sortOrder) {
+        questionsData.sort((a, b) => {
+          return sortOrder === "asc"
+            ? a.phanTram - b.phanTram
+            : b.phanTram - a.phanTram;
+        });
+      }
+
+      return questionsData;
     }
     // --- MODE: DIFFICULTY (FIXED HERE) ---
     if (viewMode === "difficulty") {
-      return (doKhos || []).map((dk, index) => {
-        // 1. Lấy danh sách ID các câu hỏi thuộc độ khó này trong đề thi hiện tại
-        const questionIdsInLevel = allCauHois
-          .filter((q) => q.doKhoId === dk.id)
-          .map((q) => q.id);
+      const diffData = (doKhos || []).map((dk, index) => {
+        const tongSoCau =
+          (testData?.cau_hois?.filter((i) => i.doKhoId === dk.id).length || 0) *
+          sinhViens.length;
 
-        // 2. Thu thập tất cả chi tiết bài làm của sinh viên liên quan đến các câu hỏi trên
-        const relevantAnswers = currentBaiLams
-          .filter((bl) => bl.status === "DA_NOP")
-          .flatMap((bl) => bl.chitiet_bailams || [])
-          .filter((ct) => questionIdsInLevel.includes(ct.cauHoiId));
+        let tongSoCauDung = 0;
 
-        const correct = relevantAnswers.filter(
-          (a) => a.isCorrectChooser
-        ).length;
-        const percent = Math.round((correct / 10) * 100);
+        validBaiLams.forEach((item) => {
+          const soCauDungMoiBai = item.cauHois.filter((ch) => {
+            const daAnId = ch.cau_tra_lois.find(
+              (ctl) => ctl.isCorrectAnswer
+            )?.id;
+            return ch.doKhoId === dk.id && ch.dapAnDaChon === daAnId;
+          }).length;
 
+          tongSoCauDung += soCauDungMoiBai || 0;
+        });
+
+        const percent = (tongSoCauDung / (tongSoCau || 1)) * 100;
         return {
           id: `dk-${dk.id}`,
           stt: index + 1,
           noiDung: dk.tenDoKho,
           phanTram: percent,
-          diem: (percent / 10).toFixed(1), // Điểm TB hệ 10 của mức độ này
+          diem: (percent / 10).toFixed(2), // Điểm TB hệ 10 của mức độ này
         };
       });
+
+      if (sortOrder) {
+        diffData.sort((a, b) => {
+          return sortOrder === "asc"
+            ? a.phanTram - b.phanTram
+            : b.phanTram - a.phanTram;
+        });
+      }
+
+      return diffData;
     }
 
     return [];
-  }, [viewMode, sinhViens, baiLams, testData, sortOrder, nhomHocPhan, doKhos]);
+  }, [
+    testData?.cau_hois,
+    examResults?.baiLams,
+    viewMode,
+    sinhViens,
+    nhomHocPhan,
+    doKhos,
+    sortOrder,
+  ]);
 
   const status = getTestsStatus(
     testData?.thoiGianBatDau,

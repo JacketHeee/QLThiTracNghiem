@@ -531,3 +531,8 @@ export interface StudentResult extends TaiKhoan {
   baiLam?: BaiLam; // Thông tin bài thi (nếu đã làm)
   isAverage?: boolean; // Đánh dấu dòng trung bình
 }
+
+export interface ExamReviewResponse {
+  deThi: DeThi;
+  baiLams: { baiLam: BaiLam; cauHois: Question[] }[];
+}

@@ -55,7 +55,7 @@ export default function StatSection() {
     const unsubmittedCount = totalStudents - submittedCount;
 
     // 2. Tính toán điểm số
-    const scores = submittedList.map((bl) => bl.tongDiem || 0);
+    const scores = submittedList.map((bl) => Number(bl.tongDiem) || 0);
     const avgScore =
       scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
     const maxScore = scores.length > 0 ? Math.max(...scores) : 0;

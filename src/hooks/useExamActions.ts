@@ -3,7 +3,7 @@ import { examService } from "@/services/api/exam.service";
 import { useExamStore } from "@/stores/useExamStore";
 import { useDeThiStore } from "@/stores/useDeThi.store";
 import { dethiService } from "@/services/api/dethi.service";
-export const useExamActions = () => {
+export const useExamActions = (nhomHocPhanId?: number, deThiId?: number) => {
   const queryClient = useQueryClient();
   const {
     initExam,
@@ -91,8 +91,16 @@ export const useExamActions = () => {
     select: (res) => res.data,
   });
 
+  const examResultsQuery = useQuery({
+    queryKey: ["bailams", "group", nhomHocPhanId, deThiId],
+    queryFn: () => examService.getByHocPhanAndDeThi(nhomHocPhanId!, deThiId!),
+    enabled: !!nhomHocPhanId && !!deThiId, // Chỉ chạy khi có đủ ID
+    select: (res) => res.data,
+  });
+
   return {
     baiLams: query.data,
+    examResults: examResultsQuery.data,
     startExam: startExamMutation.mutateAsync,
     isStarting: startExamMutation.isPending,
     updateAnswer: updateAnswerMutation.mutate,
