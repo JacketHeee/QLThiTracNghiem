@@ -12,6 +12,7 @@ import {
   useCreateNhomHocPhan,
   useUpdateNhomHocPhan,
   useDeleteNhomHocPhan,
+  useNhomHocPhanOGvien,
 } from "@/hooks/useNhomHocPhan";
 import { useTranslation } from "react-i18next";
 import type {
@@ -50,7 +51,20 @@ export function CourseGroupPage() {
 
       return result;
     });
+
   const { nhomHocPhans, isLoading } = useNhomHocPhan();
+  const { nhomHocPhanGvien, isLoadingHpGv } = useNhomHocPhanOGvien(user!.id);
+
+  const nhomHocPhanDisplay = useMemo<NhomHocPhan[]>(() => {
+    if (!user || !role) return [];
+
+    if (role.tenNhomQuyen === "teacher") {
+      return nhomHocPhanGvien;
+    } else {
+      return nhomHocPhans;
+    }
+  }, [user, role, nhomHocPhans, nhomHocPhanGvien]);
+
   const createMutation = useCreateNhomHocPhan();
   const updateMutation = useUpdateNhomHocPhan();
   const deleteMutation = useDeleteNhomHocPhan();
@@ -81,11 +95,11 @@ export function CourseGroupPage() {
   ];
 
   const computedGroups = useMemo(() => {
-    return nhomHocPhans.map((group) => ({
+    return nhomHocPhanDisplay.map((group) => ({
       ...group,
       status: group.isHide ? "hidden" : ("active" as CourseStatus),
     }));
-  }, [nhomHocPhans]);
+  }, [nhomHocPhanDisplay]);
 
   useEffect(() => {
     const handleClose = () => setOpenMenu(null);
@@ -138,6 +152,7 @@ export function CourseGroupPage() {
   const handleRemoveGroup = async (groupId: number) => {
     if (!confirm(t("courseGroup.confirmDeleteGroup"))) return;
     try {
+      console.log("xóa", groupId);
       await deleteMutation.mutateAsync(groupId);
       setOpenMenu(null);
     } catch (error) {
@@ -245,7 +260,7 @@ export function CourseGroupPage() {
 
   return (
     <MainContentLayout classname="w-full" hasFooter={false}>
-      {isLoading ? (
+      {isLoading && isLoadingHpGv ? (
         <div className="flex items-center justify-center py-8">
           <div className="text-text-secondary">
             {t("courseGroup.loadingGroups")}

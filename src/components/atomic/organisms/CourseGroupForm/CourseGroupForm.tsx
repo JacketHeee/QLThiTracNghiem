@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button, Icon, Input, SelectField } from "@/components/atomic/atoms";
 import { Overlay } from "@/components/atomic/molecules/Overlay/Overlay";
-import { useSubject } from "@/hooks/useSubject";
+import { useMonHocOGvien, useSubject } from "@/hooks/useSubject";
 import { useTranslation } from "react-i18next";
+import { useAuthStore } from "@/stores/auth.store";
 
 export interface CourseGroupFormData {
   monHocId: number;
@@ -38,7 +39,9 @@ export function CourseGroupForm({
   onCancel,
   isSubmitting = false,
 }: CourseGroupFormProps) {
-  const { subjects } = useSubject();
+  const { subjects } = useSubject(); //loading: isLoading
+  const { user, role } = useAuthStore();
+  const { monHocGvien } = useMonHocOGvien(user?.id); //loading: isLoadingMhGv
   const isEdit = Boolean(initialData);
   const { t } = useTranslation();
   const defaultFormData = {
@@ -89,10 +92,23 @@ export function CourseGroupForm({
     }
   };
 
-  const subjectOptions = subjects.map((subject) => ({
-    label: subject.tenMonHoc,
-    value: subject.id,
-  }));
+  const subjectOptions = useMemo<{ label: string; value: number }[]>(() => {
+    if (!user || !role) {
+      return [];
+    }
+
+    if (role.tenNhomQuyen === "teacher") {
+      return monHocGvien.map((subject) => ({
+        label: subject.tenMonHoc,
+        value: subject.id,
+      }));
+    } else {
+      return subjects.map((subject) => ({
+        label: subject.tenMonHoc,
+        value: subject.id,
+      }));
+    }
+  }, [user, role, monHocGvien, subjects]);
 
   return (
     <Overlay onClose={onCancel}>
@@ -153,52 +169,6 @@ export function CourseGroupForm({
             />
           </div>
 
-          {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="flex flex-col gap-1 text-text-primary">
-              <div className="text-input-text font-semibold text-text-secondary">
-                {t("courseGroup.form.inviteCode")}
-              </div>
-              <Input
-                hasBoder={true}
-                placeholder={t("courseGroup.form.inviteCodePlaceholder")}
-                value={formData.maMoi}
-                onChange={(event) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    maMoi: event.target.value,
-                  }))
-                }
-                className="h-10 w-full"
-              />
-              {errors.maMoi && (
-                <div className="text-sm text-error-main">{errors.maMoi}</div>
-              )}
-            </div>
-            <div className="flex flex-col gap-1 text-text-primary">
-              <div className="text-input-text font-semibold text-text-secondary">
-                {t("courseGroup.form.classSize")}
-              </div>
-              <Input
-                hasBoder={true}
-                placeholder={t("courseGroup.form.classSizePlaceholder")}
-                type="number"
-                value={formData.siSo ?? ""}
-                onChange={(event) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    siSo: event.target.value
-                      ? Number(event.target.value)
-                      : null,
-                  }))
-                }
-                className="h-10 w-full"
-              />
-              {errors.siSo && (
-                <div className="text-sm text-error-main">{errors.siSo}</div>
-              )}
-            </div>
-          </div> */}
-
           <div className="flex flex-col gap-1">
             <SelectField
               label={t("courseGroup.form.subject")}
@@ -214,30 +184,6 @@ export function CourseGroupForm({
               <div className="text-sm text-error-main">{errors.subject}</div>
             )}
           </div>
-
-          {/* <div className="flex flex-col gap-1">
-            <SelectField
-              label={t("courseGroup.form.lecturer")}
-              placeholder={t("courseGroup.form.lecturerPlaceholder")}
-              options={giangVienOptions}
-              // defaultIndex={findOptionIndex(
-              //   giangVienOptions,
-              //   formData.giangVienId ? formData.giangVienId : undefined
-              // )}
-              value={formData.giangVienId!}
-              onSelect={(value) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  giangVienId: value ? Number(value) : null,
-                }))
-              }
-            />
-            {errors.giangVienId && (
-              <div className="text-sm text-error-main">
-                {errors.giangVienId}
-              </div>
-            )}
-          </div> */}
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-1">

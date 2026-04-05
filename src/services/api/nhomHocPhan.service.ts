@@ -34,6 +34,9 @@ export const nhomHocPhanService = {
   getByStudent: (user: number): Promise<ApiResponse<TaiKhoan>> =>
     axiosClient.get(`/nhomhocphans/o_svien/${user}`),
 
+  getOGvien: (giangVienId: number): Promise<ApiResponse<NhomHocPhan[]>> =>
+    axiosClient.get(`/nhomhocphans/get_o_gvien/${giangVienId}`),
+
   getGiangVien: (nhomhocphan: number): Promise<ApiResponse<TaiKhoan>> =>
     axiosClient.get(`/nhomhocphans/w_gvien_mon/${nhomhocphan}`),
 

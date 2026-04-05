@@ -57,3 +57,19 @@ export const useSubject = () => {
       deleteMutation.isPending,
   };
 };
+
+export const useMonHocOGvien = (id?: number) => {
+  const query = useQuery({
+    queryKey: ["subjects", "gvien", id],
+    queryFn: () => subjectService.getOGvien(id!),
+    enabled: !!id,
+    select: (res) => res.data,
+  });
+
+  return {
+    monHocGvien: query.data || [],
+    isLoadingMhGv: query.isLoading,
+    isErrorMhGv: query.isError,
+    refetch: query.refetch,
+  };
+};
