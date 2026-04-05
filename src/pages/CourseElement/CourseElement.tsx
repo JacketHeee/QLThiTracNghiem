@@ -11,6 +11,7 @@ import { useGetNhomWithThongBao } from "@/hooks/useNhomHocPhan";
 import { dethiService } from "@/services/api/dethi.service";
 import { useAuthStore } from "@/stores/auth.store";
 import { useDeThiStore } from "@/stores/useDeThi.store";
+import { useLoadingStore } from "@/stores/useLoading.store";
 import type { DeThi, ThongBao } from "@/types";
 import { getDefaultAvatar, getProgressColor } from "@/utils";
 import { useMemo, useState } from "react";
@@ -33,6 +34,7 @@ export default function CourseElement() {
 
   const { id } = useParams();
   const { nhomHocPhan } = useGetNhomWithThongBao(Number(id));
+  console.log(nhomHocPhan);
   const thongBaos = nhomHocPhan ? nhomHocPhan.thong_baos : [];
   const deThis = nhomHocPhan ? nhomHocPhan.de_this : [];
   const sinhViens = nhomHocPhan ? nhomHocPhan.sinh_viens : [];
@@ -47,7 +49,7 @@ export default function CourseElement() {
     const baiLam = item.bai_lam;
 
     return {
-      id: item.id,
+      id: baiLam?.id || 0,
       name: item.tenDe,
 
       // nếu có bài làm thì show, không thì 0 lần làm
@@ -72,7 +74,10 @@ export default function CourseElement() {
     };
   });
 
+  const { startLoading, stopLoading } = useLoadingStore();
+
   const handleStartExam = async (deThiId: number) => {
+    startLoading();
     try {
       // 1. Gọi trực tiếp Service hoặc dùng queryClient để lấy data đề thi
       // Chúng ta lấy chi tiết đề để đổ vào Store
@@ -88,6 +93,8 @@ export default function CourseElement() {
     } catch (error) {
       console.error("Lỗi khi tải thông tin đề thi:", error);
       // Toast: "Không thể tải thông tin đề thi. Vui lòng thử lại."
+    } finally {
+      stopLoading();
     }
   };
 
@@ -197,6 +204,7 @@ export default function CourseElement() {
 
   const { reviewExam } = useExamActions();
   const handleViewResult = async (baiLamId: number) => {
+    startLoading();
     try {
       // Gọi action review bài thi (đã bao gồm logic setFinalResult vào Store)
       await reviewExam(baiLamId);
@@ -206,6 +214,8 @@ export default function CourseElement() {
     } catch (error) {
       console.error("Lỗi khi tải kết quả:", error);
       // Bạn có thể thêm Toast thông báo lỗi ở đây
+    } finally {
+      stopLoading();
     }
   };
   return (

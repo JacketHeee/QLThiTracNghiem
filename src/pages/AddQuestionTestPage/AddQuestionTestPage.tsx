@@ -5,7 +5,8 @@ import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import { BodyQuestionItem } from "@/components/atomic/molecules/BodyQuestionItem/BodyQuestionItem";
 import { useCreateDeThi, useUpdateDeThi } from "@/hooks/useDeThi";
 import { useDoKho } from "@/hooks/useDoKho";
-import { useQuestions } from "@/hooks/useQuestion";
+import { useQuestionsOfUser } from "@/hooks/useQuestion";
+import { useAuthStore } from "@/stores/auth.store";
 import { useDeThiStore } from "@/stores/useDeThi.store";
 import { useExamStore } from "@/stores/useExamStore";
 import { useLoadingStore } from "@/stores/useLoading.store";
@@ -33,6 +34,7 @@ export default function AddQuestionTestPage() {
   const isViewMode = pathname.includes("/view");
   const isAddMode = pathname.includes("/add");
 
+  const { user } = useAuthStore();
   const { id } = useParams();
   const navigate = useNavigate();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -41,7 +43,7 @@ export default function AddQuestionTestPage() {
   const { mutate: updateDeThi } = useUpdateDeThi();
 
   // Hooks lấy dữ liệu mẫu từ ngân hàng câu hỏi
-  const { questions } = useQuestions();
+  const { personalQuestions } = useQuestionsOfUser(user?.id);
   const { doKhos } = useDoKho();
 
   // 1. Lấy dữ liệu và Actions từ Store duy nhất
@@ -50,6 +52,7 @@ export default function AddQuestionTestPage() {
   const removeQuestion = useDeThiStore((s) => s.removeQuestion);
   const moveQuestion = useDeThiStore((s) => s.moveQuestion);
   const showToast = useToastStore((s) => s.showToast);
+  const setTestData = useDeThiStore((s) => s.setTestData);
 
   // Selector an toàn cho danh sách câu hỏi trong đề
   const cauHoi_deThi = useMemo(
@@ -81,6 +84,8 @@ export default function AddQuestionTestPage() {
 
   const { startLoading, stopLoading } = useLoadingStore();
   const handleSave = () => {
+    console.log(testData);
+    setTestData({ ...testData, nguoiTaoId: user?.id });
     const data = mapDeThiToCreatePayload(
       testData as DeThi
     ) as CreateDeThiPayload;
@@ -197,7 +202,7 @@ export default function AddQuestionTestPage() {
           </div>
 
           <div className="flex max-h-[80vh] flex-col overflow-auto border-x border-t border-other-outlined-border bg-background-body-background">
-            {questions.map((item) => {
+            {personalQuestions.map((item) => {
               // Kiểm tra xem câu hỏi này đã có trong đề thi chưa
               const isSelected = selectedQuestionIds.has(item.id);
 
