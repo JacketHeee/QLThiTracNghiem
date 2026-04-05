@@ -17,11 +17,13 @@ import type {
 } from "@/types";
 import { useSubject } from "@/hooks/useSubject";
 import {
+  useCopyCauHoiToPrivate,
   useCreateCauHoi,
   useDeleteCauHoi,
-  useQuestions,
-  useQuestionsPrivate,
+  useQuestionsOfUser,
+  useQuestionsPublic,
   useUpdateCauHoi,
+  useUpdateCauHoiStatus,
 } from "@/hooks/useQuestion";
 import { useAuthStore } from "@/stores/auth.store";
 import { useTranslation } from "react-i18next";
@@ -38,6 +40,10 @@ export const QuestionPage = () => {
   const { createCauHoi, isCreating } = useCreateCauHoi();
   const { updateCauHoi, isUpdating } = useUpdateCauHoi();
   const { deleteCauHoi, isDeleting } = useDeleteCauHoi();
+  const { copyCauHoi } = useCopyCauHoiToPrivate(); //thêm isCopying để loading
+  const { publicQuestionAsync, archiveQuestionAsync, restoreQuestionAsync } =
+    useUpdateCauHoiStatus();
+
   const { t } = useTranslation();
   const { startLoading, stopLoading } = useLoadingStore();
 
@@ -96,16 +102,26 @@ export const QuestionPage = () => {
 
   const { doKhos } = useDoKho();
   const { subjects } = useSubject();
-  const { questions } = useQuestions();
-  const { questionsprivate } = useQuestionsPrivate(user?.id);
+  // const { questions } = useQuestions();
+  // const { questionsprivate } = useQuestionsPrivate(user?.id);
+  const { questionspublic } = useQuestionsPublic(); // tất cả câu hỏi public
+  const { personalQuestions } = useQuestionsOfUser(user?.id); // tất cả câu hỏi của user (3 status public, private, archive)
+
+  // const [displayQuestions, setDisplayQuestions] = useState<Question[]>(questionspublic);
+
+  //tách theo tab riêng
+  const displayQuestions = useMemo(() => {
+    if (selectedTab === "public") return questionspublic;
+    if (selectedTab === "private")
+      return personalQuestions.filter((item) => item.status !== "archive");
+    return personalQuestions.filter((item) => item.status === "archive"); // archive
+  }, [questionspublic, personalQuestions, selectedTab]);
 
   // Thay thế đoạn khai báo allQuestions và useMemo cũ
   const filteredQuestions = useMemo(() => {
-    // Gộp mảng ngay bên trong callback của useMemo
-    const combined = [...questions, ...(questionsprivate || [])];
+    console.log(personalQuestions);
 
-    return combined.filter((q: Question) => {
-      const matchTab = q.status === selectedTab;
+    return displayQuestions.filter((q: Question) => {
       const matchSearch = q.noiDungCauHoi
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
@@ -113,10 +129,14 @@ export const QuestionPage = () => {
         ? q.do_kho === filterDifficulty
         : true;
 
-      return matchTab && matchSearch && matchDifficulty;
+      return matchSearch && matchDifficulty;
     });
-    // Dependency bây giờ là các mảng gốc từ hooks
-  }, [questions, questionsprivate, selectedTab, searchQuery, filterDifficulty]);
+    //sửa lại chỉ lấy thay đổi display
+  }, [displayQuestions, selectedTab, searchQuery, filterDifficulty]);
+
+  const handleTabSelect = (status: QuestionStatus) => {
+    setSelectedTab(status);
+  };
 
   const handleAction = (type: string, data: Question) => {
     switch (type) {
@@ -128,6 +148,15 @@ export const QuestionPage = () => {
         break;
       case "add-to-bank":
         addToBank(data.id);
+        break;
+      case "public-question":
+        publicQuestion(data.id);
+        break;
+      case "archive-question":
+        archiveQuestion(data.id);
+        break;
+      case "restore-question":
+        restoreQuestion(data.id);
         break;
 
       default:
@@ -164,8 +193,63 @@ export const QuestionPage = () => {
     });
   };
 
-  const addToBank = (id: number) => {
-    console.log("add cau hoi id ", id);
+  const addToBank = async (id: number) => {
+    console.log("add to bank cau hoi id ", id);
+    if (!user) {
+      console.log("Tạo không thành công, lỗi chưa fetch user");
+      return;
+    }
+    try {
+      await copyCauHoi({
+        id: id,
+        data: { nguoiTaoId: user.id },
+      });
+      alert("Đã thêm câu hỏi vào ngân hàng!");
+    } catch (error: unknown) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.status === 422) {
+        //lỗi validate backend
+        const errors = err.response?.data?.errors;
+
+        const firstError = Object.values(errors)?.[0];
+
+        if (Array.isArray(firstError)) {
+          showToast(t(firstError[0]), "error");
+        }
+      } else {
+        alert(t("message.error.create"));
+      }
+    }
+  };
+
+  const publicQuestion = async (cauHoiId: number) => {
+    try {
+      await publicQuestionAsync(cauHoiId);
+      alert(t("message.success.update"));
+    } catch (error) {
+      console.log(error);
+      alert("message.error.update");
+    }
+  };
+
+  const archiveQuestion = async (cauHoiId: number) => {
+    try {
+      await archiveQuestionAsync(cauHoiId);
+      alert(t("message.success.update"));
+    } catch (error) {
+      console.log(error);
+      alert("message.error.update");
+    }
+  };
+
+  const restoreQuestion = async (cauHoiId: number) => {
+    try {
+      await restoreQuestionAsync(cauHoiId);
+      alert(t("message.success.update"));
+    } catch (error) {
+      console.log(error);
+      alert("message.error.update");
+    }
   };
 
   const showToast = useToastStore((s) => s.showToast);
@@ -256,7 +340,7 @@ export const QuestionPage = () => {
       alert("Nội dung câu hỏi không được để trống");
       return false;
     }
-
+    //
     if (!request.monHocId) {
       alert("Vui lòng chọn môn học");
       return false;
@@ -286,14 +370,14 @@ export const QuestionPage = () => {
         <div className="border-b-1 flex items-center justify-between border-other-outlined-border pr-3">
           <Tabs
             value={selectedTab}
-            onChange={(val) => setSelectedTab(val as QuestionStatus)}
+            onChange={(val) => handleTabSelect(val as QuestionStatus)}
             tabs={[
               { value: "public", label: "Công khai" },
               { value: "private", label: "Cá nhân" },
               { value: "archive", label: "Lưu trữ" },
             ]}
           />
-          {actions.includes("create") && (
+          {selectedTab === "private" && actions.includes("create") && (
             <Button
               onClick={() => openInsertModal()}
               variant="contained"
@@ -370,6 +454,16 @@ export const QuestionPage = () => {
               onEdit={(cauHoi) => handleAction("edit", cauHoi)}
               onDelete={(cauHoi) => handleAction("delete", cauHoi)}
               onAddToBank={(cauHoi) => handleAction("add-to-bank", cauHoi)}
+              onPublicQuestion={(cauHoi) =>
+                handleAction("public-question", cauHoi)
+              }
+              onArchiveQuestion={(cauHoi) =>
+                handleAction("archive-question", cauHoi)
+              }
+              onRestoreQuestion={(cauHoi) =>
+                handleAction("restore-question", cauHoi)
+              }
+              tab={selectedTab} //cho hiển thị hành động ứng với mỗi tab với quyền cao nhất
               actions={actions}
             />
           ))
