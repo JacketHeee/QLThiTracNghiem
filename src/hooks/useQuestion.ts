@@ -33,6 +33,39 @@ export const useQuestionsPrivate = (id?: number) => {
   };
 };
 
+// Lấy tất cả câu hỏi public trong db
+export const useQuestionsPublic = () => {
+  const query = useQuery({
+    queryKey: ["cauhois", "public"],
+    queryFn: () => questionService.getPublic(),
+    select: (res) => res.data,
+  });
+
+  return {
+    questionspublic: query.data || [],
+    isLoading: query.isLoading,
+    isError: query.isError,
+    refetch: query.refetch,
+  };
+};
+
+// Lấy tất cả câu hỏi của user (public, private, archive)
+export const useQuestionsOfUser = (userId?: number) => {
+  const query = useQuery({
+    queryKey: ["cauhois", "private", userId],
+    queryFn: () => questionService.getOUser(userId!),
+    enabled: !!userId,
+    select: (res) => res.data,
+  });
+
+  return {
+    personalQuestions: query.data || [],
+    isLoading: query.isLoading,
+    isError: query.isError,
+    refetch: query.refetch,
+  };
+};
+
 // Thêm mới
 export const useCreateCauHoi = () => {
   const queryClient = useQueryClient();
@@ -51,6 +84,70 @@ export const useCreateCauHoi = () => {
     isCreating: mutation.isPending,
     isCreateError: mutation.isError,
     isCreateSuccess: mutation.isSuccess,
+  };
+};
+
+// Copy xuống private
+export const useCopyCauHoiToPrivate = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: questionService.copyToPrivate,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cauhois"] });
+    },
+  });
+
+  return {
+    copyCauHoi: mutation.mutateAsync,
+    isCopying: mutation.isPending,
+    isCopyError: mutation.isError,
+    isCopySuccess: mutation.isSuccess,
+  };
+};
+
+//Update status
+export const useUpdateCauHoiStatus = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: questionService.updateStatus,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cauhois"] });
+    },
+  });
+
+  const publicQuestionAsync = (id: number) => {
+    return mutation.mutateAsync({
+      id,
+      data: { status: "public" },
+    });
+  };
+
+  const archiveQuestionAsync = (id: number) => {
+    return mutation.mutateAsync({
+      id,
+      data: { status: "archive" },
+    });
+  };
+
+  const restoreQuestionAsync = (id: number) => {
+    return mutation.mutateAsync({
+      id,
+      data: { status: "private" },
+    });
+  };
+
+  return {
+    publicQuestionAsync,
+    archiveQuestionAsync,
+    restoreQuestionAsync,
+
+    isUpdatingStatus: mutation.isPending,
+    isUpdateStatusError: mutation.isError,
+    isUpdateStatusSuccess: mutation.isSuccess,
   };
 };
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Icon } from "@/components/atomic/atoms";
-import type { Question } from "@/types";
+import type { Question, QuestionStatus } from "@/types";
 import { formatDateTimeVN } from "@/utils";
 import { BodyQuestionItem } from "../BodyQuestionItem/BodyQuestionItem";
 
@@ -9,6 +9,10 @@ interface QuestionItemProps {
   onEdit?: (data: Question) => void;
   onDelete?: (data: Question) => void;
   onAddToBank?: (data: Question) => void;
+  onPublicQuestion?: (data: Question) => void;
+  onArchiveQuestion?: (data: Question) => void;
+  onRestoreQuestion?: (data: Question) => void;
+  tab: QuestionStatus;
   actions: string[];
 }
 
@@ -17,9 +21,16 @@ const QuestionItem = ({
   onEdit,
   onDelete,
   onAddToBank,
+  onPublicQuestion,
+  onArchiveQuestion,
+  onRestoreQuestion,
+  tab,
   actions,
 }: QuestionItemProps) => {
   const [showAnswer, setShowAnswer] = useState(false);
+  const isPublic = tab === "public";
+  const isPrivate = tab === "private";
+  const isArchive = tab === "archive";
 
   return (
     <div className="flex flex-col rounded-md bg-background-body-background px-3">
@@ -47,7 +58,8 @@ const QuestionItem = ({
             >
               {showAnswer ? "Ẩn đáp án" : "Hiển thị đáp án"}
             </Button>
-            {actions.includes("update") && (
+
+            {isPrivate && actions.includes("update") && (
               <Button
                 variant="text"
                 color="primary"
@@ -57,7 +69,17 @@ const QuestionItem = ({
               </Button>
             )}
 
-            {actions.includes("delete") && (
+            {isPrivate && (
+              <Button
+                variant="text"
+                color="primary"
+                onClick={() => onArchiveQuestion?.(data)}
+              >
+                Lưu trữ
+              </Button>
+            )}
+
+            {isArchive && actions.includes("delete") && (
               <Button
                 variant="text"
                 color="primary"
@@ -67,18 +89,40 @@ const QuestionItem = ({
               </Button>
             )}
 
-            <Button
-              variant="text"
-              color="primary"
-              onClick={() => onAddToBank?.(data)}
-            >
-              Thêm vào ngân hàng
-            </Button>
+            {isPublic && (
+              <Button
+                variant="text"
+                color="primary"
+                onClick={() => onAddToBank?.(data)}
+              >
+                Thêm vào ngân hàng
+              </Button>
+            )}
+
+            {isPrivate && (
+              <Button
+                variant="text"
+                color="primary"
+                onClick={() => onPublicQuestion?.(data)}
+              >
+                Công khai câu hỏi
+              </Button>
+            )}
+
+            {isArchive && (
+              <Button
+                variant="text"
+                color="primary"
+                onClick={() => onRestoreQuestion?.(data)}
+              >
+                Thêm lại vào ngân hàng
+              </Button>
+            )}
           </div>
 
           <div className="flex items-center gap-1 text-text-secondary">
             <span>{formatDateTimeVN(data.created_at || "")} ·</span>
-            <Icon name="word" size={16} />
+            {data.status === "public" && <Icon name="word" size={16} />}
             <span>· Lượt sử dụng: {data.soLuotSuDung} lần</span>
           </div>
         </div>
