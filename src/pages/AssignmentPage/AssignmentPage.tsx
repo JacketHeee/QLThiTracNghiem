@@ -19,6 +19,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useToastStore } from "@/stores/useToast.store";
 import { useLoadingStore } from "@/stores/useLoading.store";
 import { useConfirmStore } from "@/stores/useConfirm.store";
+import Pagination from "@/components/atomic/molecules/Pagination/Pagination";
 
 export const AssignmentPage = () => {
   const { assigns } = useAssign();
@@ -238,6 +239,7 @@ export const AssignmentPage = () => {
           onAction={handleAction}
           checkActions={actions.includes("delete") ? ["delete"] : []}
         />
+        <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
       </div>
     </MainContentLayout>
   );

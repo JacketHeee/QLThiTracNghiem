@@ -9,6 +9,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import type { RoleDetailItem } from "@/types";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import Pagination from "@/components/atomic/molecules/Pagination/Pagination";
 
 export const TestPage = () => {
   const { t } = useTranslation();
@@ -156,9 +157,15 @@ export const TestPage = () => {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        {filteredTests.map((item) => (
-          <TestItem key={item.id} data={item} actions={actions} />
-        ))}
+        <div className="flex flex-col gap-2">
+          {filteredTests.map((item) => (
+            <TestItem key={item.id} data={item} actions={actions} />
+          ))}
+        </div>
+
+        <div className="rounded-md bg-background-body-background">
+          <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
+        </div>
       </div>
     </MainContentLayout>
   );

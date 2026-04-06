@@ -18,6 +18,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useLoadingStore } from "@/stores/useLoading.store";
 import { useToastStore } from "@/stores/useToast.store";
 import { useConfirmStore } from "@/stores/useConfirm.store";
+import Pagination from "@/components/atomic/molecules/Pagination/Pagination";
 
 export const NotificationPage = () => {
   const { thongBaos } = useThongBao();
@@ -292,15 +293,20 @@ export const NotificationPage = () => {
       </div>
 
       <div className="flex flex-col gap-2">
-        {filteredThongBaos.map((note) => (
-          <NotificationItem
-            data={note}
-            onView={(id) => detailTB(id)}
-            onEdit={(id) => openUpdateModal(id)}
-            onDelete={(id) => deleteTB(id)}
-            actions={actions}
-          />
-        ))}
+        <div className="flex flex-col gap-2">
+          {filteredThongBaos.map((note) => (
+            <NotificationItem
+              data={note}
+              onView={(id) => detailTB(id)}
+              onEdit={(id) => openUpdateModal(id)}
+              onDelete={(id) => deleteTB(id)}
+              actions={actions}
+            />
+          ))}
+        </div>
+        <div className="rounded-md bg-background-body-background">
+          <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
+        </div>
       </div>
     </MainContentLayout>
   );

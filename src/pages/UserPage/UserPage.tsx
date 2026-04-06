@@ -29,6 +29,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useToastStore } from "@/stores/useToast.store";
 import { useLoadingStore } from "@/stores/useLoading.store";
 import { useConfirmStore } from "@/stores/useConfirm.store";
+import Pagination from "@/components/atomic/molecules/Pagination/Pagination";
 
 export function UserPage() {
   const { taikhoans } = useUser();
@@ -538,6 +539,7 @@ export function UserPage() {
           onAction={handleAction}
           checkActions={actions}
         />
+        <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
       </div>
     </MainContentLayout>
   );
