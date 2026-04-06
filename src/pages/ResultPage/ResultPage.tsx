@@ -102,7 +102,7 @@ export default function ResultPage() {
         <div className="flex items-center gap-2">
           <ProgressBar percent={percent} colorClass={colorClass} />
           <span className="text-body-2 min-w-[35px] font-semibold duration-1000 animate-in fade-in">
-            {percent}%
+            {percent.toFixed(0)}%
           </span>
         </div>
       );
@@ -143,17 +143,26 @@ export default function ResultPage() {
           title: t("resultPage.columns.percent"),
           key: "phanTram",
           render: (_val, item: StudentResult) =>
-            renderPercent(((item.baiLam?.tongDiem || 0) / 10) * 100),
+            renderPercent(((Number(item.baiLam?.tongDiem) || 0) / 10) * 100),
         },
         {
           title: t("resultPage.columns.score"),
           key: "baiLam",
           className: "text-center",
-          render: (_, item) => item?.baiLam?.tongDiem || "—",
+          render: (_, item) => {
+            const diem = item?.baiLam?.tongDiem;
+
+            if (diem === undefined || diem === null) {
+              return "—";
+            }
+
+            return `${Number(diem).toFixed(2)}/10`;
+          },
         },
         {
           title: t("resultPage.columns.startTime"),
           key: "baiLam",
+          className: "text-center",
           render: (val: BaiLam) =>
             val?.thoiGianBatDau
               ? new Date(val.thoiGianBatDau).toLocaleTimeString("vi-VN", {
@@ -165,8 +174,24 @@ export default function ResultPage() {
         {
           title: t("resultPage.columns.switchCount"),
           key: "baiLam",
-          className: "text-center text-alert-error-main font-bold",
-          render: (val: BaiLam) => val?.logBaiLam?.soLanChuyenTab ?? 0,
+          className: "text-center",
+          render: (val: BaiLam) => {
+            const count = val?.logBaiLam?.soLanChuyenTab;
+
+            if (count === undefined || count === null) {
+              return "—";
+            }
+
+            return (
+              <span
+                className={
+                  count > 0 ? "text-alert-error-main" : "text-text-primary"
+                }
+              >
+                {count}
+              </span>
+            );
+          },
         },
       ] as TableColumn<StudentResult>[];
     }
