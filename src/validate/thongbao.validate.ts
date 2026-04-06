@@ -28,3 +28,21 @@ export class ThongBaoValidate {
     return errors;
   }
 }
+
+export class ThongBaoThisGroupValidate {
+  static create(data: ThongBaoInput): ThongBaoError {
+    const errors: ThongBaoError = {};
+
+    // tiêu đề
+    if (!data.tieuDe || data.tieuDe.trim() === "") {
+      errors.tieuDe = "Tiêu đề không được để trống";
+    }
+
+    // nội dung
+    if (!data.noiDung || data.noiDung.trim() === "") {
+      errors.noiDung = "Nội dung không được để trống";
+    }
+
+    return errors;
+  }
+}

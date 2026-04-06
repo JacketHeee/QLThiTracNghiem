@@ -25,4 +25,7 @@ export const thongBaoService = {
 
   delete: (id: number): Promise<ApiResponse<boolean>> =>
     axiosClient.delete(`/thongbaos/${id}`),
+
+  deleteInGroup: (id: number): Promise<ApiResponse<boolean>> =>
+    axiosClient.delete(`/thongbaos/${id}`),
 };

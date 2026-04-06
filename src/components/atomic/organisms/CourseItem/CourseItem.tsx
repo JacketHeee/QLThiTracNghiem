@@ -2,6 +2,7 @@ import type { NhomHocPhan } from "@/types";
 import { Button, Icon } from "../../atoms";
 import { getDefaultAvatar, getRandomBackground } from "@/utils";
 import { useMemo } from "react";
+import { Dropdown, DropdownItem } from "../../molecules/Dropdown/Dropdown";
 
 interface CourseItemProps {
   data: NhomHocPhan;
@@ -16,16 +17,16 @@ export default function CourseItem({
 }: CourseItemProps) {
   const bgImage = useMemo(() => getRandomBackground(), []);
   return (
-    <article
-      onClick={onClick}
-      className={`group relative flex w-[280px] max-w-[320px] flex-col overflow-hidden rounded-xl border border-other-outlined-border bg-background-body-background shadow-sm hover:shadow-lg ${className}`}
+    <div
+      className={`relative flex w-[280px] max-w-[320px] flex-col rounded-xl border border-other-outlined-border bg-background-body-background shadow-sm hover:shadow-lg ${className}`}
     >
       {/* Header Section: Dark Background */}
       <header
+        onClick={onClick}
         style={{
           backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7)), url(${bgImage})`,
         }}
-        className={`relative h-[105px] cursor-pointer p-4 pr-10 text-primary-contrast`}
+        className={`relative h-[105px] cursor-pointer rounded-t-xl p-4 pr-10 text-primary-contrast`}
       >
         <h2 className="text-h6 truncate leading-tight decoration-1 hover:underline">
           {data.tenNhom}
@@ -48,7 +49,10 @@ export default function CourseItem({
       </header>
 
       {/* Body: Empty area for assignments/deadlines */}
-      <div className="min-h-[135px] flex-grow cursor-pointer bg-background-body-background p-4">
+      <div
+        onClick={onClick}
+        className="min-h-[135px] flex-grow cursor-pointer bg-background-body-background p-4"
+      >
         {/* Có thể thêm danh sách bài tập sắp tới ở đây */}
         <div className="flex flex-col">
           <span className="text-body-1 font-bold">
@@ -65,10 +69,32 @@ export default function CourseItem({
         <Button size={"small"} isButtonIcon={true}>
           <Icon name="folder" />
         </Button>
-        <Button size={"small"} isButtonIcon={true}>
-          <Icon name="moreVertical" />
-        </Button>
+
+        <Dropdown
+          align="right"
+          trigger={
+            <Button size={"small"} isButtonIcon={true}>
+              <Icon name="moreVertical" />
+            </Button>
+          }
+        >
+          <DropdownItem
+            onClick={() => {
+              console.log("con bo bet bay");
+            }}
+          >
+            Ẩn
+          </DropdownItem>
+
+          <DropdownItem
+            onClick={() => {
+              console.log("con bo bet bay");
+            }}
+          >
+            Hủy đăng ký
+          </DropdownItem>
+        </Dropdown>
       </footer>
-    </article>
+    </div>
   );
 }
