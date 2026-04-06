@@ -31,6 +31,7 @@ import type { AxiosError } from "axios";
 import { useToastStore } from "@/stores/useToast.store";
 import { useLoadingStore } from "@/stores/useLoading.store";
 import { useConfirmStore } from "@/stores/useConfirm.store";
+import Pagination from "@/components/atomic/molecules/Pagination/Pagination";
 
 export const QuestionPage = () => {
   const [selectedTab, setSelectedTab] = useState<QuestionStatus>("public");
@@ -457,35 +458,40 @@ export const QuestionPage = () => {
       </div>
 
       {/* List Section */}
-      <section className="mt-4 flex flex-col gap-4">
-        {filteredQuestions.length > 0 ? (
-          filteredQuestions.map((q) => (
-            <QuestionItem
-              key={q.id}
-              data={q}
-              onEdit={(cauHoi) => handleAction("edit", cauHoi)}
-              onDelete={(cauHoi) => handleAction("delete", cauHoi)}
-              onAddToBank={(cauHoi) => handleAction("add-to-bank", cauHoi)}
-              onPublicQuestion={(cauHoi) =>
-                handleAction("public-question", cauHoi)
-              }
-              onArchiveQuestion={(cauHoi) =>
-                handleAction("archive-question", cauHoi)
-              }
-              onRestoreQuestion={(cauHoi) =>
-                handleAction("restore-question", cauHoi)
-              }
-              tab={selectedTab} //cho hiển thị hành động ứng với mỗi tab với quyền cao nhất
-              actions={actions}
-            />
-          ))
-        ) : (
-          <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-other-outlined-border bg-background-body-background py-20">
-            <span className="italic text-text-secondary">
-              {t("questionPage.empty")}
-            </span>
-          </div>
-        )}
+      <section className="mt-4">
+        <div className="flex flex-col gap-4">
+          {filteredQuestions.length > 0 ? (
+            filteredQuestions.map((q) => (
+              <QuestionItem
+                key={q.id}
+                data={q}
+                onEdit={(cauHoi) => handleAction("edit", cauHoi)}
+                onDelete={(cauHoi) => handleAction("delete", cauHoi)}
+                onAddToBank={(cauHoi) => handleAction("add-to-bank", cauHoi)}
+                onPublicQuestion={(cauHoi) =>
+                  handleAction("public-question", cauHoi)
+                }
+                onArchiveQuestion={(cauHoi) =>
+                  handleAction("archive-question", cauHoi)
+                }
+                onRestoreQuestion={(cauHoi) =>
+                  handleAction("restore-question", cauHoi)
+                }
+                tab={selectedTab} //cho hiển thị hành động ứng với mỗi tab với quyền cao nhất
+                actions={actions}
+              />
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-other-outlined-border bg-background-body-background py-20">
+              <span className="italic text-text-secondary">
+                {t("questionPage.empty")}
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="mt-4 rounded-md bg-background-body-background">
+          <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
+        </div>
       </section>
 
       {modalState.open && (

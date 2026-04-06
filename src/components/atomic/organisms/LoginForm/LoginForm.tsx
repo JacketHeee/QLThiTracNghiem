@@ -35,8 +35,11 @@ export default function LoginForm() {
     try {
       startLoading();
       const res = await loginAsync(data);
+      console.log(res);
       if (res.original.me.isStudent) {
         navigate("/courses");
+      } else if (res.original.role.id === 2) {
+        navigate("/course-group");
       } else {
         navigate("/dashboard");
       }

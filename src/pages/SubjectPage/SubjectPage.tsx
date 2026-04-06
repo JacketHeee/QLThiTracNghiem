@@ -13,6 +13,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useToastStore } from "@/stores/useToast.store";
 import { useLoadingStore } from "@/stores/useLoading.store";
 import { useConfirmStore } from "@/stores/useConfirm.store";
+import Pagination from "@/components/atomic/molecules/Pagination/Pagination";
 
 export const SubjectPage = () => {
   const { t } = useTranslation("common");
@@ -210,6 +211,7 @@ export const SubjectPage = () => {
           isLoading={isLoading}
           checkActions={actions}
         />
+        <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
         {isModalOpen && (
           <SubjectForm
             key={editingSubject?.id}

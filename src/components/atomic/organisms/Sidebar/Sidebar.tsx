@@ -26,6 +26,72 @@ const SIDEBAR_SECTIONS_STUDENT: SidebarSection[] = [
   },
 ];
 
+const SIDEBAR_SECTIONS_TEACHER: SidebarSection[] = [
+  {
+    title: "sidebar.sections.management",
+    items: [
+      {
+        icon: "clipboard",
+        labelKey: "sidebar.items.courseGroup",
+        to: "/course-group",
+        permission: "hoc_phan",
+      },
+      {
+        icon: "layers",
+        labelKey: "sidebar.items.difficultyLevel",
+        to: "/difficulty-level",
+        permission: "do_kho",
+      },
+      {
+        icon: "question",
+        labelKey: "sidebar.items.questions",
+        to: "/question",
+        permission: "cau_hoi",
+      },
+      {
+        icon: "user",
+        labelKey: "sidebar.items.users",
+        to: "/users",
+        permission: "nguoi_dung",
+      },
+      {
+        icon: "folder",
+        labelKey: "sidebar.items.subjects",
+        to: "/subjects",
+        permission: "mon_hoc",
+      },
+      {
+        icon: "refresh",
+        labelKey: "sidebar.items.assignments",
+        to: "/assignments",
+        permission: "phan_cong",
+      },
+      {
+        icon: "documentDuplicate",
+        labelKey: "sidebar.items.tests",
+        to: "/tests",
+        permission: "de_thi",
+      },
+      {
+        icon: "massage",
+        labelKey: "sidebar.items.notifications",
+        to: "/notifications",
+        permission: "thong_bao",
+      },
+    ],
+  },
+  {
+    title: "sidebar.sections.admin",
+    items: [
+      {
+        icon: "groupUser",
+        labelKey: "sidebar.items.permissionGroups",
+        to: "/permission-groups",
+        permission: "nhom_quyen",
+      },
+    ],
+  },
+];
 const SIDEBAR_SECTIONS: SidebarSection[] = [
   {
     title: null,
@@ -104,24 +170,29 @@ const SIDEBAR_SECTIONS: SidebarSection[] = [
   },
 ];
 
-const filterRole = (roleDetails: RoleDetailItem[]): SidebarSection[] => {
-  return SIDEBAR_SECTIONS.map((section) => {
-    const filteredItems = section.items.filter((item) => {
-      // Public thì luôn cho xem
-      if (item.permission === "public") return true;
+const filterRole = (
+  roleDetails: RoleDetailItem[],
+  baseList: SidebarSection[]
+): SidebarSection[] => {
+  return baseList
+    .map((section) => {
+      const filteredItems = section.items.filter((item) => {
+        // Public thì luôn cho xem
+        if (item.permission === "public") return true;
 
-      // Tìm quyền tương ứng
-      const role = roleDetails.find((r) => r.tenChucNang === item.permission);
+        // Tìm quyền tương ứng
+        const role = roleDetails.find((r) => r.tenChucNang === item.permission);
 
-      // Chỉ hiển thị nếu có quyền xem
-      return role?.canView === true;
-    });
+        // Chỉ hiển thị nếu có quyền xem
+        return role?.canView === true;
+      });
 
-    return {
-      ...section,
-      items: filteredItems,
-    };
-  }).filter((section) => section.items.length > 0); // bỏ section rỗng
+      return {
+        ...section,
+        items: filteredItems,
+      };
+    })
+    .filter((section) => section.items.length > 0); // bỏ section rỗng
 };
 
 export const Sidebar = () => {
@@ -129,12 +200,26 @@ export const Sidebar = () => {
   const { t } = useTranslation();
   const { user, role } = useAuthStore();
 
-  const userRole =
-    !user && !role
-      ? []
-      : user?.isStudent
-        ? SIDEBAR_SECTIONS_STUDENT
-        : filterRole(role ? role.role_details : []);
+  // const userRole =
+  //   !user && !role
+  //     ? []
+  //     : user?.isStudent
+  //       ? SIDEBAR_SECTIONS_STUDENT
+  //       : filterRole(role ? role.role_details : []);
+
+  let userRole: SidebarSection[] = [];
+
+  if (!user && !role) {
+    userRole = [];
+  } else if (user?.isStudent) {
+    userRole = SIDEBAR_SECTIONS_STUDENT;
+  } else if (role?.tenNhomQuyen === "teacher") {
+    const roleDetails = role ? role.role_details : [];
+    userRole = filterRole(roleDetails, SIDEBAR_SECTIONS_TEACHER);
+  } else {
+    const roleDetails = role ? role.role_details : [];
+    userRole = filterRole(roleDetails, SIDEBAR_SECTIONS);
+  }
 
   return (
     <div

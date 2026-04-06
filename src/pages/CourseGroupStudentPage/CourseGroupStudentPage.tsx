@@ -162,11 +162,6 @@ export function CourseGroupStudentPage() {
             >
               <Icon name="document" size={18} />
               {t("courseGroupStudent.exportList")}
-              <Icon
-                name="arrowDown"
-                size={16}
-                className="text-primary-contrast"
-              />
             </Button>
             {/* <Button variant="contained" color="primary" size="medium">
               <Icon name="document" size={18} />
@@ -185,11 +180,6 @@ export function CourseGroupStudentPage() {
             >
               <Icon name="plus" size={18} />
               {t("courseGroupStudent.addStudent")}
-              <Icon
-                name="arrowDown"
-                size={16}
-                className="text-primary-contrast"
-              />
             </Button>
             <Button variant="outline" size="medium" isButtonIcon>
               <Icon name="settings" />
