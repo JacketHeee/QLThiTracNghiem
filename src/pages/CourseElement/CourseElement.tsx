@@ -174,11 +174,13 @@ export default function CourseElement() {
     {
       title: "Điểm số",
       key: "bai_lam",
+      className: "text-center",
       render: (_, item) => item.bai_lam?.tongDiem ?? "---",
     },
     {
       title: "Thời gian làm",
       key: "bai_lam",
+      className: "text-center",
       render: (_val, item) => {
         if (!item.bai_lam) {
           return "---";
@@ -192,7 +194,7 @@ export default function CourseElement() {
         const isSubmitted = item.bai_lam.status === "DA_NOP";
 
         return (
-          <div className="flex items-center justify-between pl-4">
+          <div className="flex items-center justify-between gap-4 pl-4">
             <span className="text-body-2 text-text-primary">{duration}</span>
 
             {isSubmitted && (
@@ -315,6 +317,19 @@ export default function CourseElement() {
     });
   };
 
+  // Sắp xếp danh sách bài tập cho tab Classwork
+  const sortedClasswork = useMemo(() => {
+    const rawData = dethis?.de_this || [];
+
+    // Tạo bản sao để tránh mutate mảng gốc và sắp xếp
+    return [...rawData].sort((a, b) => {
+      const dateA = new Date(a.created_at || a.thoiGianBatDau).getTime();
+      const dateB = new Date(b.created_at || b.thoiGianBatDau).getTime();
+
+      return dateB - dateA; // Mới hơn (lớn hơn) đứng trước
+    });
+  }, [dethis]);
+
   return (
     <div className="flex h-fit min-h-screen flex-1 flex-col items-center bg-background-body-background">
       <div className="flex h-fit w-[1200px] flex-col pb-10">
@@ -414,7 +429,7 @@ export default function CourseElement() {
               <div className="w-full overflow-hidden rounded-md border border-other-outlined-border bg-background-body-background shadow-sm">
                 <DynamicTable
                   columns={classworkColumns}
-                  data={dethis?.de_this || []}
+                  data={sortedClasswork}
                   rowKey="id"
                 />
               </div>
