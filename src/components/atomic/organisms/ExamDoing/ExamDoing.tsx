@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import Logo from "../../molecules/Logo/Logo";
 import { Button, Icon } from "../../atoms";
 import { useExamStore } from "@/stores/useExamStore";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { AlertTriangle, ShieldAlert, List, Maximize2 } from "lucide-react";
 import QuestionCard from "../../molecules/QuestionCard/QuestionCard";
 import { useDeThiStore } from "@/stores/useDeThi.store";
@@ -11,9 +11,11 @@ import { shuffleArray } from "@/utils";
 import { useAuthStore } from "@/stores/auth.store";
 import { useExamActions } from "@/hooks/useExamActions";
 import { useLoadingStore } from "@/stores/useLoading.store";
+import { useConfirmStore } from "@/stores/useConfirm.store";
 
 export const ExamDoing = () => {
   const navigate = useNavigate();
+  const { openConfirm } = useConfirmStore(); // Lấy hàm openConfirm
 
   // 1. Kết nối Final Store
   const {
@@ -48,6 +50,7 @@ export const ExamDoing = () => {
     updateViolation,
   } = useExamActions();
   // const [isMouseOut, setIsMouseOut] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
 
   useEffect(() => {
     const config = testData?.cau_hinh_thi;
@@ -296,6 +299,58 @@ export const ExamDoing = () => {
     }
   };
 
+  // Logic phân trang
+  const config = testData?.cau_hinh_thi;
+  const limitPerPage = config?.limitQuestionPerPage ?? -1;
+
+  const displayedQuestions = useMemo(() => {
+    if (limitPerPage === -1) return shuffledQuestions; // Hiển thị tất cả
+
+    const start = currentPage * limitPerPage;
+    const end = start + limitPerPage;
+    return shuffledQuestions.slice(start, end);
+  }, [shuffledQuestions, currentPage, limitPerPage]);
+
+  const totalPages =
+    limitPerPage === -1
+      ? 1
+      : Math.ceil(shuffledQuestions.length / limitPerPage);
+  const isLastPage = currentPage === totalPages - 1;
+  const isFirstPage = currentPage === 0;
+
+  // 1. Kiểm tra xem toàn bộ câu hỏi hiển thị trên trang hiện tại đã được trả lời chưa
+  const isCurrentPageCompleted = () => {
+    return displayedQuestions.every((q) => answers[q.id] !== undefined);
+  };
+
+  // 2. Hàm thực hiện chuyển trang (tách riêng để tái sử dụng)
+  const goToNextPage = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setCurrentPage((p) => p + 1);
+  };
+
+  // 3. Hàm xử lý khi nhấn nút "Tiếp theo"
+  const handleNextStep = () => {
+    const isNotAllowedBack = config?.allowBackLastQuestion === 0;
+
+    // Nếu KHÔNG cho quay lại và CHƯA làm hết câu hỏi ở trang này
+    if (isNotAllowedBack && !isCurrentPageCompleted()) {
+      openConfirm({
+        title: "Chưa hoàn thành câu hỏi",
+        message:
+          "Bạn chưa chọn đáp án cho tất cả câu hỏi ở trang này. Nếu tiếp tục, bạn sẽ không thể quay lại để sửa. Bạn có chắc chắn muốn sang trang tiếp theo?",
+        type: "warning",
+        confirmLabel: "Tiếp tục",
+        cancelLabel: "Ở lại làm tiếp",
+        onConfirm: goToNextPage, // Nếu xác nhận thì mới cho qua
+      });
+      return;
+    }
+
+    // Nếu cho phép quay lại hoặc đã làm hết thì đi tiếp luôn
+    goToNextPage();
+  };
+
   return (
     <div className="relative flex min-h-screen flex-col items-center overflow-hidden text-text-secondary">
       {/* 1. Logo Header */}
@@ -354,11 +409,13 @@ export const ExamDoing = () => {
 
           {/* 4. Questions List */}
           <div className="space-y-8">
-            {shuffledQuestions.map((q, idx) => (
+            {displayedQuestions.map((q, idx) => (
               <QuestionCard
                 key={q.id}
                 question={q}
-                index={idx}
+                index={
+                  limitPerPage === -1 ? idx : currentPage * limitPerPage + idx
+                }
                 totalQuestions={shuffledQuestions.length}
                 userAnswer={answers[q.id]}
                 onAnswerChange={handleAnswerChange} // Truyền thẳng hàm từ Store vào
@@ -366,12 +423,74 @@ export const ExamDoing = () => {
             ))}
           </div>
 
-          {/* 5. Finish Button */}
-          <div className="mb-20 mt-12 flex justify-end">
-            {/* <Button variant={"outline"}>Câu trước</Button> */}
-            <Button color="primary" variant="contained" onClick={handleFinish}>
-              Nộp bài
-            </Button>
+          {/* 5. Navigation & Finish Button */}
+          <div className="mb-20 mt-12 flex items-center justify-between border-t border-other-outlined-border pt-8">
+            <div className="flex flex-col gap-1">
+              <div className="flex gap-3">
+                {limitPerPage !== -1 && !isFirstPage && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                    disabled={config?.allowBackLastQuestion === 0}
+                  >
+                    Câu trước
+                  </Button>
+                )}
+              </div>
+              {/* Hiển thị số trang để sinh viên dễ theo dõi */}
+              {limitPerPage !== -1 && (
+                <span className="text-caption text-text-disabled">
+                  Trang {currentPage + 1} / {totalPages}
+                </span>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              {/* Nút Tiếp theo */}
+              {limitPerPage !== -1 && !isLastPage && (
+                <Button
+                  color="primary"
+                  variant="contained"
+                  onClick={handleNextStep} // Sử dụng hàm handle mới
+                >
+                  Tiếp theo
+                </Button>
+              )}
+
+              {/* Nút Nộp bài */}
+              {(limitPerPage === -1 || isLastPage) && (
+                <Button
+                  color="primary"
+                  variant="contained"
+                  onClick={() => {
+                    // Nếu chưa làm hết mà bấm nộp, hiện cảnh báo Danger
+                    if (!isCurrentPageCompleted()) {
+                      openConfirm({
+                        title: "Xác nhận nộp bài",
+                        message:
+                          "Bạn vẫn còn câu hỏi chưa hoàn thành. Bạn có chắc chắn muốn nộp bài ngay bây giờ không?",
+                        type: "danger",
+                        confirmLabel: "Nộp ngay",
+                        cancelLabel: "Kiểm tra lại",
+                        onConfirm: handleFinish,
+                      });
+                    } else {
+                      // Nếu đã làm hết thì hiện confirm nhẹ nhàng hơn
+                      openConfirm({
+                        title: "Hoàn tất bài thi",
+                        message:
+                          "Bạn có chắc chắn muốn nộp bài và kết thúc bài thi tại đây?",
+                        type: "info",
+                        confirmLabel: "Xác nhận nộp",
+                        onConfirm: handleFinish,
+                      });
+                    }
+                  }}
+                >
+                  Nộp bài
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 

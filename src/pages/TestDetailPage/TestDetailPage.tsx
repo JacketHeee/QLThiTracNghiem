@@ -65,10 +65,10 @@ export default function TestDetailPage() {
           <Icon name="testsOverview" size={32} />
           <span>{t("testDetailPage.overview.title")}</span>
         </div>
-        <div className="flex justify-between gap-2">
-          <div className="flex flex-col gap-3 pb-8 pt-5">
+        <div className="flex justify-between gap-3">
+          <div className="flex min-w-0 flex-1 flex-col gap-3 pb-8 pt-5">
             <div className="flex flex-col gap-2">
-              <div className="text-h4 text-text-primary">
+              <div className="text-h4 text-wrap break-words text-text-primary">
                 {displayData?.tenDe}
               </div>
               {/* infor */}
@@ -133,7 +133,7 @@ export default function TestDetailPage() {
               </Dropdown>
             </div>
           </div>
-          <div className="relative h-[216px] w-[295px]">
+          <div className="relative h-[216px] w-[295px] flex-shrink-0">
             <Icon
               name="editTest"
               size={295}

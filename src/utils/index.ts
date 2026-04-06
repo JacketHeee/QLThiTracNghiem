@@ -359,6 +359,12 @@ export const mapDeThiToCreatePayload = (
       tabSwitchLimit: source.cau_hinh_thi?.tabSwitchLimit ?? 0,
       messageOnWarning:
         source.cau_hinh_thi?.messageOnWarning ?? "Bạn đã vi phạm quy chế thi!",
+      limitQuestionPerPage: Number(
+        source.cau_hinh_thi?.limitQuestionPerPage ?? -1
+      ),
+      allowBackLastQuestion: Number(
+        source.cau_hinh_thi?.allowBackLastQuestion ?? 1
+      ),
     },
   };
 };

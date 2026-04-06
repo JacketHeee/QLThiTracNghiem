@@ -95,6 +95,19 @@ export const ExamInstruction = () => {
                 textLeft={t("examInstruction.questionCount")}
                 textRight={testData?.cau_hois?.length.toString()}
               />
+              {testData?.cau_hinh_thi?.limitQuestionPerPage &&
+                testData?.cau_hinh_thi?.limitQuestionPerPage > 0 && (
+                  <ItemSetting
+                    textLeft={t("examInstruction.pagination")}
+                    textRight={`${testData.cau_hinh_thi.limitQuestionPerPage} ${t("examInstruction.questionsPerPage")}`}
+                  />
+                )}
+              {testData?.cau_hinh_thi?.allowBackLastQuestion === 0 && (
+                <ItemSetting
+                  classname="text-alert-error-content font-bold" // Cho màu đỏ để gây chú ý
+                  textLeft={t("examInstruction.noBackWarning")}
+                />
+              )}
               {testData?.cau_hinh_thi?.shuffleQuestions && (
                 <ItemSetting textLeft={t("examInstruction.shuffleQuestions")} />
               )}
