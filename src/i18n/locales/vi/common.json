@@ -872,7 +872,10 @@
     "monitoring": "Giám sát quá trình thi: toàn màn hình, giới hạn chuột",
     "limitSwitchTab": "Giới hạn chuyển tab: {{count}} lần",
     "welcome": "Chào mừng bạn đến với {{testName}}. Hãy đảm bảo đường truyền ổn định trước khi bắt đầu.",
-    "start": "Bắt đầu"
+    "start": "Bắt đầu",
+    "pagination": "Hiển thị:",
+    "questionsPerPage": "câu mỗi trang",
+    "noBackWarning": "LƯU Ý: Không được phép quay lại câu hỏi trước sau khi đã chuyển trang!"
   },
   "statSection": {
     "summary": {

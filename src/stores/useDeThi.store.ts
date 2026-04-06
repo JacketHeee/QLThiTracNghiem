@@ -55,6 +55,8 @@ export const useDeThiStore = create<DeThiState & DeThiActions>()(
             isLimitSwitchTab: false,
             tabSwitchLimit: 3,
             messageOnWarning: "Bạn đã vi phạm quy chế thi!",
+            limitQuestionPerPage: -1,
+            allowBackLastQuestion: 1,
           },
         };
         set({ testData: defaultData });
@@ -68,17 +70,35 @@ export const useDeThiStore = create<DeThiState & DeThiActions>()(
         })),
 
       updateCauHinh: (newConfig) =>
-        set((state) => ({
-          testData: state.testData
-            ? {
-                ...state.testData,
-                cau_hinh_thi: {
-                  ...(state.testData.cau_hinh_thi || {}),
-                  ...newConfig,
-                } as CauHinhThi,
-              }
-            : state.testData,
-        })),
+        set((state) => {
+          if (!state.testData) return state;
+
+          // Đảm bảo các giá trị số luôn là number (tránh lỗi string từ input)
+          const sanitizedConfig = { ...newConfig };
+
+          if (sanitizedConfig.limitQuestionPerPage !== undefined) {
+            sanitizedConfig.limitQuestionPerPage = Number(
+              sanitizedConfig.limitQuestionPerPage
+            );
+          }
+
+          if (sanitizedConfig.allowBackLastQuestion !== undefined) {
+            sanitizedConfig.allowBackLastQuestion = Number(
+              sanitizedConfig.allowBackLastQuestion
+            );
+          }
+
+          return {
+            testData: {
+              ...state.testData,
+              cau_hinh_thi: {
+                // Fallback về object rỗng nếu cau_hinh_thi chưa tồn tại
+                ...(state.testData.cau_hinh_thi || {}),
+                ...sanitizedConfig,
+              } as CauHinhThi,
+            },
+          };
+        }),
 
       // Quản lý danh sách câu hỏi
       setQuestions: (questions) =>

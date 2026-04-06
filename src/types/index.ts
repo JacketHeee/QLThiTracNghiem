@@ -456,6 +456,8 @@ export interface CauHinhThi {
   isLimitSwitchTab: boolean;
   tabSwitchLimit: number;
   messageOnWarning: string; // Có thể null theo JSON của bạn
+  limitQuestionPerPage: number;
+  allowBackLastQuestion: number;
   created_at?: string; // ISO Date string
   updated_at?: string; // ISO Date string
 }

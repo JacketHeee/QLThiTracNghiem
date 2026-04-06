@@ -127,6 +127,63 @@ export default function RightSidebar({
               </div>
             </div>
           )}
+
+          <div className="flex flex-col gap-2">
+            <Toggle
+              label="Giới hạn số câu mỗi trang"
+              checked={data?.limitQuestionPerPage !== -1}
+              onChange={() => {
+                const isActivating = data?.limitQuestionPerPage === -1;
+                if (isActivating) {
+                  // KHI BẬT: Gợi ý tắt luôn việc quay lại (nhưng Admin vẫn có thể bật lại sau đó)
+                  updateConfig({
+                    limitQuestionPerPage: 1,
+                    allowBackLastQuestion: 0, // Gợi ý chặn quay lại
+                  });
+                } else {
+                  // KHI TẮT: Trả về trạng thái mặc định cho phép quay lại
+                  updateConfig({
+                    limitQuestionPerPage: -1,
+                    allowBackLastQuestion: 1,
+                  });
+                }
+              }}
+              disabled={readOnly}
+            />
+
+            {data?.limitQuestionPerPage !== -1 && (
+              <div className="border-primary-main/20 ml-2 border-l-2 pl-9 animate-in slide-in-from-top-2">
+                <TextField
+                  type="number"
+                  label="Số lượng câu/trang"
+                  value={data?.limitQuestionPerPage ?? 1}
+                  onChange={(e) =>
+                    updateConfig({
+                      limitQuestionPerPage: Math.max(1, Number(e.target.value)),
+                    })
+                  }
+                  disabled={readOnly}
+                  classNameParent="!gap-1"
+                />
+                {/* Dòng nhắc nhở */}
+                <p className="text-caption italic text-alert-warning-content">
+                  * Thường kết hợp với "Chặn quay lại" để tăng tính bảo mật.
+                </p>
+              </div>
+            )}
+          </div>
+
+          <Toggle
+            label="Cho phép quay lại câu trước"
+            checked={Number(data?.allowBackLastQuestion) === 1}
+            onChange={() =>
+              updateConfig({
+                allowBackLastQuestion:
+                  data?.allowBackLastQuestion === 1 ? 0 : 1,
+              })
+            }
+            disabled={readOnly}
+          />
         </section>
 
         {/* NHÓM: KẾT QUẢ */}
