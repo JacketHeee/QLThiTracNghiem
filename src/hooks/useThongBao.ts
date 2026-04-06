@@ -41,3 +41,51 @@ export const useThongBao = () => {
       deleteMutation.isPending,
   };
 };
+
+// "nhomhocphan", "thongbaos", id
+// Thêm mới trong nhóm
+
+export const useCreateThongBaoNhom = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: thongBaoService.create, // API thêm mới
+
+    onSuccess: (_, variables) => {
+      const nhomId = variables.nhomHocPhanIds?.[0]; // lấy mã duy nhất trả về
+      queryClient.invalidateQueries({
+        queryKey: ["nhomhocphan", "thongbaos", nhomId],
+      });
+    },
+  });
+
+  return {
+    createThongBaoNhom: mutation.mutateAsync, // dùng await nếu cần
+    isCreatingTBN: mutation.isPending,
+    isCreateErrorTBN: mutation.isError,
+    isCreateSuccessTBN: mutation.isSuccess,
+  };
+};
+
+//xóa trong nhóm
+export const useDeleteThongBaoNhom = (nhomId?: number) => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: thongBaoService.delete, // API xóa
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["nhomhocphan", "thongbaos", nhomId],
+      });
+    },
+  });
+
+  return {
+    deleteThongBaoNhom: mutation.mutate, // gọi bình thường
+    deleteThongBaoNhomAsync: mutation.mutateAsync, // dùng await nếu cần
+    isDeletingThongBaoNhom: mutation.isPending,
+    isDeleteThongBaoNhomError: mutation.isError,
+    isDeleteSuccess: mutation.isSuccess,
+  };
+};

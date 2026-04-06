@@ -12,7 +12,13 @@ import { dethiService } from "@/services/api/dethi.service";
 import { useAuthStore } from "@/stores/auth.store";
 import { useDeThiStore } from "@/stores/useDeThi.store";
 import { useLoadingStore } from "@/stores/useLoading.store";
-import type { DeThi, DeThiSvien, ThongBao } from "@/types";
+import type {
+  DeThi,
+  DeThiSvien,
+  ErrorResponse,
+  ThongBao,
+  ThongBaoCreate,
+} from "@/types";
 import {
   calculateDuration,
   getDefaultAvatar,
@@ -22,11 +28,24 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import NotiThisCourseForm from "@/components/atomic/organisms/NotiThisCourseForm/NotiThisCourseForm";
+import {
+  useCreateThongBaoNhom,
+  useDeleteThongBaoNhom,
+} from "@/hooks/useThongBao";
+import type { AxiosError } from "axios";
+import { useToastStore } from "@/stores/useToast.store";
+import {
+  Dropdown,
+  DropdownItem,
+} from "@/components/atomic/molecules/Dropdown/Dropdown";
+import { useConfirmStore } from "@/stores/useConfirm.store";
 
 export default function CourseElement() {
   const { t } = useTranslation();
   const [selectedTab, setSelectedTab] = useState("news");
   const [now, setNow] = useState(new Date());
+  const { showToast } = useToastStore();
 
   // Cập nhật thời gian mỗi phút để cập nhật trạng thái nút "Bắt đầu"
   useEffect(() => {
@@ -224,6 +243,7 @@ export default function CourseElement() {
 
   const handleClose = () => setOpenResultModal(false);
 
+  const [isOpenNotiForm, setIsOpenNotiForm] = useState(false);
   const { reviewExam } = useExamActions();
   const handleViewResult = async (baiLamId: number) => {
     startLoading();
@@ -240,6 +260,61 @@ export default function CourseElement() {
       stopLoading();
     }
   };
+  const onCloseNotiForm = () => {
+    setIsOpenNotiForm(false);
+  };
+  const { createThongBaoNhom } = useCreateThongBaoNhom();
+
+  const handleSaveCreate = async (formData: ThongBaoCreate) => {
+    formData.nhomHocPhanIds = [Number(id)]; // set nhom hiện tại
+    startLoading();
+    try {
+      await createThongBaoNhom(formData);
+      showToast(t("message.success.create"), "success");
+      onCloseNotiForm();
+    } catch (error: unknown) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.status === 422) {
+        //lỗi validate backend
+        const errors = err.response?.data?.errors;
+
+        const firstError = Object.values(errors)?.[0];
+
+        if (Array.isArray(firstError)) {
+          showToast(firstError[0], "error");
+        }
+      } else {
+        showToast(t("message.error.create"), "error");
+      }
+    } finally {
+      stopLoading();
+    }
+  };
+
+  const { deleteThongBaoNhomAsync } = useDeleteThongBaoNhom(Number(id!));
+  const { openConfirm } = useConfirmStore();
+
+  const handleDeleteNotifi = (a: ThongBao) => {
+    openConfirm({
+      title: t("notificationPage.confirmDeleteTitle"),
+      message: t("notificationPage.confirmDeleteMessage"),
+      type: "danger",
+      onConfirm: async () => {
+        startLoading();
+        try {
+          await deleteThongBaoNhomAsync(a.id);
+          showToast(t("message.success.delete"), "success");
+          if (typeof onCloseNotiForm === "function") onCloseNotiForm();
+        } catch (error: unknown) {
+          showToast(t("message.error.delete"), "error");
+          throw error;
+        } finally {
+          stopLoading();
+        }
+      },
+    });
+  };
+
   return (
     <div className="flex h-fit min-h-screen flex-1 flex-col items-center bg-background-body-background">
       <div className="flex h-fit w-[1200px] flex-col pb-10">
@@ -295,7 +370,10 @@ export default function CourseElement() {
                 </aside>
 
                 <div className="w-4/5 space-y-4">
-                  <div className="group flex cursor-pointer items-center gap-4 rounded-lg border border-other-outlined-border bg-background-body-background p-4 shadow-sm transition-all hover:shadow-md">
+                  <div
+                    onClick={() => setIsOpenNotiForm(!isOpenNotiForm)}
+                    className="group flex cursor-pointer items-center gap-4 rounded-lg border border-other-outlined-border bg-background-body-background p-4 shadow-sm transition-all hover:shadow-md"
+                  >
                     <div className="flex h-10 w-10 items-center justify-center rounded-full group-hover:bg-info-background">
                       <Icon name="edit" className="text-alert-info-content" />
                     </div>
@@ -308,7 +386,11 @@ export default function CourseElement() {
                   {combinedFeed.map((item) => (
                     <div key={`${item.feedType}-${item.id}`}>
                       {item.feedType === "ANNOUNCEMENT" ? (
-                        <AnnouncementCard data={item as ThongBao} />
+                        <AnnouncementCard
+                          data={item as ThongBao}
+                          onDeleteNotifi={handleDeleteNotifi}
+                          onCopyNotifi={() => console.log("ừ")}
+                        />
                       ) : (
                         <ExamFeedItem data={item as DeThi} />
                       )}
@@ -316,6 +398,13 @@ export default function CourseElement() {
                   ))}
                 </div>
               </div>
+              {isOpenNotiForm && (
+                <NotiThisCourseForm
+                  onClose={() => setIsOpenNotiForm(!isOpenNotiForm)}
+                  onSaveCreate={handleSaveCreate}
+                  mode="create"
+                />
+              )}
             </div>
           )}
 
@@ -406,9 +495,18 @@ export default function CourseElement() {
   );
 }
 
-const AnnouncementCard = ({ data }: { data: ThongBao }) => {
+const AnnouncementCard = ({
+  data,
+  onDeleteNotifi,
+  onCopyNotifi,
+}: {
+  data: ThongBao;
+  onDeleteNotifi: (thongBao: ThongBao) => void;
+  onCopyNotifi: (thongBao: ThongBao) => void;
+}) => {
   const authorName = data.nguoi_gui?.hoTen || "Giảng viên";
   const firstLetter = authorName.trim().split(" ").pop()?.charAt(0) ?? "";
+  const { user } = useAuthStore();
 
   return (
     <div className="overflow-hidden rounded-md border border-other-outlined-border bg-background-body-background shadow-sm">
@@ -431,9 +529,28 @@ const AnnouncementCard = ({ data }: { data: ThongBao }) => {
               </p>
             </div>
           </div>
-          <Button size="small" isButtonIcon>
+          {/* <Button size="small" isButtonIcon>
             <Icon name="moreVertical" />
-          </Button>
+          </Button> */}
+
+          <Dropdown
+            align="right"
+            trigger={
+              <Button size="small" isButtonIcon>
+                <Icon name="moreVertical" />
+              </Button>
+            }
+          >
+            {user?.id === data.nguoiGuiId && (
+              <DropdownItem onClick={() => onDeleteNotifi(data)}>
+                Xóa
+              </DropdownItem>
+            )}
+
+            <DropdownItem onClick={() => onCopyNotifi(data)}>
+              Sao chép đường liên kết
+            </DropdownItem>
+          </Dropdown>
         </div>
         <div className="text-body-2 mt-4 px-1 text-text-secondary">
           <p className="mb-1 font-bold text-text-primary">{data.tieuDe}</p>
