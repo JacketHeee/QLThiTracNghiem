@@ -3,6 +3,7 @@ import { Button, Icon } from "@/components/atomic/atoms";
 import type { Question, QuestionStatus } from "@/types";
 import { formatDateTimeVN } from "@/utils";
 import { BodyQuestionItem } from "../BodyQuestionItem/BodyQuestionItem";
+import { useTranslation } from "react-i18next";
 
 interface QuestionItemProps {
   data: Question;
@@ -27,6 +28,7 @@ const QuestionItem = ({
   tab,
   actions,
 }: QuestionItemProps) => {
+  const { t } = useTranslation();
   const [showAnswer, setShowAnswer] = useState(false);
   const isPublic = tab === "public";
   const isPrivate = tab === "private";
@@ -56,7 +58,9 @@ const QuestionItem = ({
               color="primary"
               onClick={() => setShowAnswer(!showAnswer)}
             >
-              {showAnswer ? "Ẩn đáp án" : "Hiển thị đáp án"}
+              {showAnswer
+                ? t("questionItem.hideAnswer")
+                : t("questionItem.showAnswer")}
             </Button>
 
             {isPrivate && actions.includes("update") && (
@@ -65,7 +69,7 @@ const QuestionItem = ({
                 color="primary"
                 onClick={() => onEdit?.(data)}
               >
-                Sửa
+                {t("questionItem.edit")}
               </Button>
             )}
 
@@ -75,7 +79,7 @@ const QuestionItem = ({
                 color="primary"
                 onClick={() => onArchiveQuestion?.(data)}
               >
-                Lưu trữ
+                {t("questionItem.archive")}
               </Button>
             )}
 
@@ -85,7 +89,7 @@ const QuestionItem = ({
                 color="primary"
                 onClick={() => onDelete?.(data)}
               >
-                Xóa
+                {t("questionItem.delete")}
               </Button>
             )}
 
@@ -95,7 +99,7 @@ const QuestionItem = ({
                 color="primary"
                 onClick={() => onAddToBank?.(data)}
               >
-                Thêm vào ngân hàng
+                {t("questionItem.addToBank")}
               </Button>
             )}
 
@@ -105,7 +109,7 @@ const QuestionItem = ({
                 color="primary"
                 onClick={() => onPublicQuestion?.(data)}
               >
-                Công khai câu hỏi
+                {t("questionItem.makePublic")}
               </Button>
             )}
 
@@ -115,7 +119,7 @@ const QuestionItem = ({
                 color="primary"
                 onClick={() => onRestoreQuestion?.(data)}
               >
-                Thêm lại vào ngân hàng
+                {t("questionItem.restoreToBank")}
               </Button>
             )}
           </div>
@@ -123,7 +127,9 @@ const QuestionItem = ({
           <div className="flex items-center gap-1 text-text-secondary">
             <span>{formatDateTimeVN(data.created_at || "")} ·</span>
             {data.status === "public" && <Icon name="word" size={16} />}
-            <span>· Lượt sử dụng: {data.soLuotSuDung} lần</span>
+            <span>
+              · {t("questionItem.usage", { count: data.soLuotSuDung })}
+            </span>
           </div>
         </div>
       </div>

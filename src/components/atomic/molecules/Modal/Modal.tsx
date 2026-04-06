@@ -2,6 +2,7 @@ import { AlertTriangle, X, Info, AlertCircle } from "lucide-react";
 import Button from "@/components/atomic/atoms/Button/Button";
 import { cn } from "@/utils/cn";
 import { Overlay } from "../Overlay/Overlay";
+import { useTranslation } from "react-i18next";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -19,14 +20,19 @@ export function ConfirmationModal({
   isOpen,
   onClose,
   onConfirm,
-  title = "Xác nhận hành động",
+  title,
   message,
-  confirmLabel = "Xác nhận",
-  cancelLabel = "Hủy",
+  confirmLabel,
+  cancelLabel,
   type = "danger",
   isLoading = false,
 }: ConfirmationModalProps) {
+  const { t } = useTranslation();
   if (!isOpen) return null;
+
+  const resolvedTitle = title ?? t("confirm.title");
+  const resolvedConfirmLabel = confirmLabel ?? t("confirm.confirm");
+  const resolvedCancelLabel = cancelLabel ?? t("confirm.cancel");
 
   const typeConfigs = {
     danger: {
@@ -84,7 +90,7 @@ export function ConfirmationModal({
 
           <div className="flex flex-col gap-3 pt-1">
             <h3 className="text-[1.5rem] font-bold leading-8 text-text-primary">
-              {title}
+              {resolvedTitle}
             </h3>
             <p className="text-[1rem] leading-7 text-text-secondary">
               {message}
@@ -101,7 +107,7 @@ export function ConfirmationModal({
             onClick={onClose}
             disabled={isLoading}
           >
-            {cancelLabel}
+            {resolvedCancelLabel}
           </Button>
 
           <Button
@@ -111,7 +117,7 @@ export function ConfirmationModal({
             onClick={onConfirm}
             disabled={isLoading}
           >
-            {isLoading ? "Đang xử lý..." : confirmLabel}
+            {isLoading ? t("confirm.loading") : resolvedConfirmLabel}
           </Button>
         </div>
       </div>

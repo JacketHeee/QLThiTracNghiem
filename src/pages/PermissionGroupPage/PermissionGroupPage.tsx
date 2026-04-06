@@ -211,9 +211,8 @@ export const PermissionGroupPage = () => {
 
   const deleteRole = (data: Role) => {
     openConfirm({
-      title: "Xác nhận xóa",
-      message:
-        "Bạn có chắc chắn muốn xóa nhóm người dùng này không? Hành động này không thể hoàn tác.",
+      title: t("permissionGroupPage.confirmDeleteTitle"),
+      message: t("permissionGroupPage.confirmDeleteMessage"),
       type: "danger",
       onConfirm: async () => {
         startLoading();

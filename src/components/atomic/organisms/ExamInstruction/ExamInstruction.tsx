@@ -8,8 +8,10 @@ import type { BaiLam } from "@/types";
 import { useAuthStore } from "@/stores/auth.store";
 import { useExamActions } from "@/hooks/useExamActions";
 import { useLoadingStore } from "@/stores/useLoading.store";
+import { useTranslation } from "react-i18next";
 
 export const ExamInstruction = () => {
+  const { t } = useTranslation();
   const { initExam, mode } = useExamStore();
   const navigate = useNavigate();
   const { startExam } = useExamActions();
@@ -77,38 +79,44 @@ export const ExamInstruction = () => {
 
           {/* 3. Instructions Box */}
           <div className="mb-6 rounded-md bg-background-body px-8 py-6">
-            <h2 className="text-body-2 mb-4 font-bold">Hướng dẫn</h2>
+            <h2 className="text-body-2 mb-4 font-bold">
+              {t("examInstruction.title")}
+            </h2>
             <ul className="text-body-2 space-y-2">
               <ItemSetting
-                textLeft="Giới hạn thời gian làm bài"
+                textLeft={t("examInstruction.timeLimit")}
                 textRight={formatMinutesToTime(testData?.thoiGianLamBai || 0)}
               />
-              <ItemSetting textLeft="Số lần làm bài:" textRight="1" />
               <ItemSetting
-                textLeft="Số lượng câu hỏi:"
+                textLeft={t("examInstruction.attempts")}
+                textRight="1"
+              />
+              <ItemSetting
+                textLeft={t("examInstruction.questionCount")}
                 textRight={testData?.cau_hois?.length.toString()}
               />
               {testData?.cau_hinh_thi?.shuffleQuestions && (
-                <ItemSetting textLeft="Xáo trộn câu hỏi" />
+                <ItemSetting textLeft={t("examInstruction.shuffleQuestions")} />
               )}
               {testData?.cau_hinh_thi?.shuffleAnswers && (
-                <ItemSetting textLeft="Xáo trộn đáp án" />
+                <ItemSetting textLeft={t("examInstruction.shuffleAnswers")} />
               )}
               {testData?.cau_hinh_thi?.hasMonitoring && (
-                <ItemSetting textLeft="Giám sát quá trình thi: toàn màn hình, giới hạn chuột" />
+                <ItemSetting textLeft={t("examInstruction.monitoring")} />
               )}
               {testData?.cau_hinh_thi?.isLimitSwitchTab && (
                 <ItemSetting
                   classname="text-primary-main"
-                  textLeft={`Giới hạn chuyển tab: ${testData?.cau_hinh_thi.tabSwitchLimit} lần`}
+                  textLeft={t("examInstruction.limitSwitchTab", {
+                    count: testData?.cau_hinh_thi.tabSwitchLimit,
+                  })}
                 />
               )}
             </ul>
           </div>
 
           <p className="text-body-2">
-            Chào mừng bạn đến với {testData?.tenDe}. Hãy đảm bảo đường truyền ổn
-            định trước khi bắt đầu.
+            {t("examInstruction.welcome", { testName: testData?.tenDe })}
           </p>
 
           {/* 4. Start Button */}
@@ -118,7 +126,7 @@ export const ExamInstruction = () => {
               variant={"contained"}
               onClick={handleStart}
             >
-              Bắt đầu
+              {t("examInstruction.start")}
             </Button>
           </div>
         </div>

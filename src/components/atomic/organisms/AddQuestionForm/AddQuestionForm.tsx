@@ -9,6 +9,7 @@ import { Checkbox } from "../../atoms/Checkbox/Checkbox";
 import type { Answer, CauHoiCreate, CauHoiUpdate, Question } from "@/types";
 import { useAuthStore } from "@/stores/auth.store";
 import { useSubject } from "@/hooks/useSubject";
+import { useTranslation } from "react-i18next";
 
 // interface Answer {
 //   id: string;
@@ -33,6 +34,7 @@ export default function AddQuestionForm({
   selectedItem,
   mode,
 }: AddQuestionFormProps) {
+  const { t } = useTranslation();
   const [selectedTab, setSelectedTab] = useState("handmade");
 
   // --- State cho Câu hỏi ---
@@ -237,10 +239,16 @@ export default function AddQuestionForm({
           tabs={
             isCreate
               ? [
-                  { value: "handmade", label: "Thêm thủ công" },
-                  { value: "fromFile", label: "Thêm từ file" },
+                  {
+                    value: "handmade",
+                    label: t("addQuestionForm.tabs.handmade"),
+                  },
+                  {
+                    value: "fromFile",
+                    label: t("addQuestionForm.tabs.fromFile"),
+                  },
                 ]
-              : [{ value: "handmade", label: "Sửa" }]
+              : [{ value: "handmade", label: t("addQuestionForm.tabs.edit") }]
           }
         />
 
@@ -248,22 +256,22 @@ export default function AddQuestionForm({
           {/* Bộ chọn thông tin (Chỉ chấp nhận Number) */}
           <div className="flex gap-5 py-3">
             <SelectField
-              label="Môn học"
+              label={t("addQuestionForm.fields.subject.label")}
               value={formData.monHocId}
-              placeholder="Chọn môn học"
+              placeholder={t("addQuestionForm.fields.subject.placeholder")}
               options={subjectOptions}
               onSelect={(val) => handleSelectSubject(Number(val))}
             />
             <SelectField
-              label="Chương"
-              placeholder="Chọn chương"
+              label={t("addQuestionForm.fields.chapter.label")}
+              placeholder={t("addQuestionForm.fields.chapter.placeholder")}
               options={chuongOptions}
               onSelect={(val) => setFormDataProp("chuongId", Number(val))}
               value={formData.chuongId || undefined}
             />
             <SelectField
-              label="Độ khó"
-              placeholder="Chọn độ khó"
+              label={t("addQuestionForm.fields.difficulty.label")}
+              placeholder={t("addQuestionForm.fields.difficulty.placeholder")}
               options={[
                 { label: "Nhận biết", value: 1 },
                 { label: "Thông hiểu", value: 2 },
@@ -278,7 +286,7 @@ export default function AddQuestionForm({
           {/* Editor nội dung câu hỏi */}
           <div className="flex flex-col gap-2 py-2">
             <span className="text-body-1-semibold text-text-secondary">
-              Nội dung câu hỏi
+              {t("addQuestionForm.content.label")}
             </span>
             <RichTextEditor
               content={formData.noiDungCauHoi}
@@ -289,12 +297,12 @@ export default function AddQuestionForm({
           {/* Danh sách đáp án đã thêm */}
           <div className="flex flex-col gap-2 py-2">
             <span className="text-body-1-semibold text-text-secondary">
-              Danh sách đáp án
+              {t("addQuestionForm.answers.title")}
             </span>
             <div className="flex flex-col rounded-md border border-other-outlined-border bg-white">
               {formData.cau_tra_lois.length === 0 ? (
                 <div className="p-8 text-center text-text-disabled">
-                  Chưa có đáp án nào. Hãy thêm ở bên dưới.
+                  {t("addQuestionForm.answers.empty")}
                 </div>
               ) : (
                 formData.cau_tra_lois.map((ans, index) => (
@@ -312,11 +320,11 @@ export default function AddQuestionForm({
                     <div className="flex items-center gap-4">
                       {ans.isCorrectAnswer ? (
                         <span className="bg-success-main/10 rounded px-2 py-1 text-xs font-bold text-success-main">
-                          ĐÚNG
+                          {t("addQuestionForm.answers.correct")}
                         </span>
                       ) : (
                         <RadioButton
-                          label="Chọn đúng"
+                          label={t("addQuestionForm.answers.chooseCorrect")}
                           checked={false}
                           onChange={() =>
                             handleEditAnswer({ ...ans, isCorrectAnswer: true })
@@ -330,7 +338,7 @@ export default function AddQuestionForm({
                           size="small"
                           onClick={() => handleEditAnswer(ans)}
                         >
-                          Sửa
+                          {t("addQuestionForm.answers.edit")}
                         </Button>
                         <Button
                           variant="text"
@@ -338,7 +346,7 @@ export default function AddQuestionForm({
                           size="small"
                           onClick={() => handleDeleteAnswer(ans.id)}
                         >
-                          Xóa
+                          {t("addQuestionForm.answers.delete")}
                         </Button>
                       </div>
                     </div>
@@ -352,12 +360,12 @@ export default function AddQuestionForm({
           <div className="flex flex-col gap-2 py-4">
             <span className="text-body-1-semibold text-text-secondary">
               {editingAnswerId
-                ? "Đang chỉnh sửa đáp án"
-                : "Thêm câu trả lời mới"}
+                ? t("addQuestionForm.answers.editing")
+                : t("addQuestionForm.answers.addNew")}
             </span>
             <div className="border-primary-main/20 bg-primary-main/5 flex flex-col gap-3 rounded-md border p-4">
               <Checkbox
-                label="Đặt làm đáp án đúng?"
+                label={t("addQuestionForm.answers.markCorrect")}
                 checked={currentIsCorrect}
                 onChange={(e) => setCurrentIsCorrect(e.target.checked)}
               />
@@ -375,7 +383,7 @@ export default function AddQuestionForm({
                       setCurrentAnswerText("");
                     }}
                   >
-                    Hủy sửa
+                    {t("addQuestionForm.answers.cancelEdit")}
                   </Button>
                 )}
                 <Button
@@ -384,8 +392,8 @@ export default function AddQuestionForm({
                   onClick={handleSaveAnswer}
                 >
                   {editingAnswerId
-                    ? "Cập nhật đáp án"
-                    : "Lưu đáp án vào danh sách"}
+                    ? t("addQuestionForm.answers.update")
+                    : t("addQuestionForm.answers.saveNew")}
                 </Button>
               </div>
             </div>
@@ -394,7 +402,7 @@ export default function AddQuestionForm({
           {/* Footer Actions */}
           <div className="mt-4 flex items-center justify-between border-t border-other-outlined-border py-4">
             <Checkbox
-              label="Đặt làm câu hỏi công khai"
+              label={t("addQuestionForm.footer.public")}
               checked={formData.status === "public"}
               onChange={(e) =>
                 setFormDataProp(
@@ -405,7 +413,7 @@ export default function AddQuestionForm({
             />
             <div className="flex gap-2">
               <Button variant="outline" color="standard" onClick={onClose}>
-                Quay lại
+                {t("addQuestionForm.footer.back")}
               </Button>
               <Button
                 variant="contained"
@@ -417,7 +425,7 @@ export default function AddQuestionForm({
                   !formData.monHocId
                 }
               >
-                Lưu toàn bộ câu hỏi
+                {t("addQuestionForm.footer.saveAll")}
               </Button>
             </div>
           </div>

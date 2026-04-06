@@ -173,9 +173,8 @@ export const NotificationPage = () => {
   const { openConfirm } = useConfirmStore();
   const deleteTB = (id: number) => {
     openConfirm({
-      title: "Xác nhận xóa",
-      message:
-        "Bạn có chắc chắn muốn xóa thông báo này không? Hành động này không thể hoàn tác.",
+      title: t("notificationPage.confirmDeleteTitle"),
+      message: t("notificationPage.confirmDeleteMessage"),
       type: "danger",
       onConfirm: async () => {
         startLoading();

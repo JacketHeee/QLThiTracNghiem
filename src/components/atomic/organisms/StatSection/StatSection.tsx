@@ -22,6 +22,7 @@ import {
   Info,
 } from "lucide-react";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useDeThiStore } from "@/stores/useDeThi.store";
 import { useNhomHocPhanSinhViens } from "@/hooks/useNhomHocPhan";
 import { useExamActions } from "@/hooks/useExamActions";
@@ -35,6 +36,7 @@ interface StatItem {
 }
 
 export default function StatSection() {
+  const { t } = useTranslation();
   const { testData } = useDeThiStore();
   const { sinhViens } = useNhomHocPhanSinhViens(Number(testData?.id));
   const { baiLams } = useExamActions();
@@ -85,56 +87,56 @@ export default function StatSection() {
 
     const summary: StatItem[] = [
       {
-        label: "Thí sinh đã nộp",
+        label: t("statSection.summary.submitted"),
         value: submittedCount,
         icon: <UserCheck size={20} />,
         textColor: "text-primary-main",
         iconBgColor: "bg-primary-background",
       },
       {
-        label: "Thí sinh chưa nộp",
+        label: t("statSection.summary.unsubmitted"),
         value: unsubmittedCount,
         icon: <UserPlus size={20} />,
         textColor: "text-warning-main",
         iconBgColor: "bg-warning-background",
       },
       {
-        label: "Tổng số sinh viên",
+        label: t("statSection.summary.totalStudents"),
         value: totalStudents,
         icon: <UserX size={20} />,
         textColor: "text-error-main",
         iconBgColor: "bg-error-background",
       },
       {
-        label: "Điểm trung bình",
+        label: t("statSection.summary.avgScore"),
         value: avgScore.toFixed(2),
         icon: <BarChart3 size={20} />,
         textColor: "text-info-main",
         iconBgColor: "bg-info-background",
       },
       {
-        label: "Điểm <= 1",
+        label: t("statSection.summary.scoreLE", { score: 1 }),
         value: countLE1,
         icon: <TrendingDown size={20} />,
         textColor: "text-error-dark",
         iconBgColor: "bg-error-background",
       },
       {
-        label: "Điểm <= 5",
+        label: t("statSection.summary.scoreLE", { score: 5 }),
         value: countLE5,
         icon: <ThumbsDown size={20} />,
         textColor: "text-warning-dark",
         iconBgColor: "bg-warning-background",
       },
       {
-        label: "Điểm >= 5",
+        label: t("statSection.summary.scoreGE", { score: 5 }),
         value: countGE5,
         icon: <ThumbsUp size={20} />,
         textColor: "text-success-main",
         iconBgColor: "bg-success-background",
       },
       {
-        label: "Điểm cao nhất",
+        label: t("statSection.summary.maxScore"),
         value: maxScore.toFixed(2),
         icon: <Trophy size={20} />,
         textColor: "text-primary-dark",
@@ -143,7 +145,7 @@ export default function StatSection() {
     ];
 
     return { statsSummary: summary, chartData: distribution };
-  }, [testData, sinhViens, baiLams]);
+  }, [testData, sinhViens, baiLams, t]);
 
   return (
     <div className="flex flex-col gap-6 bg-background-body-background p-6">
@@ -175,10 +177,11 @@ export default function StatSection() {
       <div className="rounded-2xl border border-other-outlined-border bg-background-paper p-8 shadow-sm">
         <div className="mb-10">
           <h3 className="text-h6 mb-1 flex items-center gap-2 text-text-primary">
-            Thống kê điểm thi <Info size={16} className="text-text-disabled" />
+            {t("statSection.chart.title")}{" "}
+            <Info size={16} className="text-text-disabled" />
           </h3>
           <p className="text-caption text-text-secondary">
-            Phân phối số lượng sinh viên theo thang điểm hệ 10
+            {t("statSection.chart.subtitle")}
           </p>
         </div>
 
@@ -213,10 +216,10 @@ export default function StatSection() {
                     return (
                       <div className="flex flex-col gap-1 rounded-lg bg-other-tooltip p-4">
                         <p className="text-tooltip text-common-white">
-                          Thang điểm: {label}
+                          {t("statSection.chart.tooltipScale", { label })}
                         </p>
                         <p className="text-body-2-semibold text-common-white">
-                          Số sinh viên:{" "}
+                          {t("statSection.chart.tooltipStudents")}:{" "}
                           <span className="text-primary-main">
                             {payload[0].value}
                           </span>

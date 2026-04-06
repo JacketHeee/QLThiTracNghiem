@@ -29,6 +29,7 @@ import { Overlay } from "@/components/atomic/molecules/Overlay/Overlay";
 import ExamResultOverview from "@/components/atomic/organisms/ExamResultOverview/ExamResultOverview";
 import { useLoadingStore } from "@/stores/useLoading.store";
 import { useDeThiDetail } from "@/hooks/useDeThi";
+import { useTranslation } from "react-i18next";
 
 type ViewMode = "user" | "question" | "difficulty";
 
@@ -39,6 +40,7 @@ export default function ResultPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("user");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const { testData } = useDeThiStore();
   const { pathname } = useLocation();
@@ -109,21 +111,21 @@ export default function ResultPage() {
     if (viewMode === "user") {
       return [
         {
-          title: "MSSV",
+          title: t("resultPage.columns.studentId"),
           key: "username", // SỬA: từ 'mssv' thành 'ma' theo TaiKhoan interface
           render: (val: any, item: StudentResult) => (
             <span>{item.isAverage ? "" : val}</span>
           ),
         },
         {
-          title: "Họ tên",
+          title: t("resultPage.columns.fullName"),
           key: "hoTen",
           render: (val: any, item: StudentResult) => (
             <div className="flex items-center gap-3">
               {!item.isAverage ? (
                 <img
                   src={getDefaultAvatar(val)}
-                  alt={""}
+                  alt={t("resultPage.avatarAlt")}
                   className="h-5 w-5 rounded-full"
                 />
               ) : (
@@ -138,19 +140,19 @@ export default function ResultPage() {
           ),
         },
         {
-          title: "Phần trăm",
+          title: t("resultPage.columns.percent"),
           key: "phanTram",
           render: (_val, item: StudentResult) =>
             renderPercent(((item.baiLam?.tongDiem || 0) / 10) * 100),
         },
         {
-          title: "Điểm",
+          title: t("resultPage.columns.score"),
           key: "baiLam",
           className: "text-center",
           render: (_, item) => item?.baiLam?.tongDiem || "—",
         },
         {
-          title: "Thời gian vào",
+          title: t("resultPage.columns.startTime"),
           key: "baiLam",
           render: (val: BaiLam) =>
             val?.thoiGianBatDau
@@ -161,7 +163,7 @@ export default function ResultPage() {
               : "—",
         },
         {
-          title: "Số lần thoát",
+          title: t("resultPage.columns.switchCount"),
           key: "baiLam",
           className: "text-center text-alert-error-main font-bold",
           render: (val: BaiLam) => val?.logBaiLam?.soLanChuyenTab ?? 0,
@@ -170,17 +172,24 @@ export default function ResultPage() {
     }
 
     return [
-      { title: "STT", key: "stt", className: "w-16" },
+      { title: t("resultPage.columns.stt"), key: "stt", className: "w-16" },
       {
-        title: viewMode === "difficulty" ? "Mức độ độ khó" : "Nội dung câu hỏi",
+        title:
+          viewMode === "difficulty"
+            ? t("resultPage.columns.difficultyLevel")
+            : t("resultPage.columns.questionContent"),
         key: "noiDung",
       },
       {
-        title: "Tỉ lệ đúng",
+        title: t("resultPage.columns.correctRate"),
         key: "phanTram",
         render: (_, item) => renderPercent(item.phanTram),
       },
-      { title: "Điểm trung bình", key: "diem", className: "text-center" },
+      {
+        title: t("resultPage.columns.avgScore"),
+        key: "diem",
+        className: "text-center",
+      },
     ] as TableColumn<any>[];
   }, [viewMode]);
 
@@ -222,7 +231,7 @@ export default function ResultPage() {
         ...data_2[0],
         id: -1,
         username: "31235600",
-        hoTen: "Trung bình lớp",
+        hoTen: t("resultPage.classAverage"),
         isAverage: true,
         baiLam: {
           tongDiem: sumScoreExams / (sinhViens.length || 1),
@@ -359,7 +368,7 @@ export default function ResultPage() {
         <div className="flex-bet-center">
           <div className="text-body-1 flex items-center gap-2 text-alert-info-content">
             <Icon name="testsOverview" />
-            <span>Tổng quan</span>
+            <span>{t("resultPage.overview.title")}</span>
           </div>
 
           <div className="flex-bet-center gap-3">
@@ -372,7 +381,7 @@ export default function ResultPage() {
               size={"small"}
               onClick={handleStartExam}
             >
-              <Icon name="play" /> Xem trước
+              <Icon name="play" /> {t("resultPage.overview.preview")}
             </Button>
           </div>
         </div>
@@ -397,8 +406,8 @@ export default function ResultPage() {
           value={selectedTab}
           onChange={(value) => setSelectedTab(value as "stat" | "classScore")}
           tabs={[
-            { value: "classScore", label: "Bảng điểm" },
-            { value: "stat", label: "Thống kê" },
+            { value: "classScore", label: t("resultPage.tabs.classScore") },
+            { value: "stat", label: t("resultPage.tabs.stat") },
           ]}
           className="border-b border-other-outlined-border"
         />
@@ -409,19 +418,19 @@ export default function ResultPage() {
             {/* Left */}
             <div className="flex gap-2">
               <SelectField
-                placeholder="Lọc theo vai trò"
+                placeholder={t("resultPage.filters.rolePlaceholder")}
                 options={[
-                  { label: "Tất cả", value: 0 },
-                  { label: "Sinh viên", value: 3 },
-                  { label: "Giảng viên", value: 2 },
-                  { label: "Quản trị", value: 1 },
+                  { label: t("resultPage.filters.roles.all"), value: 0 },
+                  { label: t("resultPage.filters.roles.student"), value: 3 },
+                  { label: t("resultPage.filters.roles.teacher"), value: 2 },
+                  { label: t("resultPage.filters.roles.admin"), value: 1 },
                 ]}
                 onSelect={(val) => console.log("Filter role:", val)}
                 defaultIndex={0}
               />
               <Input
                 hasBoder={true}
-                placeholder="Tìm kiếm MSSV ..."
+                placeholder={t("resultPage.search.placeholder")}
                 icon={<Icon name="search" className="text-text-disabled" />}
               />
             </div>
@@ -457,7 +466,7 @@ export default function ResultPage() {
                 onClick={() => {}}
               >
                 <Icon name="document" size={20} />
-                Xuất bảng điểm
+                {t("resultPage.actions.exportScores")}
               </Button>
             </div>
           </div>
@@ -467,9 +476,9 @@ export default function ResultPage() {
         {selectedTab === "classScore" && (
           <div className="flex gap-4 border-b border-other-outlined-border bg-background-body-background px-4 py-3">
             {[
-              { id: "user", label: "Theo người làm" },
-              { id: "question", label: "Theo câu hỏi" },
-              { id: "difficulty", label: "Theo độ khó" },
+              { id: "user", label: t("resultPage.viewModes.user") },
+              { id: "question", label: t("resultPage.viewModes.question") },
+              { id: "difficulty", label: t("resultPage.viewModes.difficulty") },
             ].map((mode) => (
               <Button
                 key={mode.id}
@@ -519,7 +528,7 @@ export default function ResultPage() {
                     >
                       <Icon name="eye" size={16} className="mr-1" />{" "}
                       {/* Thêm icon cho đẹp */}
-                      Kết quả
+                      {t("resultPage.actions.result")}
                     </Button>
                   );
                 }
@@ -528,14 +537,14 @@ export default function ResultPage() {
                 if (status === "DANG_LAM") {
                   return (
                     <span className="text-caption rounded bg-warning-background px-2 py-1 font-medium text-warning-main">
-                      Đang làm...
+                      {t("resultPage.status.inProgress")}
                     </span>
                   );
                 }
 
                 return (
                   <span className="text-caption font-medium italic text-text-disabled">
-                    Chưa tham gia
+                    {t("resultPage.status.notJoined")}
                   </span>
                 );
               }}

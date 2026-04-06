@@ -90,7 +90,7 @@ export function UserPage() {
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-action-hover text-text-secondary">
             <img
               src={getDefaultAvatar(item?.hoTen || "user")}
-              alt="avatar"
+              alt={t("userPage.avatarAlt")}
               className="h-full w-full rounded-full object-cover"
             />
           </div>
@@ -247,8 +247,8 @@ export function UserPage() {
 
   const deleteUser = (id: number) => {
     openConfirm({
-      title: "Xác nhận xóa",
-      message: "Bạn có chắc chắn muốn xóa người dùng?",
+      title: t("userPage.confirmDeleteTitle"),
+      message: t("userPage.confirmDelete"),
       type: "danger",
       onConfirm: async () => {
         startLoading(); // Bật Global Loading

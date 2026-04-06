@@ -65,21 +65,23 @@ export function CourseGroupForm({
     const newErrors: Partial<Record<keyof CourseGroupFormData, string>> = {};
 
     if (!formData.groupName.trim()) {
-      newErrors.groupName = "Tên nhóm không được để trống";
+      newErrors.groupName = t("courseGroup.form.validation.groupNameRequired");
     } else if (formData.groupName.length > 255) {
-      newErrors.groupName = "Tên nhóm không được vượt quá 255 ký tự";
+      newErrors.groupName = t("courseGroup.form.validation.groupNameMaxLength");
     }
 
     if (!formData.monHocId) {
-      newErrors.subject = "Vui lòng chọn môn học";
+      newErrors.subject = t("courseGroup.form.validation.subjectRequired");
     }
 
     if (!formData.academicYear || formData.academicYear <= 0) {
-      newErrors.academicYear = "Năm học phải là số dương";
+      newErrors.academicYear = t(
+        "courseGroup.form.validation.academicYearPositive"
+      );
     }
 
     if (!formData.semester || formData.semester < 1 || formData.semester > 2) {
-      newErrors.semester = "Học kỳ phải là 1 hoặc 2";
+      newErrors.semester = t("courseGroup.form.validation.semesterInvalid");
     }
 
     setErrors(newErrors);
@@ -211,7 +213,7 @@ export function CourseGroupForm({
             </div>
             <div className="flex flex-col gap-1">
               <div className="text-input-text font-semibold text-text-secondary">
-                Học kỳ
+                {t("courseGroup.form.semester")}
               </div>
               <Input
                 hasBoder={true}
@@ -235,7 +237,7 @@ export function CourseGroupForm({
 
         <div className="flex items-center justify-end gap-3 bg-background-paper px-6 py-4">
           <Button variant="outline" color="standard" onClick={onCancel}>
-            Đóng
+            {t("courseGroup.form.close")}
           </Button>
           <Button
             variant="contained"
@@ -243,7 +245,7 @@ export function CourseGroupForm({
             disabled={isSubmitting}
             onClick={handleSubmit}
           >
-            {isEdit ? "Cập nhật" : "Lưu"}
+            {isEdit ? t("courseGroup.form.update") : t("courseGroup.form.save")}
           </Button>
         </div>
       </div>

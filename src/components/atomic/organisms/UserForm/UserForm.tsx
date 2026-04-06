@@ -98,6 +98,14 @@ export function UserForm({
 
   const [errors, setErrors] = useState<UserError>({});
 
+  const translateErrors = (input: UserError): UserError => {
+    return Object.entries(input).reduce((acc, [key, value]) => {
+      if (!value) return acc;
+      acc[key as keyof UserError] = t(value);
+      return acc;
+    }, {} as UserError);
+  };
+
   // Xử lý submit form
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -107,7 +115,7 @@ export function UserForm({
         const errors = UserValidate.update(formData);
 
         if (Object.keys(errors).length > 0) {
-          setErrors(errors);
+          setErrors(translateErrors(errors));
           return;
         }
         onSaveUpdate(initialData.id, formData as UserUpdate);
@@ -117,7 +125,7 @@ export function UserForm({
       const errors = UserValidate.create(data);
 
       if (Object.keys(errors).length > 0) {
-        setErrors(errors);
+        setErrors(translateErrors(errors));
         return;
       }
 

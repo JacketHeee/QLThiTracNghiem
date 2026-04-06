@@ -13,6 +13,7 @@ import { useDeThiStore } from "@/stores/useDeThi.store";
 import type { Subject } from "@/types";
 import { useEffect, useMemo } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function TestFormPage() {
   const location = useLocation();
@@ -23,6 +24,7 @@ export default function TestFormPage() {
   const isAddMode = pathname.includes("/add");
 
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const { subjects } = useSubject();
   const { id } = useParams();
@@ -106,7 +108,9 @@ export default function TestFormPage() {
   }, [testData?.mon_thi?.id, listSelectionSubject]);
 
   // Chặn render khi đang fetch dữ liệu cũ
-  if (isLoading && (isEditMode || isViewMode)) return <div>Loading...</div>;
+  if (isLoading && (isEditMode || isViewMode)) {
+    return <div>{t("tableActions.loading")}</div>;
+  }
 
   return (
     <div className="flex flex-1">
@@ -114,17 +118,17 @@ export default function TestFormPage() {
         <MainContentLayout hasFooter={false} classname="max-w-[800px]">
           <div className="text-h6 rounded-md bg-background-body-background px-5 py-2.5 text-text-secondary">
             {isEditMode
-              ? "Chỉnh sửa đề thi"
+              ? t("testFormPage.title.edit")
               : isViewMode
-                ? "Chi tiết đề thi"
-                : "Tạo mới đề thi"}
+                ? t("testFormPage.title.view")
+                : t("testFormPage.title.create")}
           </div>
           <div className="flex flex-col gap-5 rounded-md bg-background-body-background p-5 text-text-secondary">
             {/*  */}
             <TextField
               type="text"
-              label="Tên đề thi"
-              placeholder="Nhập tên đề thi"
+              label={t("testFormPage.fields.name.label")}
+              placeholder={t("testFormPage.fields.name.placeholder")}
               value={testData?.tenDe || ""}
               onChange={(e) =>
                 setTestData({ ...testData, tenDe: e.target.value })
@@ -141,7 +145,7 @@ export default function TestFormPage() {
                     ? new Date(testData.thoiGianBatDau)
                     : undefined
                 }
-                label="Thời gian bắt đầu"
+                label={t("testFormPage.fields.startTime")}
                 onSelect={(date) =>
                   setTestData({
                     ...testData,
@@ -156,7 +160,7 @@ export default function TestFormPage() {
                     ? new Date(testData.thoiGianKetThuc)
                     : undefined
                 }
-                label="Thời gian kết thúc"
+                label={t("testFormPage.fields.endTime")}
                 onSelect={(date) =>
                   setTestData({
                     ...testData,
@@ -169,9 +173,9 @@ export default function TestFormPage() {
             <GroupInput
               disabled={isViewMode}
               value={testData?.thoiGianLamBai || ""}
-              labelLeft="Thời gian làm bài"
-              labelRight="Phút"
-              placeholder="00"
+              labelLeft={t("testFormPage.fields.duration.label")}
+              labelRight={t("testFormPage.fields.duration.unit")}
+              placeholder={t("testFormPage.fields.duration.placeholder")}
               onChange={(e) =>
                 setTestData({
                   ...testData,
@@ -184,11 +188,11 @@ export default function TestFormPage() {
             <div className="flex flex-col rounded-md border border-other-outlined-border">
               <div className="flex-bet-center gap-3 rounded-t-md bg-action-hover px-8 py-5 text-text-secondary">
                 <span className="text-body-1-semibold text-nowrap">
-                  Giao cho
+                  {t("testFormPage.assignTo.label")}
                 </span>
                 <SelectField
                   classname="!flex-[unset] bg-background-body-background"
-                  placeholder="Chọn môn học"
+                  placeholder={t("testFormPage.assignTo.placeholder")}
                   options={listSelectionSubject.map((item) => ({
                     label: item.tenMonHoc,
                     value: item.id,
@@ -229,13 +233,13 @@ export default function TestFormPage() {
             {/*  */}
             <div className="sticky bottom-0 flex justify-end gap-2 border-t border-other-outlined-border bg-background-body-background pt-4">
               <Button variant={"outline"} onClick={() => navigate(-1)}>
-                Quay lại
+                {t("testFormPage.actions.back")}
               </Button>
               <Link to="questions">
                 <Button variant={"contained"} color={"primary"}>
                   {isViewMode
-                    ? "Xem danh sách câu hỏi"
-                    : "Tiếp tục thêm câu hỏi"}
+                    ? t("testFormPage.actions.viewQuestions")
+                    : t("testFormPage.actions.continueQuestions")}
                 </Button>
               </Link>
             </div>

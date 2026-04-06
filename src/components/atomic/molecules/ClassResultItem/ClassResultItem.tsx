@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button, Icon } from "../../atoms"; // Điều chỉnh đường dẫn theo dự án của bạn
 import type { NhomHocPhan } from "@/types";
+import { useTranslation } from "react-i18next";
 
 interface ClassResultItemProps {
   data: NhomHocPhan;
@@ -8,6 +9,7 @@ interface ClassResultItemProps {
 }
 
 export const ClassResultItem = ({ data, testId }: ClassResultItemProps) => {
+  const { t } = useTranslation();
   return (
     <div className="flex-bet-center border-t border-other-outlined-border px-10 py-3">
       {/* Left Section: Group Name */}
@@ -24,7 +26,9 @@ export const ClassResultItem = ({ data, testId }: ClassResultItemProps) => {
           size={"medium"}
           className="text-text-secondary underline transition-colors hover:text-primary-main"
         >
-          {data.siSo} Sinh viên
+          {t("courseElement.classResult.studentCount", {
+            count: data.siSo ?? 0,
+          })}
         </Button>
 
         <span className="text-body-2 h-fit rounded-md bg-success-background px-2 py-1 font-medium text-alert-success-content">
@@ -33,7 +37,7 @@ export const ClassResultItem = ({ data, testId }: ClassResultItemProps) => {
 
         <Link to={`/tests/${testId}/result/${data.id}`}>
           <Button variant={"contained"} color={"success"}>
-            Kết quả
+            {t("common.result")}
           </Button>
         </Link>
       </div>

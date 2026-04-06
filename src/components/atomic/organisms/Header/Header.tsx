@@ -30,14 +30,14 @@ export default function Header() {
             size={"small"}
             onClick={toggleLanguage}
             title={t("navigation.lang")}
-            tooltip="Chuyển đổi ngôn ngữ"
+            tooltip={t("header.actions.toggleLanguage")}
           >
             <Icon name="translate" />
           </Button>
           <Button
             size={"small"}
             onClick={toggleTheme}
-            tooltip="Chế độ sáng/tối"
+            tooltip={t("header.actions.toggleTheme")}
           >
             {!isDarkMode ? <Icon name="lightMode" /> : <Icon name="darkMode" />}
           </Button>
@@ -58,14 +58,14 @@ export default function Header() {
           >
             {/* Header nhỏ sử dụng Typography text-table-header và màu disabled */}
             <div className="text-table-header px-4 py-2 uppercase text-text-disabled">
-              Tùy chọn đề thi
+              {t("header.menu.title")}
             </div>
 
             <DropdownItem
               icon={<User size={16} />}
               onClick={() => navi("profile")}
             >
-              Xem hồ sơ
+              {t("header.menu.profile")}
             </DropdownItem>
 
             <div className="my-1 border-t border-other-divider" />
@@ -75,7 +75,7 @@ export default function Header() {
               icon={<LogOut size={16} />}
               onClick={logout}
             >
-              Đăng xuất
+              {t("header.menu.logout")}
             </DropdownItem>
           </Dropdown>
         </>

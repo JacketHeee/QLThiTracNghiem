@@ -131,8 +131,10 @@ export const AssignmentPage = () => {
   const handleAction = (action: string, item: Assign) => {
     if (action === "remove") {
       openConfirm({
-        title: t("Xác nhận xóa"),
-        message: `Bạn có chắc muốn xóa phân công của giảng viên: ${item.giang_vien?.hoTen}?`,
+        title: t("assignmentPage.confirmDeleteTitle"),
+        message: t("assignmentPage.confirmDelete", {
+          teacherName: item.giang_vien?.hoTen,
+        }),
         type: "danger",
         onConfirm: async () => {
           startLoading();
