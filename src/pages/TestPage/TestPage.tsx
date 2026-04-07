@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import TestItem from "@/components/atomic/organisms/TestItem/TestItem";
@@ -96,9 +96,36 @@ export const TestPage = () => {
 
     return result;
   }, [myDeThis, searchTerm, selectedSubject, statusFilter, isDesc]);
+
+  const itemsPerPage = 8;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // 2. Logic phân trang (Cắt mảng từ filteredTests đã được sort)
+  const { currentData, totalPages } = useMemo(() => {
+    const total = filteredTests.length;
+    const pages = Math.ceil(total / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+
+    return {
+      currentData: filteredTests.slice(startIndex, startIndex + itemsPerPage),
+      totalPages: pages,
+    };
+  }, [filteredTests, currentPage]);
+
+  // 3. Tự động cuộn lên khi đổi trang
+  useEffect(() => {
+    const listTop = document.getElementById("test-list-container");
+    if (listTop) {
+      listTop.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [currentPage]);
+
   return (
     <MainContentLayout>
-      <div className="flex justify-between rounded-md bg-background-body-background px-2 py-2">
+      <div
+        id="test-list-container"
+        className="flex justify-between rounded-md bg-background-body-background px-2 py-2"
+      >
         {/* Left */}
         <div className="flex gap-2">
           <SelectField
@@ -119,7 +146,10 @@ export const TestPage = () => {
             placeholder={t("testPage.searchPlaceholder")}
             icon={<Icon name="search" className="text-text-disabled" />}
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // Thêm dòng này
+            }}
           />
           <SelectField
             label={t("testPage.subject")}
@@ -156,16 +186,31 @@ export const TestPage = () => {
           )}
         </div>
       </div>
+
       <div className="flex flex-col gap-2">
-        <div className="flex flex-col gap-2">
-          {filteredTests.map((item) => (
-            <TestItem key={item.id} data={item} actions={actions} />
-          ))}
+        {/* Container danh sách đề thi */}
+        <div id="test-list-container" className="flex flex-col gap-2">
+          {currentData.length > 0 ? (
+            currentData.map((item) => (
+              <TestItem key={item.id} data={item} actions={actions} />
+            ))
+          ) : (
+            <div className="rounded-md bg-background-body-background p-10 text-center text-text-disabled">
+              Không có dữ liệu
+            </div>
+          )}
         </div>
 
-        <div className="rounded-md bg-background-body-background">
-          <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
-        </div>
+        {/* Pagination Section */}
+        {totalPages > 1 && (
+          <div className="rounded-md bg-background-body-background py-2">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </div>
+        )}
       </div>
     </MainContentLayout>
   );

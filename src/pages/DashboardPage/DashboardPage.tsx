@@ -1,5 +1,4 @@
 import { Icon } from "@/components/atomic/atoms";
-import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import { cn } from "@/utils/cn";
 import { useTranslation } from "react-i18next";
 
@@ -103,19 +102,8 @@ export const DashboardPage = () => {
               {t("dashboard.subtitle")}
             </p>
           </div>
-          <div className="w-[200px]">
-            <SelectField
-              placeholder={t("dashboard.semester.placeholder")}
-              options={[
-                { label: t("dashboard.semester.options.sem1"), value: "1" },
-                { label: t("dashboard.semester.options.sem2"), value: "2" },
-              ]}
-              onSelect={(val) => console.log(val)}
-              defaultIndex={0}
-            />
-          </div>
+          <div className="w-[200px]"></div>
         </div>
-
         {/* Grid Thống kê */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => (

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
@@ -67,7 +67,7 @@ export const SubjectPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCriteria, setFilterCriteria] = useState("tenMonHoc");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Or any other number you prefer
+  const itemsPerPage = 15; // Or any other number you prefer
 
   const filteredData = useMemo(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
@@ -149,10 +149,26 @@ export const SubjectPage = () => {
     }
   };
 
+  // 1. Tính tổng số trang thực tế dựa trên dữ liệu đã lọc
+  const totalPages = useMemo(() => {
+    return Math.ceil(filteredData.length / itemsPerPage);
+  }, [filteredData, itemsPerPage]);
+
+  // 2. Hiệu ứng tự động cuộn lên đầu bảng mỗi khi đổi trang
+  useEffect(() => {
+    const tableElement = document.getElementById("subject-table-top");
+    if (tableElement) {
+      tableElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [currentPage]);
+
   return (
     <MainContentLayout>
       {/* Toolbar */}
-      <div className="flex flex-col gap-10 rounded-md bg-background-body-background px-2 py-2">
+      <div
+        id="subject-table-top"
+        className="flex flex-col gap-10 rounded-md bg-background-body-background px-2 py-2"
+      >
         <div className="flex justify-between">
           {/* Left: Filter & Search */}
           <div className="flex w-1/2 gap-2">
@@ -211,7 +227,13 @@ export const SubjectPage = () => {
           isLoading={isLoading}
           checkActions={actions}
         />
-        <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
+        {filteredData.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        )}
         {isModalOpen && (
           <SubjectForm
             key={editingSubject?.id}
