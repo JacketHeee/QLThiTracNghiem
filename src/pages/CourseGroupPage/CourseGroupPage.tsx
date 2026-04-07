@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Button, Icon, Input } from "@/components/atomic/atoms";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import { PRIMARY_COLORS, useThemeStore } from "@/stores/theme.store";
@@ -21,14 +22,21 @@ import type {
   NhomHocPhanCreate,
   NhomHocPhanUpdate,
   RoleDetailItem,
+  Subject,
 } from "@/types";
 import { useAuthStore } from "@/stores/auth.store";
 import { useToastStore } from "@/stores/useToast.store";
 import type { AxiosError } from "axios";
+import { subjectService } from "@/services/api/subject.service";
 
 type CourseStatus = "active" | "hidden";
 
 type GroupDisplay = NhomHocPhan & { status: CourseStatus };
+type GroupSection = {
+  key: string;
+  title: string;
+  groups: GroupDisplay[];
+};
 
 const withAlpha = (hex: string, alphaHex: string) => {
   if (!hex.startsWith("#") || hex.length !== 7) return hex;
@@ -53,7 +61,14 @@ export function CourseGroupPage() {
     });
 
   const { nhomHocPhans, isLoading } = useNhomHocPhan();
-  const { nhomHocPhanGvien, isLoadingHpGv } = useNhomHocPhanOGvien(user!.id);
+  const { nhomHocPhanGvien, isLoadingHpGv } = useNhomHocPhanOGvien(user?.id);
+  const { data: subjects = [] } = useQuery<Subject[]>({
+    queryKey: ["subjects", "title-resolve"],
+    queryFn: async () => {
+      const res = await subjectService.getAll();
+      return res.data;
+    },
+  });
 
   const nhomHocPhanDisplay = useMemo<NhomHocPhan[]>(() => {
     if (!user || !role) return [];
@@ -78,10 +93,10 @@ export function CourseGroupPage() {
     groupId?: number;
   }>(null);
 
-  const [openMenu, setOpenMenu] = useState<{
-    courseId: number;
-    groupId: number;
-  } | null>(null);
+  const [openMenu, setOpenMenu] = useState<number | null>(null);
+  const [collapsedSections, setCollapsedSections] = useState<
+    Record<string, boolean>
+  >({});
   const primaryColor = useThemeStore((state) => state.primaryColor);
   const primaryHex =
     PRIMARY_COLORS.find((item) => item.key === primaryColor)?.hex ?? "#fb3311";
@@ -120,12 +135,52 @@ export function CourseGroupPage() {
     });
   }, [computedGroups, searchValue, statusFilter]);
 
-  const handleToggleMenu = (courseId: number, groupId: number) => {
-    setOpenMenu((prev) =>
-      prev && prev.courseId === courseId && prev.groupId === groupId
-        ? null
-        : { courseId, groupId }
+  const subjectMap = useMemo(
+    () =>
+      new Map(
+        subjects.map((subject) => [
+          subject.id,
+          { maMonHoc: subject.maMonHoc, tenMonHoc: subject.tenMonHoc },
+        ])
+      ),
+    [subjects]
+  );
+
+  const groupedSections = useMemo<GroupSection[]>(() => {
+    const sectionsMap = new Map<string, GroupSection>();
+
+    filteredGroups.forEach((group) => {
+      const subjectInfo = subjectMap.get(group.monHocId);
+      const maMon = subjectInfo?.maMonHoc || group.mon_hoc?.maMonHoc || "---";
+      const tenMon =
+        subjectInfo?.tenMonHoc || group.mon_hoc?.tenMonHoc || "---";
+      const sectionKey = `${group.monHocId}-${group.namHoc}-${group.hocKy}`;
+
+      if (!sectionsMap.has(sectionKey)) {
+        sectionsMap.set(sectionKey, {
+          key: sectionKey,
+          title: `${maMon} - ${tenMon} - Năm học ${group.namHoc} - Học Kỳ ${group.hocKy}`,
+          groups: [],
+        });
+      }
+
+      sectionsMap.get(sectionKey)?.groups.push(group);
+    });
+
+    return Array.from(sectionsMap.values()).sort((a, b) =>
+      a.title.localeCompare(b.title)
     );
+  }, [filteredGroups, subjectMap]);
+
+  const handleToggleMenu = (groupId: number) => {
+    setOpenMenu((prev) => (prev === groupId ? null : groupId));
+  };
+
+  const handleToggleSection = (sectionKey: string) => {
+    setCollapsedSections((prev) => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey],
+    }));
   };
 
   const handleHideGroup = async (groupId: number) => {
@@ -152,7 +207,6 @@ export function CourseGroupPage() {
   const handleRemoveGroup = async (groupId: number) => {
     if (!confirm(t("courseGroup.confirmDeleteGroup"))) return;
     try {
-      console.log("xóa", groupId);
       await deleteMutation.mutateAsync(groupId);
       setOpenMenu(null);
     } catch (error) {
@@ -163,7 +217,6 @@ export function CourseGroupPage() {
   const showToast = useToastStore((s) => s.showToast);
 
   const handleSave = async (data: CourseGroupFormData) => {
-    console.log("editFormData", editFormData);
     if (editFormData?.groupId) {
       // Update
       const nhomHocPhanUpdate: NhomHocPhanUpdate = {
@@ -176,7 +229,6 @@ export function CourseGroupPage() {
       };
 
       try {
-        console.log("nhom hoc phan update ", nhomHocPhanUpdate);
         await updateMutation.mutateAsync({
           id: editFormData.groupId,
           data: nhomHocPhanUpdate,
@@ -212,7 +264,6 @@ export function CourseGroupPage() {
       };
 
       try {
-        console.log("create", createData);
         await createMutation.mutateAsync(createData);
         showToast(t("message.success.create"), "success");
         setIsFormOpen(false);
@@ -257,10 +308,12 @@ export function CourseGroupPage() {
     createMutation.isPending ||
     updateMutation.isPending ||
     deleteMutation.isPending;
+  const isPageLoading =
+    role?.tenNhomQuyen === "teacher" ? isLoadingHpGv : isLoading;
 
   return (
     <MainContentLayout classname="w-full" hasFooter={false}>
-      {isLoading && isLoadingHpGv ? (
+      {isPageLoading ? (
         <div className="flex items-center justify-center py-8">
           <div className="text-text-secondary">
             {t("courseGroup.loadingGroups")}
@@ -286,9 +339,12 @@ export function CourseGroupPage() {
                   {statusOpen && (
                     <div className="absolute left-0 top-full z-10 mt-2 w-full rounded-md border border-other-outlined-border bg-background-body-background p-1 shadow-md">
                       {STATUS_OPTIONS.map((item) => (
-                        <button
+                        <Button
                           key={item.value}
                           type="button"
+                          variant="text"
+                          color="standard"
+                          size="small"
                           className={`w-full rounded-md px-3 py-2 text-left text-sm text-text-secondary transition-colors hover:bg-action-hover ${
                             item.value === statusFilter
                               ? "bg-action-hover text-text-primary"
@@ -300,7 +356,7 @@ export function CourseGroupPage() {
                           }}
                         >
                           {item.label}
-                        </button>
+                        </Button>
                       ))}
                     </div>
                   )}
@@ -335,105 +391,155 @@ export function CourseGroupPage() {
             </div>
 
             <div className="flex flex-col gap-4">
-              <div className="grid gap-4 rounded-md bg-background-paper p-4 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredGroups.map((group) => (
-                  <div
-                    key={group.id}
-                    className="rounded-md border border-other-outlined-border shadow-sm"
-                    style={{ backgroundColor: primaryTintSub }}
-                  >
-                    <div
-                      className="flex items-center justify-between rounded-t-md px-3 py-2"
-                      style={{ backgroundColor: primaryTint }}
-                    >
-                      <div className="text-body-2 font-semibold text-text-primary">
-                        {group.mon_hoc
-                          ? `${group.mon_hoc.maMonHoc} - ${group.mon_hoc.tenMonHoc} - NH${group.namHoc} - HK${group.hocKy} - ${group.tenNhom}`
-                          : group.tenNhom}
-                      </div>
+              <div className="space-y-4 rounded-md bg-background-paper p-4">
+                {groupedSections.map((section) => {
+                  const isCollapsed = collapsedSections[section.key] ?? false;
 
-                      <div className="relative">
+                  return (
+                    <section
+                      key={section.key}
+                      className="rounded-md border border-other-outlined-border bg-background-body-background"
+                    >
+                      <div
+                        className="flex items-center justify-between gap-2 rounded-t-md px-3 py-2"
+                        style={{ backgroundColor: primaryTint }}
+                      >
+                        <h3 className="text-body-2 font-semibold text-text-primary">
+                          {section.title}
+                        </h3>
                         <Button
                           variant="outline"
+                          color="standard"
                           size="small"
                           isButtonIcon
+                          tooltip={
+                            isCollapsed
+                              ? t("courseGroup.showGroup")
+                              : t("courseGroup.hideGroup")
+                          }
                           onClick={(event) => {
                             event.stopPropagation();
-                            handleToggleMenu(group.monHocId, group.id);
+                            handleToggleSection(section.key);
                           }}
                         >
-                          <Icon name="settings" />
+                          <Icon name={isCollapsed ? "eyeOff" : "eye"} />
                         </Button>
+                      </div>
 
-                        {openMenu?.courseId === group.monHocId &&
-                          openMenu?.groupId === group.id && (
+                      {!isCollapsed && (
+                        <div className="grid gap-4 p-3 sm:grid-cols-2 lg:grid-cols-3">
+                          {section.groups.map((group) => (
                             <div
-                              className="absolute right-0 top-full z-10 mt-2 w-56 rounded-md border border-other-outlined-border bg-background-body-background p-1 shadow-md"
-                              onClick={(event) => event.stopPropagation()}
+                              key={group.id}
+                              className="rounded-md border border-other-outlined-border shadow-sm"
+                              style={{ backgroundColor: primaryTintSub }}
                             >
-                              <Link
-                                to={`/course-group/${group.monHocId}/groups/${group.id}/students`}
-                                className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-secondary transition-colors hover:bg-action-hover"
-                                onClick={() => setOpenMenu(null)}
-                              >
-                                {t("courseGroup.studentList")}
-                              </Link>
+                              <div className="flex items-center justify-between rounded-t-md bg-background-body-background px-3 py-2">
+                                <div className="text-body-2 font-semibold text-text-primary">
+                                  {group.tenNhom}
+                                </div>
 
-                              {actions.includes("update") && (
-                                <button
-                                  type="button"
-                                  className="w-full rounded-md px-3 py-2 text-left text-sm text-text-secondary transition-colors hover:bg-action-hover"
-                                  disabled={isProcessing}
-                                  onClick={() => {
-                                    setOpenMenu(null);
-                                    handleEditGroup(group);
-                                  }}
-                                >
-                                  {t("courseGroup.editInfo")}
-                                </button>
-                              )}
+                                <div className="relative">
+                                  <Button
+                                    variant="outline"
+                                    size="small"
+                                    isButtonIcon
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      handleToggleMenu(group.id);
+                                    }}
+                                  >
+                                    <Icon name="settings" />
+                                  </Button>
 
-                              <button
-                                type="button"
-                                className="w-full rounded-md px-3 py-2 text-left text-sm text-text-secondary transition-colors hover:bg-action-hover"
-                                disabled={isProcessing}
-                                onClick={() =>
-                                  group.status === "hidden"
-                                    ? handleShowGroup(group.id)
-                                    : handleHideGroup(group.id)
-                                }
-                              >
-                                {group.status === "hidden"
-                                  ? t("courseGroup.showGroup")
-                                  : t("courseGroup.hideGroup")}
-                              </button>
+                                  {openMenu === group.id && (
+                                    <div
+                                      className="absolute right-0 top-full z-10 mt-2 w-56 rounded-md border border-other-outlined-border bg-background-body-background p-1 shadow-md"
+                                      onClick={(event) =>
+                                        event.stopPropagation()
+                                      }
+                                    >
+                                      <Link
+                                        to={`/course-group/${group.monHocId}/groups/${group.id}/students`}
+                                        className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-secondary transition-colors hover:bg-action-hover"
+                                        onClick={() => setOpenMenu(null)}
+                                      >
+                                        {t("courseGroup.studentList")}
+                                      </Link>
 
-                              {actions.includes("delete") && (
-                                <button
-                                  type="button"
-                                  className="w-full rounded-md px-3 py-2 text-left text-sm text-text-secondary transition-colors hover:bg-action-hover"
-                                  disabled={isProcessing}
-                                  onClick={() => handleRemoveGroup(group.id)}
-                                >
-                                  {t("courseGroup.deleteGroup")}
-                                </button>
-                              )}
+                                      {actions.includes("update") && (
+                                        <Button
+                                          type="button"
+                                          variant="text"
+                                          color="standard"
+                                          size="small"
+                                          className="w-full rounded-md px-3 py-2 text-left text-sm text-text-secondary transition-colors hover:bg-action-hover"
+                                          disabled={isProcessing}
+                                          onClick={() => {
+                                            setOpenMenu(null);
+                                            handleEditGroup(group);
+                                          }}
+                                        >
+                                          {t("courseGroup.editInfo")}
+                                        </Button>
+                                      )}
+
+                                      <Button
+                                        type="button"
+                                        variant="text"
+                                        color="standard"
+                                        size="small"
+                                        className="w-full rounded-md px-3 py-2 text-left text-sm text-text-secondary transition-colors hover:bg-action-hover"
+                                        disabled={isProcessing}
+                                        onClick={() =>
+                                          group.status === "hidden"
+                                            ? handleShowGroup(group.id)
+                                            : handleHideGroup(group.id)
+                                        }
+                                      >
+                                        {group.status === "hidden"
+                                          ? t("courseGroup.showGroup")
+                                          : t("courseGroup.hideGroup")}
+                                      </Button>
+
+                                      {actions.includes("delete") && (
+                                        <Button
+                                          type="button"
+                                          variant="text"
+                                          color="standard"
+                                          size="small"
+                                          className="w-full rounded-md px-3 py-2 text-left text-sm text-text-secondary transition-colors hover:bg-action-hover"
+                                          disabled={isProcessing}
+                                          onClick={() =>
+                                            handleRemoveGroup(group.id)
+                                          }
+                                        >
+                                          {t("courseGroup.deleteGroup")}
+                                        </Button>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="space-y-2 px-3 py-3 text-text-secondary">
+                                <div className="text-caption">
+                                  {group.notes}
+                                </div>
+                                <div className="text-caption">
+                                  {t("courseGroup.classSizeLabel")} {group.siSo}
+                                </div>
+                              </div>
                             </div>
-                          )}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 px-3 py-3 text-text-secondary">
-                      <div className="text-caption">{group.notes}</div>
-                      <div className="text-caption">
-                        {t("courseGroup.classSizeLabel")} {group.siSo}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                          ))}
+                        </div>
+                      )}
+                    </section>
+                  );
+                })}
               </div>
 
-              {filteredGroups.length === 0 && (
+              {groupedSections.length === 0 && (
                 <div className="rounded-md border border-dashed border-other-outlined-border bg-background-body-background px-4 py-8 text-center text-text-secondary">
                   {t("courseGroup.noGroupsFound")}
                 </div>
