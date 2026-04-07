@@ -30,6 +30,8 @@ import ExamResultOverview from "@/components/atomic/organisms/ExamResultOverview
 import { useLoadingStore } from "@/stores/useLoading.store";
 import { useDeThiDetail } from "@/hooks/useDeThi";
 import { useTranslation } from "react-i18next";
+import * as XLSX from "xlsx-js-style";
+import { saveAs } from "file-saver";
 
 type ViewMode = "user" | "question" | "difficulty";
 
@@ -60,6 +62,19 @@ export default function ResultPage() {
     // Chuyển hướng thẳng vào trang làm bài (mặc định mode là STUDENT)
     useExamStore.getState().mode = "PREVIEW";
     navigate(`/tests/1/take`);
+  };
+
+  const splitFullName = (fullName: string) => {
+    const parts = fullName.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) {
+      return { hoLot: "", ten: "" };
+    }
+
+    const ten = parts.pop() || "";
+    return {
+      hoLot: parts.join(" "),
+      ten,
+    };
   };
 
   // --- 1. Cấu hình Cột (Columns) theo ViewMode ---
@@ -359,6 +374,14 @@ export default function ResultPage() {
     sortOrder,
   ]);
 
+  const userModeTableData = useMemo(() => {
+    if (viewMode !== "user") {
+      return [] as StudentResult[];
+    }
+
+    return (tableData as StudentResult[]).filter((item) => !item.isAverage);
+  }, [tableData, viewMode]);
+
   const status = getTestsStatus(
     testData?.thoiGianBatDau,
     testData?.thoiGianKetThuc,
@@ -383,6 +406,203 @@ export default function ResultPage() {
     } finally {
       stopLoading();
     }
+  };
+
+  const handleExportScores = () => {
+    if (viewMode !== "user" || userModeTableData.length === 0) {
+      return;
+    }
+
+    const maMonHoc =
+      testData?.mon_thi?.maMonHoc || nhomHocPhan?.mon_hoc?.maMonHoc || "---";
+    const tenMonHoc =
+      testData?.mon_thi?.tenMonHoc || nhomHocPhan?.mon_hoc?.tenMonHoc || "---";
+    const tenNhom = nhomHocPhan?.tenNhom || "---";
+    const hocKy = nhomHocPhan?.hocKy ?? "---";
+    const namHoc = nhomHocPhan?.namHoc ?? "---";
+    const maGiangVien =
+      nhomHocPhan?.giang_vien?.ma ||
+      testData?.nguoiTao?.ma ||
+      testData?.nguoiTao?.username ||
+      "---";
+    const tenGiangVien =
+      nhomHocPhan?.giang_vien?.hoTen || testData?.nguoiTao?.hoTen || "---";
+
+    const dataRows = userModeTableData.map((item, index) => {
+      const { hoLot, ten } = splitFullName(item.hoTen || "");
+
+      return [
+        index + 1,
+        maMonHoc,
+        item.username || "",
+        hoLot,
+        ten,
+        item.baiLam?.tongDiem !== null && item.baiLam?.tongDiem !== undefined
+          ? Number(item.baiLam.tongDiem).toFixed(2)
+          : "",
+      ];
+    });
+
+    const worksheetData = [
+      [
+        "UBND THÀNH PHỐ HỒ CHÍ MINH",
+        "",
+        "",
+        "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM",
+        "",
+        "",
+      ],
+      ["TRƯỜNG ĐẠI HỌC SÀI GÒN", "", "", "Độc lập - Tự do - Hạnh phúc", "", ""],
+      ["", "", "", "", "", ""],
+      ["BẢNG ĐIỂM QUÁ TRÌNH", "", "", "", "", ""],
+      [`Học kì ${hocKy}, năm học ${namHoc}`, "", "", "", "", ""],
+      ["", "", "", "", "", ""],
+      [
+        `Học phần: ${maMonHoc} - ${tenMonHoc} - Nhóm: ${tenNhom}`,
+        "",
+        "",
+        "",
+        "",
+        "",
+      ],
+      [`Giảng viên: ${maGiangVien} - ${tenGiangVien}`, "", "", "", "", ""],
+      ["", "", "", "", "", ""],
+      ["STT", "Mã môn học", "Mã SV", "Họ lót", "Tên", "Điểm kiểm tra"],
+      ...dataRows,
+    ];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    worksheet["!merges"] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 2 } },
+      { s: { r: 0, c: 3 }, e: { r: 0, c: 5 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 2 } },
+      { s: { r: 1, c: 3 }, e: { r: 1, c: 5 } },
+      { s: { r: 3, c: 0 }, e: { r: 3, c: 5 } },
+      { s: { r: 4, c: 0 }, e: { r: 4, c: 5 } },
+      { s: { r: 6, c: 0 }, e: { r: 6, c: 5 } },
+      { s: { r: 7, c: 0 }, e: { r: 7, c: 5 } },
+    ];
+
+    worksheet["!cols"] = [
+      { wch: 8 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 24 },
+      { wch: 18 },
+      { wch: 16 },
+    ];
+
+    const borderThin = {
+      top: { style: "thin" },
+      bottom: { style: "thin" },
+      left: { style: "thin" },
+      right: { style: "thin" },
+    };
+
+    const setCellStyle = (
+      r: number,
+      c: number,
+      style: Record<string, unknown>
+    ) => {
+      const cellRef = XLSX.utils.encode_cell({ r, c });
+      if (!worksheet[cellRef]) return;
+      worksheet[cellRef].s = style;
+    };
+
+    const setRowStyle = (
+      row: number,
+      startCol: number,
+      endCol: number,
+      style: Record<string, unknown>
+    ) => {
+      for (let c = startCol; c <= endCol; c += 1) {
+        setCellStyle(row, c, style);
+      }
+    };
+
+    setRowStyle(0, 0, 5, {
+      font: { bold: true, sz: 14 },
+      alignment: { horizontal: "center", vertical: "center" },
+    });
+    setRowStyle(1, 0, 5, {
+      font: { bold: true, sz: 14 },
+      alignment: { horizontal: "center", vertical: "center" },
+    });
+    setRowStyle(3, 0, 5, {
+      font: { bold: true, sz: 18 },
+      alignment: { horizontal: "center", vertical: "center" },
+    });
+    setRowStyle(4, 0, 5, {
+      font: { bold: false, sz: 13 },
+      alignment: { horizontal: "center", vertical: "center" },
+    });
+    setRowStyle(6, 0, 5, {
+      font: { bold: true, sz: 12 },
+      alignment: { horizontal: "left", vertical: "center" },
+    });
+    setRowStyle(7, 0, 5, {
+      font: { bold: true, sz: 12 },
+      alignment: { horizontal: "left", vertical: "center" },
+    });
+
+    const tableHeaderRow = 9;
+    const tableStartRow = 10;
+    const tableEndRow = tableStartRow + dataRows.length - 1;
+
+    setRowStyle(tableHeaderRow, 0, 5, {
+      font: { bold: true, sz: 12 },
+      alignment: { horizontal: "center", vertical: "center", wrapText: true },
+      border: borderThin,
+      fill: { fgColor: { rgb: "E9ECEF" } },
+    });
+
+    for (let r = tableStartRow; r <= tableEndRow; r += 1) {
+      for (let c = 0; c <= 5; c += 1) {
+        setCellStyle(r, c, {
+          font: { sz: 11 },
+          alignment: {
+            horizontal: "center",
+            vertical: "center",
+            wrapText: true,
+          },
+          border: borderThin,
+        });
+      }
+    }
+
+    worksheet["!rows"] = [
+      { hpt: 26 },
+      { hpt: 24 },
+      { hpt: 10 },
+      { hpt: 32 },
+      { hpt: 22 },
+      { hpt: 10 },
+      { hpt: 20 },
+      { hpt: 20 },
+      { hpt: 10 },
+      { hpt: 24 },
+      ...Array.from({ length: dataRows.length }, () => ({ hpt: 20 })),
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Bảng điểm");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const fileName =
+      `Bang-diem-qua-trinh_${maMonHoc}_nhom-${tenNhom}_HK-${hocKy}_NH-${namHoc}.xlsx`
+        .replace(/[\\/:*?"<>|]/g, "-")
+        .replace(/\s+/g, "_");
+
+    saveAs(
+      new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      }),
+      fileName
+    );
   };
 
   return (
@@ -488,7 +708,8 @@ export default function ResultPage() {
                 variant={"contained"}
                 color={"primary"}
                 size={"small"}
-                onClick={() => {}}
+                onClick={handleExportScores}
+                disabled={viewMode !== "user" || userModeTableData.length === 0}
               >
                 <Icon name="document" size={20} />
                 {t("resultPage.actions.exportScores")}
