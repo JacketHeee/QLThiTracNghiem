@@ -126,7 +126,13 @@ const QuestionItem = ({
 
           <div className="flex items-center gap-1 text-text-secondary">
             <span>{formatDateTimeVN(data.created_at || "")} ·</span>
-            {data.status === "public" && <Icon name="word" size={16} />}
+            {data.status === "public" ? (
+              <Icon name="word" size={16} />
+            ) : data.status === "private" ? (
+              <Icon name="user" size={16} />
+            ) : (
+              <Icon name="lock" size={16} />
+            )}
             <span>
               · {t("questionItem.usage", { count: data.soLuotSuDung })}
             </span>

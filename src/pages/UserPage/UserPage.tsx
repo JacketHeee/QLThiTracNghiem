@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import DynamicTable, {
@@ -467,6 +467,37 @@ export function UserPage() {
     return true;
   };
 
+  const ITEMS_PER_PAGE = 20;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // 2. Reset trang khi tìm kiếm hoặc lọc role
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterRole]);
+
+  // 3. Tính toán dữ liệu phân trang
+  const { paginatedUsers, totalPages } = useMemo(() => {
+    const total = filteredUsers.length;
+    const pages = Math.ceil(total / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+
+    return {
+      paginatedUsers: filteredUsers.slice(
+        startIndex,
+        startIndex + ITEMS_PER_PAGE
+      ),
+      totalPages: pages,
+    };
+  }, [filteredUsers, currentPage]);
+
+  // 4. Logic Scroll to Top khi đổi trang (Sử dụng ID)
+  useEffect(() => {
+    const tableElement = document.getElementById("user-table-container");
+    if (tableElement) {
+      tableElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [currentPage]);
+
   return (
     <MainContentLayout classname="w-full">
       {/* Xử lý loading ở đây nhen */}
@@ -475,7 +506,10 @@ export function UserPage() {
           {t("tableActions.loading")}
         </div>
       )}
-      <div className="flex justify-between rounded-md bg-background-body-background px-2 py-2">
+      <div
+        id="user-table-container"
+        className="flex justify-between rounded-md bg-background-body-background px-2 py-2"
+      >
         {/* Left */}
         <div className="flex gap-2">
           <SelectField
@@ -533,13 +567,19 @@ export function UserPage() {
       <div className="flex flex-col gap-2 rounded-md bg-background-body-background px-2 py-2">
         <DynamicTable
           columns={columns}
-          data={filteredUsers}
+          data={paginatedUsers}
           rowKey="id"
           hasColumnActions
           onAction={handleAction}
           checkActions={actions}
         />
-        <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
+        {paginatedUsers.length > 0 && totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        )}
       </div>
     </MainContentLayout>
   );

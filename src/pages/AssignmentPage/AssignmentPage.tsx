@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import DynamicTable, {
@@ -172,10 +172,38 @@ export const AssignmentPage = () => {
   //   return true;
   // };
 
+  const itemsPerPage = 15;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterCriteria]);
+
+  const { currentData, totalPages } = useMemo(() => {
+    const total = filteredAssigns.length;
+    const pages = Math.ceil(total / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+
+    return {
+      currentData: filteredAssigns.slice(startIndex, startIndex + itemsPerPage),
+      totalPages: pages,
+    };
+  }, [filteredAssigns, currentPage]);
+
+  useEffect(() => {
+    const tableTop = document.getElementById("assignment-table-container");
+    if (tableTop) {
+      tableTop.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [currentPage]);
+
   return (
     <MainContentLayout>
       {/* Toolbar */}
-      <div className="flex flex-col gap-10 rounded-md bg-background-body-background px-2 py-2">
+      <div
+        id="assignment-table-container"
+        className="flex flex-col gap-10 rounded-md bg-background-body-background px-2 py-2"
+      >
         <div className="flex justify-between">
           {/* Left: Filter & Search */}
           <div className="flex gap-2">
@@ -232,14 +260,20 @@ export const AssignmentPage = () => {
       <div className="flex flex-col gap-2 rounded-md bg-background-body-background px-2 py-2">
         <DynamicTable
           columns={columns}
-          data={filteredAssigns}
+          data={currentData}
           rowKey={(item) => `${item.giangVienId}-${item.monHocId}`}
           hasColumnActions
           hasView={false}
           onAction={handleAction}
           checkActions={actions.includes("delete") ? ["delete"] : []}
         />
-        <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
+        {currentData.length > 0 && totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        )}
       </div>
     </MainContentLayout>
   );

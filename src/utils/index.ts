@@ -52,43 +52,59 @@ export const formatFullDateTimeVN = (
 };
 
 /**
- * Chuyển đổi ISO Date String sang định dạng ngày giờ Việt Nam
+ * Chuyển đổi ISO Date String sang định dạng ngày giờ Việt Nam (Fix lệch 7h)
  * @param isoString - Chuỗi ngày tháng chuẩn ISO (e.g. 2026-03-26T08:25:06.000Z)
- * @param includeTime - Có bao gồm giờ:phút không (mặc định là true)
- * @returns Chuỗi đã định dạng (e.g. 15:25, 26/03/2026)
+ * @returns Chuỗi đã định dạng (e.g. Vừa xong, 5 phút trước, 07/04/2026)
  */
 export const formatDateTimeVN = (isoString: string | Date): string => {
   if (!isoString) return "";
 
-  const date = new Date(isoString);
+  // 1. Khởi tạo date từ chuỗi ISO
+  let date = new Date(isoString);
+
+  // 2. TỰ ĐỘNG FIX LỆCH 7 GIỜ:
+  // Nếu chuỗi truyền vào là string và có định dạng ISO (chứa chữ Z hoặc T)
+  // Ta ép nó cộng thêm 7 tiếng để khớp với giờ thực tế tại VN khi tính toán "fromNow"
+  if (
+    typeof isoString === "string" &&
+    (isoString.includes("Z") || isoString.includes("T"))
+  ) {
+    date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+  }
+
   const now = new Date();
 
   // Tính khoảng cách thời gian theo giây
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  // 1. Nếu thời gian ở tương lai (do lệch giây hệ thống)
-  if (diffInSeconds < 0) return "Vừa xong";
+  // 3. Logic hiển thị khoảng thời gian
 
-  // 2. Nếu trong vòng 1 phút (60 giây)
+  // Nếu thời gian ở tương lai hoặc quá gần (lệch vài giây hệ thống)
+  if (diffInSeconds < 5) return "Vừa xong";
+
+  // Nếu trong vòng 1 phút
   if (diffInSeconds < 60) return `${diffInSeconds} giây trước`;
 
-  // 3. Nếu trong vòng 1 giờ (3600 giây)
+  // Nếu trong vòng 1 giờ
   if (diffInSeconds < 3600) {
     const minutes = Math.floor(diffInSeconds / 60);
     return `${minutes} phút trước`;
   }
 
-  // 4. Nếu trong vòng 24 giờ (86400 giây)
+  // Nếu trong vòng 24 giờ
   if (diffInSeconds < 86400) {
     const hours = Math.floor(diffInSeconds / 3600);
     return `${hours} giờ trước`;
   }
 
-  // 5. Nếu quá 24 giờ, trả về định dạng ngày tháng bình thường (vi-VN)
+  // 4. Nếu quá 24 giờ, trả về định dạng ngày tháng bình thường (vi-VN)
   return new Intl.DateTimeFormat("vi-VN", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+    // Nếu Mạnh muốn hiện cả giờ khi quá 24h thì uncomment dòng dưới
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(date);
 };
 

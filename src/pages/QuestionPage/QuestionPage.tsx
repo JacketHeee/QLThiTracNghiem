@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button, Icon, Input } from "@/components/atomic/atoms";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import Tabs from "@/components/atomic/molecules/Tabs/Tabs";
@@ -32,11 +32,18 @@ import { useToastStore } from "@/stores/useToast.store";
 import { useLoadingStore } from "@/stores/useLoading.store";
 import { useConfirmStore } from "@/stores/useConfirm.store";
 import Pagination from "@/components/atomic/molecules/Pagination/Pagination";
+import {
+  Dropdown,
+  DropdownItem,
+} from "@/components/atomic/molecules/Dropdown/Dropdown";
 
 export const QuestionPage = () => {
   const [selectedTab, setSelectedTab] = useState<QuestionStatus>("public");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "none">("none");
   const [filterDifficulty] = useState<DoKho>();
+  const [filterSubjectId, setFilterSubjectId] = useState<number>(-1);
+  const [filterDifficultyId, setFilterDifficultyId] = useState<number>(-1);
   const { user } = useAuthStore();
   const { createCauHoi, isCreating } = useCreateCauHoi();
   const { updateCauHoi, isUpdating } = useUpdateCauHoi();
@@ -118,20 +125,39 @@ export const QuestionPage = () => {
     return personalQuestions.filter((item) => item.status === "archive"); // archive
   }, [questionspublic, personalQuestions, selectedTab]);
 
-  // Thay thế đoạn khai báo allQuestions và useMemo cũ
   const filteredQuestions = useMemo(() => {
-    return displayQuestions.filter((q: Question) => {
+    // 1. Lọc dữ liệu trước
+    const result = displayQuestions.filter((q: Question) => {
       const matchSearch = q.noiDungCauHoi
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
-      const matchDifficulty = filterDifficulty
-        ? q.do_kho === filterDifficulty
-        : true;
 
-      return matchSearch && matchDifficulty;
+      const matchSubject =
+        filterSubjectId !== -1 ? q.monHocId === filterSubjectId : true;
+
+      const matchDifficulty =
+        filterDifficultyId !== -1 ? q.doKhoId === filterDifficultyId : true;
+
+      return matchSearch && matchSubject && matchDifficulty;
     });
-    //sửa lại chỉ lấy thay đổi display
-  }, [displayQuestions, searchQuery, filterDifficulty]);
+
+    // 2. Sắp xếp dữ liệu sau khi lọc
+    if (sortOrder === "none") return result;
+
+    return [...result].sort((a, b) => {
+      if (sortOrder === "asc") {
+        return a.soLuotSuDung - b.soLuotSuDung; // Thấp đến Cao
+      } else {
+        return b.soLuotSuDung - a.soLuotSuDung; // Cao đến Thấp
+      }
+    });
+  }, [
+    displayQuestions,
+    searchQuery,
+    filterSubjectId,
+    filterDifficultyId,
+    sortOrder,
+  ]);
 
   const handleTabSelect = (status: QuestionStatus) => {
     setSelectedTab(status);
@@ -369,6 +395,39 @@ export const QuestionPage = () => {
     return true;
   };
 
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedTab, searchQuery, filterDifficulty]);
+
+  const { paginatedQuestions, totalPages } = useMemo(() => {
+    const total = filteredQuestions.length;
+    const pages = Math.ceil(total / ITEMS_PER_PAGE);
+
+    // Tính chỉ số bắt đầu và kết thúc
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const slicedData = filteredQuestions.slice(
+      startIndex,
+      startIndex + ITEMS_PER_PAGE
+    );
+
+    return {
+      paginatedQuestions: slicedData,
+      totalPages: pages,
+    };
+  }, [filteredQuestions, currentPage]);
+
+  useEffect(() => {
+    const topElement = document.getElementById("question-list-top");
+    if (topElement) {
+      topElement.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [currentPage]);
+
   return (
     <MainContentLayout>
       {/* Xử lý loading ở đây nhen */}
@@ -377,7 +436,10 @@ export const QuestionPage = () => {
           {t("tableActions.loading")}
         </div>
       )}
-      <div className="flex flex-col gap-3 rounded-md bg-background-body-background">
+      <div
+        id="question-list-top"
+        className="flex flex-col gap-3 rounded-md bg-background-body-background"
+      >
         <div className="border-b-1 flex items-center justify-between border-other-outlined-border pr-3">
           <Tabs
             value={selectedTab}
@@ -403,34 +465,72 @@ export const QuestionPage = () => {
           <SelectField
             label={t("questionPage.filters.subject.label")}
             placeholder={t("questionPage.filters.subject.placeholder")}
-            options={subjects.map((item) => ({
-              label: item.tenMonHoc,
-              value: item.id,
-            }))}
-            onSelect={() => {}}
+            value={filterSubjectId} // Truyền value để component biết đang chọn gì
+            options={[
+              {
+                label: t("questionPage.filters.subject.all", "Tất cả môn học"),
+                value: -1,
+              }, // Option mặc định
+              ...subjects.map((item) => ({
+                label: item.tenMonHoc,
+                value: item.id,
+              })),
+            ]}
+            onSelect={(val) => setFilterSubjectId(val as number)}
           />
           <SelectField
             label={t("questionPage.filters.chapter.label")}
             placeholder={t("questionPage.filters.chapter.placeholder")}
             options={[
-              { label: "Nhận biết", value: "Nhận biết" },
-              { label: "Thông hiểu", value: "Thông hiểu" },
-              { label: "Vận dụng", value: "Vận dụng" },
-              { label: "Vận dụng cao", value: "Vận dụng cao" },
+              {
+                label: t(
+                  "questionPage.filters.chapter.levels.recognize",
+                  "Nhận biết"
+                ),
+                value: "Nhận biết",
+              },
+              {
+                label: t(
+                  "questionPage.filters.chapter.levels.understand",
+                  "Thông hiểu"
+                ),
+                value: "Thông hiểu",
+              },
+              {
+                label: t(
+                  "questionPage.filters.chapter.levels.apply",
+                  "Vận dụng"
+                ),
+                value: "Vận dụng",
+              },
+              {
+                label: t(
+                  "questionPage.filters.chapter.levels.advancedApply",
+                  "Vận dụng cao"
+                ),
+                value: "Vận dụng cao",
+              },
             ]}
             onSelect={() => {}}
           />
           <SelectField
             label={t("questionPage.filters.difficulty.label")}
             placeholder={t("questionPage.filters.difficulty.placeholder")}
-            options={doKhos.map((item) => ({
-              label: item.tenDoKho,
-              value: item.id,
-            }))}
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            onSelect={(_val) => {
-              // setFilterDifficulty();
-            }}
+            value={filterDifficultyId}
+            options={[
+              {
+                label: t(
+                  "questionPage.filters.difficulty.all",
+                  "Tất cả độ khó"
+                ),
+                value: -1,
+              }, // Option mặc định
+              ...doKhos.map((item) => ({
+                label: item.tenDoKho,
+                value: item.id,
+              })),
+            ]}
+            onSelect={(val) => setFilterDifficultyId(val as number)}
           />
         </div>
         <div className="flex gap-5 px-3 pb-3">
@@ -444,24 +544,52 @@ export const QuestionPage = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             icon={<Icon name="search" className="text-text-secondary" />}
           />
-          <Button
-            variant="outline"
-            className="shrink-0"
-            onClick={() => {
-              setSearchQuery("");
-              // setFilterDifficulty("");
-            }}
+
+          <Dropdown
+            align="right"
+            trigger={
+              <Button
+                variant={sortOrder === "none" ? "outline" : "contained"}
+                color={sortOrder === "none" ? "standard" : "primary"}
+                className="shrink-0"
+                onClick={() => {
+                  setSearchQuery("");
+                  setSortOrder("none"); // Reset sắp xếp khi nhấn nút clear
+                  setCurrentPage(1);
+                }}
+              >
+                <Icon name="arrowUpDown" />
+              </Button>
+            }
           >
-            <Icon name="arrowUpDown" />
-          </Button>
+            <DropdownItem
+              onClick={() => {
+                setSortOrder("asc");
+                setCurrentPage(1);
+              }}
+              variant={sortOrder === "asc" ? "error" : "default"} // Highlight nếu đang chọn
+            >
+              {t("questionPage.sort.usageAsc", "Lượt sử dụng: Thấp - Cao")}
+            </DropdownItem>
+
+            <DropdownItem
+              onClick={() => {
+                setSortOrder("desc");
+                setCurrentPage(1);
+              }}
+              variant={sortOrder === "desc" ? "error" : "default"} // Highlight nếu đang chọn
+            >
+              {t("questionPage.sort.usageDesc", "Lượt sử dụng: Cao - Thấp")}
+            </DropdownItem>
+          </Dropdown>
         </div>
       </div>
 
       {/* List Section */}
       <section className="mt-4">
         <div className="flex flex-col gap-4">
-          {filteredQuestions.length > 0 ? (
-            filteredQuestions.map((q) => (
+          {paginatedQuestions.length > 0 ? (
+            paginatedQuestions.map((q) => (
               <QuestionItem
                 key={q.id}
                 data={q}
@@ -489,9 +617,16 @@ export const QuestionPage = () => {
             </div>
           )}
         </div>
-        <div className="mt-4 rounded-md bg-background-body-background">
-          <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
-        </div>
+        {/* Chỉ hiển thị Pagination khi có dữ liệu và tổng số trang > 1 */}
+        {paginatedQuestions.length > 0 && totalPages > 1 && (
+          <div className="mt-4 rounded-md bg-background-body-background">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </div>
+        )}
       </section>
 
       {modalState.open && (

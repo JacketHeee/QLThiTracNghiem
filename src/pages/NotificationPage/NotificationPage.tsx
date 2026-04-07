@@ -2,7 +2,7 @@ import { Button, Icon, Input } from "@/components/atomic/atoms";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import NotificationItem from "@/components/atomic/molecules/NotificationItem/NotificationItem";
 import SelectField from "@/components/atomic/atoms/Select/SelectField";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AddNotificationForm from "@/components/atomic/organisms/AddNotificationForm/AddNotificationForm";
 import { useThongBao } from "@/hooks/useThongBao";
 import type {
@@ -49,9 +49,9 @@ export const NotificationPage = () => {
 
   const filteredThongBaos = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    if (!term) return thongBaos;
 
-    return thongBaos.filter((item) => {
+    // 1. Lọc dữ liệu theo Search Term
+    const filtered = thongBaos.filter((item) => {
       const title = item.tieuDe?.toLowerCase() ?? "";
       const content = item.noiDung?.toLowerCase() ?? "";
       const sender = item.nguoi_gui?.hoTen?.toLowerCase() ?? "";
@@ -64,6 +64,14 @@ export const NotificationPage = () => {
         sender.includes(term) ||
         subjectName.includes(term)
       );
+    });
+
+    // 2. Sắp xếp: Thời gian mới nhất (thoiGianGui) lên đầu
+    // Sử dụng slice() để tạo bản sao mảng trước khi sort (tránh mutate mảng gốc)
+    return [...filtered].sort((a, b) => {
+      const dateA = new Date(a.thoiGianGui).getTime();
+      const dateB = new Date(b.thoiGianGui).getTime();
+      return dateB - dateA; // Giảm dần: B lớn hơn (mới hơn) sẽ đứng trước
     });
   }, [searchTerm, thongBaos]);
 
@@ -231,6 +239,37 @@ export const NotificationPage = () => {
     return true;
   };
 
+  const itemsPerPage = 6; // Thông báo thường chiếm diện tích lớn, nên để 6-8 item
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // 1. Tính toán dữ liệu phân trang
+  const { currentData, totalPages } = useMemo(() => {
+    const total = filteredThongBaos.length;
+    const pages = Math.ceil(total / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+
+    return {
+      currentData: filteredThongBaos.slice(
+        startIndex,
+        startIndex + itemsPerPage
+      ),
+      totalPages: pages,
+    };
+  }, [filteredThongBaos, currentPage]);
+
+  // 2. Reset về trang 1 khi tìm kiếm
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  // 3. Logic cuộn lên đầu danh sách khi đổi trang
+  useEffect(() => {
+    const listTop = document.getElementById("notification-list-top");
+    if (listTop) {
+      listTop.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [currentPage]);
+
   return (
     <MainContentLayout>
       {/* Xử lý loading ở đây nhen */}
@@ -240,7 +279,10 @@ export const NotificationPage = () => {
         </div>
       )}
       {/* Toolbar: Search & Action */}
-      <div className="flex justify-between rounded-md bg-background-body-background px-2 py-2">
+      <div
+        id="notification-list-top"
+        className="flex justify-between rounded-md bg-background-body-background px-2 py-2"
+      >
         {/* Left */}
 
         <div className="flex gap-2">
@@ -294,19 +336,33 @@ export const NotificationPage = () => {
 
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-2">
-          {filteredThongBaos.map((note) => (
-            <NotificationItem
-              data={note}
-              onView={(id) => detailTB(id)}
-              onEdit={(id) => openUpdateModal(id)}
-              onDelete={(id) => deleteTB(id)}
-              actions={actions}
+          {currentData.length > 0 ? (
+            currentData.map((note) => (
+              <NotificationItem
+                key={note.id} // Đừng quên key nhé nhen
+                data={note}
+                onView={(id) => detailTB(id)}
+                onEdit={(id) => openUpdateModal(id)}
+                onDelete={(id) => deleteTB(id)}
+                actions={actions}
+              />
+            ))
+          ) : (
+            <div className="rounded-md bg-background-body-background p-10 text-center text-text-disabled">
+              {t("common.noData")}
+            </div>
+          )}
+        </div>
+        {/* Pagination Section */}
+        {totalPages > 1 && (
+          <div className="rounded-md bg-background-body-background py-2">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
             />
-          ))}
-        </div>
-        <div className="rounded-md bg-background-body-background">
-          <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
-        </div>
+          </div>
+        )}
       </div>
     </MainContentLayout>
   );

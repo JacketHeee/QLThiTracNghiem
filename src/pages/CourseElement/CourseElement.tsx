@@ -146,7 +146,7 @@ export default function CourseElement() {
       },
     },
     {
-      title: "Phần trăm",
+      title: t("coursePage.table.percentage", "Phần trăm"),
       key: "bai_lam",
       className: "text-center",
       render: (_, item) => {
@@ -217,7 +217,6 @@ export default function CourseElement() {
     },
   ];
 
-  // eslint-disable-next-line
   const combinedFeed = useMemo(() => {
     // Lưu ý: Mạnh có thể thay MOCK_THONG_BAOS bằng nhomHocPhan?.thong_baos khi API sẵn sàng
     const rawThongBaos = thongBaos || [];
