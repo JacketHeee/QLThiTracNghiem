@@ -10,6 +10,7 @@ import type { Answer, CauHoiCreate, CauHoiUpdate, Question } from "@/types";
 import { useAuthStore } from "@/stores/auth.store";
 import { useSubject } from "@/hooks/useSubject";
 import { useTranslation } from "react-i18next";
+import { stripParagraphTags } from "@/utils";
 
 // interface Answer {
 //   id: string;
@@ -183,13 +184,13 @@ export default function AddQuestionForm({
         chuongId: formData.chuongId ?? null,
         doKhoId: formData.doKhoId,
         nguoiTaoId: formData.nguoiTaoId,
-        noiDungCauHoi: formData.noiDungCauHoi,
+        noiDungCauHoi: stripParagraphTags(formData.noiDungCauHoi),
         giaiThichDapAn: formData.giaiThichDapAn || "",
         diemMacDinh: Number(formData.diemMacDinh) || 0,
         status: formData.status as "public" | "private" | "archive",
 
         cauTraLois: formData.cau_tra_lois.map((ans) => ({
-          noiDungLuaChon: ans.noiDungLuaChon,
+          noiDungLuaChon: stripParagraphTags(ans.noiDungLuaChon),
           isCorrectAnswer: ans.isCorrectAnswer,
           cauHoiId: ans.cauHoiId,
         })),
@@ -201,13 +202,13 @@ export default function AddQuestionForm({
         chuongId: formData.chuongId ?? null,
         doKhoId: formData.doKhoId,
         nguoiTaoId: formData.nguoiTaoId,
-        noiDungCauHoi: formData.noiDungCauHoi,
+        noiDungCauHoi: stripParagraphTags(formData.noiDungCauHoi),
         giaiThichDapAn: formData.giaiThichDapAn || "",
         diemMacDinh: Number(formData.diemMacDinh) || 0,
         status: formData.status as "public" | "private" | "archive",
 
         cauTraLois: formData.cau_tra_lois.map((ans) => ({
-          noiDungLuaChon: ans.noiDungLuaChon,
+          noiDungLuaChon: stripParagraphTags(ans.noiDungLuaChon),
           isCorrectAnswer: ans.isCorrectAnswer,
           cauHoiId: ans.cauHoiId,
         })),
