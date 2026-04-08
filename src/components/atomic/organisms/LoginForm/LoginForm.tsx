@@ -11,6 +11,7 @@ import type { ErrorResponse, LoginFormSubmit } from "@/types";
 import type { AxiosError } from "axios";
 import { useLoadingStore } from "@/stores/useLoading.store";
 import { useToastStore } from "@/stores/useToast.store";
+import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 
 export default function LoginForm() {
   const navigate = useNavigate();
@@ -22,6 +23,8 @@ export default function LoginForm() {
   const { loginAsync, isLoadingLogin } = useLogin();
   const { startLoading, stopLoading } = useLoadingStore();
   const { showToast } = useToastStore();
+
+  const { loginWithGoogle } = useGoogleAuth();
 
   // Đổi tên và nhận event
   const handleSubmit = async (e: FormEvent) => {
@@ -122,7 +125,7 @@ export default function LoginForm() {
 
         <div className="flex justify-center gap-2">
           {/* Button này không có type="submit" nên sẽ không trigger form */}
-          <Button type="button" size={"medium"}>
+          <Button type="button" size={"medium"} onClick={loginWithGoogle}>
             <Icon name="googleIcon" />
             Google
           </Button>

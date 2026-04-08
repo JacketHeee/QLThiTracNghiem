@@ -32,6 +32,7 @@ import TestDetailPage from "@/pages/TestDetailPage/TestDetailPage";
 import TestFormPage from "@/pages/TestFormPage/TestFormPage";
 import ProfilePage from "@/pages/ProfilePage/ProfilePage";
 import DifficultyLevelPage from "@/pages/DifficultyLevelPage/DifficultyLevelPage";
+import GoogleCallback from "@/pages/GoogleCallbackPage/GoogleCallbackPage";
 
 export const router = createBrowserRouter([
   {
@@ -134,6 +135,7 @@ export const router = createBrowserRouter([
         ],
       },
 
+      { path: "/auth/callback", element: <GoogleCallback /> },
       { path: "/login", element: <LoginPage /> },
       { path: "/register", element: <RegisterPage /> },
     ],

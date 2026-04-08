@@ -20,7 +20,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       role: null,
 
-      // Đăng nhập thành công: Lưu cả token và user
+      // Đăng nhập thành công: Lưu user
       setAuth: (user, role) =>
         set({
           user,
