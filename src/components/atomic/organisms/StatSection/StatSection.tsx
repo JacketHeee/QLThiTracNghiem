@@ -24,8 +24,8 @@ import {
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeThiStore } from "@/stores/useDeThi.store";
-import { useNhomHocPhanSinhViens } from "@/hooks/useNhomHocPhan";
 import { useExamActions } from "@/hooks/useExamActions";
+import type { TaiKhoan } from "@/types";
 
 interface StatItem {
   label: string;
@@ -35,11 +35,12 @@ interface StatItem {
   iconBgColor: string;
 }
 
-export default function StatSection() {
+export default function StatSection({ sinhViens }: { sinhViens: TaiKhoan[] }) {
   const { t } = useTranslation();
   const { testData } = useDeThiStore();
-  const { sinhViens } = useNhomHocPhanSinhViens(Number(testData?.id));
+
   const { baiLams } = useExamActions();
+  console.log();
 
   // --- LOGIC XỬ LÝ DỮ LIỆU ĐỘNG ---
   const { statsSummary, chartData } = useMemo(() => {

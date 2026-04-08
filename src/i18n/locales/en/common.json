@@ -205,7 +205,7 @@
     "unsubscribe": "Unenroll"
   },
   "examPage": {
-    "searchPlaceholder": "Search student ID ...",
+    "searchPlaceholder": "Search ...",
     "table": {
       "stt": "No.",
       "className": "Class name",

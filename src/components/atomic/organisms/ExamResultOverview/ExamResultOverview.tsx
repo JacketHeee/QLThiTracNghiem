@@ -93,11 +93,6 @@ export default function ExamResultContent({
   return (
     <div className="w-[668px] max-w-[668px] space-y-6">
       {/* Thông báo chế độ Preview */}
-      {isPreview && (
-        <div className="bg-primary-main/10 border-primary-main/20 rounded-lg border p-3 text-center font-medium text-primary-main">
-          {t("examResultOverview.previewMode")}
-        </div>
-      )}
       {/* 1. Card Kết quả chính (Overview) */}
       <div className="flex items-center overflow-hidden rounded-lg bg-background-body-background shadow-custom">
         <div className="flex-1 px-8 py-6">
@@ -188,63 +183,54 @@ export default function ExamResultContent({
         )}
       </div>
       {/* 3. Section Chi tiết câu hỏi (Ẩn/Hiện) */}
-      {config?.showDetailResults ||
-      [1, 2].includes(user?.nhomQuyenId || 3) ||
-      isPreview ? (
-        showDetail && (
-          <div
-            id="details-section"
-            className="overflow-hidden rounded-xl border border-other-outlined-border bg-background-body-background shadow-custom"
-          >
-            <div className="px-6 pt-4">
-              <Tabs
-                small
-                value={selectedTab}
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                onChange={(val) => setSelectedTab(val as any)}
-                tabs={[
-                  {
-                    value: "all",
-                    label: t("examResultOverview.tabs.all", {
-                      count: testData?.cau_hois?.length || 0,
-                    }),
-                  },
-                  {
-                    value: "success",
-                    label: t("examResultOverview.tabs.success"),
-                  },
-                  { value: "error", label: t("examResultOverview.tabs.error") },
-                ]}
-              />
-            </div>
-            <div className="divide-y divide-other-outlined-border">
-              {filteredQuestions.length > 0 ? (
-                filteredQuestions.map((q, idx) => (
-                  <QuestionCard
-                    key={q.id}
-                    question={q}
-                    index={
-                      testData?.cau_hois?.findIndex(
-                        (orig) => orig.id === q.id
-                      ) ?? idx
-                    }
-                    totalQuestions={testData?.cau_hois?.length || 0}
-                    userAnswer={answers[q.id]}
-                    isReviewMode={true}
-                    isFlatMode={true}
-                  />
-                ))
-              ) : (
-                <div className="py-20 text-center text-text-disabled">
-                  {t("examResultOverview.emptyFiltered")}
-                </div>
-              )}
-            </div>
+      {showDetail && (
+        <div
+          id="details-section"
+          className="overflow-hidden rounded-xl border border-other-outlined-border bg-background-body-background shadow-custom"
+        >
+          <div className="px-6 pt-4">
+            <Tabs
+              small
+              value={selectedTab}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              onChange={(val) => setSelectedTab(val as any)}
+              tabs={[
+                {
+                  value: "all",
+                  label: t("examResultOverview.tabs.all", {
+                    count: testData?.cau_hois?.length || 0,
+                  }),
+                },
+                {
+                  value: "success",
+                  label: t("examResultOverview.tabs.success"),
+                },
+                { value: "error", label: t("examResultOverview.tabs.error") },
+              ]}
+            />
           </div>
-        )
-      ) : (
-        <div className="rounded-lg border border-dashed bg-gray-50 p-6 text-center text-text-secondary">
-          {t("examResultOverview.detailLocked")}
+          <div className="divide-y divide-other-outlined-border">
+            {filteredQuestions.length > 0 ? (
+              filteredQuestions.map((q, idx) => (
+                <QuestionCard
+                  key={q.id}
+                  question={q}
+                  index={
+                    testData?.cau_hois?.findIndex((orig) => orig.id === q.id) ??
+                    idx
+                  }
+                  totalQuestions={testData?.cau_hois?.length || 0}
+                  userAnswer={answers[q.id]}
+                  isReviewMode={true}
+                  isFlatMode={true}
+                />
+              ))
+            ) : (
+              <div className="py-20 text-center text-text-disabled">
+                {t("examResultOverview.emptyFiltered")}
+              </div>
+            )}
+          </div>
         </div>
       )}
       {/* 2. Nút hành động */}
@@ -252,7 +238,10 @@ export default function ExamResultContent({
         <Button variant="outline" onClick={onCancel ?? handleBackHome}>
           {t("examResultOverview.actions.exit")}
         </Button>
-        {(config?.showDetailResults || [1, 2].includes(user?.id || 3)) && (
+        {(config?.showDetailResults ||
+          (!config?.showDetailResults &&
+            !isPreview &&
+            [1, 2].includes(user?.nhomQuyenId || 3))) && (
           <Button
             color="primary"
             variant="contained"
