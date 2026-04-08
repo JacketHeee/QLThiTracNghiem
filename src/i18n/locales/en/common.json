@@ -274,7 +274,8 @@
     "cancel": "Cancel",
     "result": "Result",
     "saveAccount": "Save Account",
-    "saveAssignment": "Save Assignment"
+    "saveAssignment": "Save Assignment",
+    "noData": "No data"
   },
   "permissionForm": {
     "view": "View",

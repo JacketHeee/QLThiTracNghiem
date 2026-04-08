@@ -1,13 +1,18 @@
-import { useSubject } from "@/hooks/useSubject";
+import { useMonHocOGvien, useSubject } from "@/hooks/useSubject";
 import { Button } from "../../atoms";
 import { Checkbox } from "../../atoms/Checkbox/Checkbox";
 import SelectField from "../../atoms/Select/SelectField";
 import { Overlay } from "../../molecules/Overlay/Overlay";
 import { TextArea } from "../../molecules/TextArea/TextArea";
 import { TextField } from "../../molecules/TextField/TextField";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "@/stores/auth.store";
-import type { ThongBaoCreate, ThongBaoResponse, ThongBaoUpdate } from "@/types";
+import type {
+  Subject,
+  ThongBaoCreate,
+  ThongBaoResponse,
+  ThongBaoUpdate,
+} from "@/types";
 import {
   ThongBaoValidate,
   type ThongBaoError,
@@ -36,7 +41,7 @@ export default function AddNotificationForm({
   mode,
 }: AddNotificationFormProps) {
   const { t } = useTranslation();
-  const { user } = useAuthStore();
+  const { user, role } = useAuthStore();
   const defaultFormData: ThongBaoCreate = {
     tieuDe: "",
     noiDung: "",
@@ -44,7 +49,19 @@ export default function AddNotificationForm({
     nhomHocPhanIds: [],
   };
   const [groups, setGroups] = useState<Group[]>([]);
-  const { subjectsWithGroup } = useSubject();
+  const { monHocGvien } = useMonHocOGvien(user?.id || 0);
+  const { subjects: monhocs } = useSubject();
+  const monHocDisplays = useMemo<Subject[]>(() => {
+    if (!user || !role) return [];
+
+    if (role.tenNhomQuyen === "teacher") {
+      return monHocGvien;
+    } else {
+      return monhocs;
+    }
+  }, [user, role, monHocGvien, monhocs]);
+
+  console.log(monHocGvien);
 
   const selectedNotifi: ThongBaoCreate = selectedItem
     ? {
@@ -71,7 +88,7 @@ export default function AddNotificationForm({
       selectedItem?.nhom_hoc_phans?.map((nhom) => nhom.id) ?? [];
 
     const loadDataCheckBox = () => {
-      const groupOfSubject: Group[] = subjectsWithGroup
+      const groupOfSubject: Group[] = monHocDisplays
         .filter((item) => Number(item.id) === selectedMonHocId)
         .flatMap((item) =>
           item.nhom_hoc_phans.map((nhom) => ({
@@ -85,7 +102,7 @@ export default function AddNotificationForm({
     if (isEdit || isView) {
       loadDataCheckBox();
     }
-  }, [isEdit, isView, selectedItem, subjectsWithGroup]);
+  }, [isEdit, isView, selectedItem, monHocDisplays]);
 
   const handleChange = <K extends keyof ThongBaoCreate>(
     field: K,
@@ -94,7 +111,7 @@ export default function AddNotificationForm({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const subjects = subjectsWithGroup.map((item) => ({
+  const subjects = monHocDisplays.map((item) => ({
     label: item.tenMonHoc,
     value: item.id,
   }));
@@ -103,7 +120,7 @@ export default function AddNotificationForm({
     if (!value) return;
     const subjectId = typeof value === "number" ? value : Number(value);
 
-    const groupOfSubject: Group[] = subjectsWithGroup
+    const groupOfSubject: Group[] = monHocDisplays
       .filter((item) => item.id === subjectId) //tạm không sửa prop Nhom hoc phan
       .flatMap((item) =>
         item.nhom_hoc_phans.map((nhom) => ({

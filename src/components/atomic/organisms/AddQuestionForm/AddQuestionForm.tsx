@@ -8,7 +8,7 @@ import { Button } from "../../atoms";
 import { Checkbox } from "../../atoms/Checkbox/Checkbox";
 import type { Answer, CauHoiCreate, CauHoiUpdate, Question } from "@/types";
 import { useAuthStore } from "@/stores/auth.store";
-import { useSubject } from "@/hooks/useSubject";
+import { useMonHocOGvien, useSubject } from "@/hooks/useSubject";
 import { useTranslation } from "react-i18next";
 import { stripParagraphTags } from "@/utils";
 
@@ -84,7 +84,16 @@ export default function AddQuestionForm({
   const selectedQuestion: Question = selectedItem ?? defaultFormData;
 
   const { subjectsWithChuong } = useSubject();
-  const subjectOptions = subjectsWithChuong.map((item) => ({
+  const { monHocGvien } = useMonHocOGvien(user?.id);
+
+  // 1. Lấy ra danh sách ID duy nhất của giáo viên
+  const gvienMonHocIds = new Set(monHocGvien.map((item) => item.id));
+
+  // 2. Lọc danh sách môn học dựa trên Set đó
+  const myMonHocs = subjectsWithChuong.filter((subject) =>
+    gvienMonHocIds.has(subject.id)
+  );
+  const subjectOptions = myMonHocs.map((item) => ({
     label: item.tenMonHoc,
     value: item.id,
   }));
@@ -101,7 +110,7 @@ export default function AddQuestionForm({
   const isCreate = mode === "create";
   const isUpdate = mode === "update";
 
-  const selectedChuongs = subjectsWithChuong.find(
+  const selectedChuongs = myMonHocs.find(
     (item) => item.id === selectedQuestion.monHocId
   )?.chuongs;
   const defaultOptionChuong = selectedChuongs
@@ -218,7 +227,7 @@ export default function AddQuestionForm({
   };
 
   const handleSelectSubject = (val: number) => {
-    const subject = subjectsWithChuong.find((s) => s.id === val);
+    const subject = myMonHocs.find((s) => s.id === val);
     const chuongs = subject ? subject.chuongs : [];
     const options = chuongs.map((item) => ({
       label: item.tenChuong,
