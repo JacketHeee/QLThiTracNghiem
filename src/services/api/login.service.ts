@@ -5,4 +5,12 @@ export const authService = {
     const res = await axiosClient.post("/login", data);
     return res.data;
   },
+  me: async () => {
+    const res = await axiosClient.get("/me");
+    return res.data;
+  },
+  setCookie: async (data: { access_token: string }) => {
+    const res = await axiosClient.post("/auth/set-cookie", data);
+    return res.data;
+  },
 };

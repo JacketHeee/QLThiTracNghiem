@@ -361,6 +361,17 @@ export type ErrorResponse = {
   errors: BackendErrors;
 };
 
+export interface GoogleUser {
+  username: string | null;
+  email: string | null;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  user: GoogleUser;
+  error?: string;
+}
+
 export interface LoginFormSubmit {
   login: string;
   password: string;
