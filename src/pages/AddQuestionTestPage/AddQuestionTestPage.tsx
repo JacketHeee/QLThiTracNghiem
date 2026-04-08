@@ -46,6 +46,9 @@ export default function AddQuestionTestPage() {
 
   // Hooks lấy dữ liệu mẫu từ ngân hàng câu hỏi
   const { personalQuestions } = useQuestionsOfUser(user?.id);
+  const validQuestions = personalQuestions.filter(
+    (item) => item.status !== "archive"
+  );
   const { doKhos } = useDoKho();
 
   // 1. Lấy dữ liệu và Actions từ Store duy nhất
@@ -208,7 +211,7 @@ export default function AddQuestionTestPage() {
           </div>
 
           <div className="flex max-h-[80vh] flex-col overflow-auto border-x border-t border-other-outlined-border bg-background-body-background">
-            {personalQuestions.map((item) => {
+            {validQuestions.map((item) => {
               // Kiểm tra xem câu hỏi này đã có trong đề thi chưa
               const isSelected = selectedQuestionIds.has(item.id);
 

@@ -4,7 +4,7 @@ import SelectField from "@/components/atomic/atoms/Select/SelectField";
 import TestItem from "@/components/atomic/organisms/TestItem/TestItem";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
 import { useDeThi } from "@/hooks/useDeThi";
-import { useSubject } from "@/hooks/useSubject";
+import { useMonHocOGvien } from "@/hooks/useSubject";
 import { useAuthStore } from "@/stores/auth.store";
 import type { RoleDetailItem } from "@/types";
 import { useTranslation } from "react-i18next";
@@ -15,10 +15,11 @@ export const TestPage = () => {
   const { t } = useTranslation();
   const { dethis } = useDeThi();
 
-  const { subjects } = useSubject();
+  // const { subjects } = useSubject();
   const pageName = "de_thi";
 
   const { role, user } = useAuthStore();
+  const { monHocGvien: subjects } = useMonHocOGvien(user?.id);
 
   const roleDetails = !role ? [] : role.role_details;
   const actions = roleDetails

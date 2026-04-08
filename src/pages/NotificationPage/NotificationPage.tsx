@@ -30,7 +30,8 @@ export const NotificationPage = () => {
 
   const pageName = "thong_bao";
 
-  const { role } = useAuthStore();
+  const { role, user } = useAuthStore();
+  const myThongbaos = thongBaos.filter((item) => item.nguoiGuiId === user?.id);
   const roleDetails = !role ? [] : role.role_details;
   const actions = roleDetails
     .filter((item: RoleDetailItem) => item.tenChucNang === pageName)
@@ -51,7 +52,7 @@ export const NotificationPage = () => {
     const term = searchTerm.trim().toLowerCase();
 
     // 1. Lọc dữ liệu theo Search Term
-    const filtered = thongBaos.filter((item) => {
+    const filtered = myThongbaos.filter((item) => {
       const title = item.tieuDe?.toLowerCase() ?? "";
       const content = item.noiDung?.toLowerCase() ?? "";
       const sender = item.nguoi_gui?.hoTen?.toLowerCase() ?? "";
@@ -73,7 +74,7 @@ export const NotificationPage = () => {
       const dateB = new Date(b.thoiGianGui).getTime();
       return dateB - dateA; // Giảm dần: B lớn hơn (mới hơn) sẽ đứng trước
     });
-  }, [searchTerm, thongBaos]);
+  }, [searchTerm, myThongbaos]);
 
   const defaultModalState = {
     open: false,
@@ -104,7 +105,7 @@ export const NotificationPage = () => {
 
   const openUpdateModal = (id: number) => {
     const selectedThongBao =
-      thongBaos.find((thongbao) => thongbao.id === id) ?? null;
+      myThongbaos.find((thongbao) => thongbao.id === id) ?? null;
     setModalState({
       open: true,
       mode: "update",
@@ -170,7 +171,7 @@ export const NotificationPage = () => {
 
   const detailTB = (id: number) => {
     const selectedThongBao =
-      thongBaos.find((thongbao) => thongbao.id === id) ?? null;
+      myThongbaos.find((thongbao) => thongbao.id === id) ?? null;
     setModalState({
       open: true,
       mode: "view",

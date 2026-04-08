@@ -274,7 +274,8 @@
     "cancel": "Hủy bỏ",
     "result": "Kết quả",
     "saveAccount": "Lưu tài khoản",
-    "saveAssignment": "Lưu phân công"
+    "saveAssignment": "Lưu phân công",
+    "noData": "Không có dữ liệu"
   },
   "permissionForm": {
     "view": "Xem",

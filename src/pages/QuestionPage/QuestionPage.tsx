@@ -15,7 +15,7 @@ import type {
   QuestionStatus,
   RoleDetailItem,
 } from "@/types";
-import { useSubject } from "@/hooks/useSubject";
+import { useMonHocOGvien } from "@/hooks/useSubject";
 import {
   useCopyCauHoiToPrivate,
   useCreateCauHoi,
@@ -109,7 +109,8 @@ export const QuestionPage = () => {
   };
 
   const { doKhos } = useDoKho();
-  const { subjects } = useSubject();
+  const { monHocGvien: subjects } = useMonHocOGvien(user?.id);
+
   // const { questions } = useQuestions();
   // const { questionsprivate } = useQuestionsPrivate(user?.id);
   const { questionspublic } = useQuestionsPublic(); // tất cả câu hỏi public
