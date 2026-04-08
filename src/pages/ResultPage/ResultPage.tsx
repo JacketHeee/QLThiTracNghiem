@@ -392,6 +392,7 @@ export default function ResultPage() {
 
   const { startLoading, stopLoading } = useLoadingStore();
   const handleViewResult = async (baiLamId: number) => {
+    useExamStore.getState().mode = "STUDENT";
     try {
       startLoading();
       // Gọi action review bài thi (đã bao gồm logic setFinalResult vào Store)
@@ -798,7 +799,9 @@ export default function ResultPage() {
           </div>
         )}
 
-        {selectedTab === "stat" && <StatSection key="stat-section" />}
+        {selectedTab === "stat" && (
+          <StatSection sinhViens={sinhViens} key="stat-section" />
+        )}
       </div>
       {openResultModal && (
         <Overlay onClose={handleClose}>

@@ -205,7 +205,7 @@
     "unsubscribe": "Hủy đăng ký"
   },
   "examPage": {
-    "searchPlaceholder": "Tìm kiếm MSSV ...",
+    "searchPlaceholder": "Tìm kiếm ...",
     "table": {
       "stt": "STT",
       "className": "Tên lớp",

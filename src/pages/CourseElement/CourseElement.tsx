@@ -40,6 +40,7 @@ import {
   DropdownItem,
 } from "@/components/atomic/molecules/Dropdown/Dropdown";
 import { useConfirmStore } from "@/stores/useConfirm.store";
+import { useExamStore } from "@/stores/useExamStore";
 
 export default function CourseElement() {
   const { t } = useTranslation();
@@ -250,6 +251,7 @@ export default function CourseElement() {
   const [isOpenNotiForm, setIsOpenNotiForm] = useState(false);
   const { reviewExam } = useExamActions();
   const handleViewResult = async (baiLamId: number) => {
+    useExamStore.getState().mode = "STUDENT";
     startLoading();
     try {
       // Gọi action review bài thi (đã bao gồm logic setFinalResult vào Store)
