@@ -3,6 +3,7 @@ import { Button, Icon } from "../../atoms";
 import { getDefaultAvatar, getRandomBackground } from "@/utils";
 import { useMemo } from "react";
 import { Dropdown, DropdownItem } from "../../molecules/Dropdown/Dropdown";
+import { useTranslation } from "react-i18next";
 
 interface CourseItemProps {
   data: NhomHocPhan;
@@ -15,6 +16,7 @@ export default function CourseItem({
   className = "",
   onClick,
 }: CourseItemProps) {
+  const { t } = useTranslation();
   const bgImage = useMemo(() => getRandomBackground(), []);
   return (
     <div
@@ -40,7 +42,7 @@ export default function CourseItem({
           <div className="h-[74px] w-[74px] overflow-hidden rounded-full border border-other-outlined-border bg-action-active shadow-sm">
             <img
               src={getDefaultAvatar(data.giang_vien?.hoTen || "user")}
-              alt={"teacher"}
+              alt={t("courseItem.teacherAlt")}
               className="h-full w-full object-cover"
               loading="lazy"
             />
@@ -59,7 +61,10 @@ export default function CourseItem({
             {data.mon_hoc?.tenMonHoc}
           </span>{" "}
           <span className="text-body-2 text-text-secondary">
-            NĂM HỌC {data.namHoc} - HỌC KỲ {data.hocKy}
+            {t("courseItem.academicInfo", {
+              year: data.namHoc,
+              semester: data.hocKy,
+            })}
           </span>
         </div>
       </div>
@@ -80,18 +85,18 @@ export default function CourseItem({
         >
           <DropdownItem
             onClick={() => {
-              console.log("con bo bet bay");
+              return;
             }}
           >
-            Ẩn
+            {t("courseItem.hide")}
           </DropdownItem>
 
           <DropdownItem
             onClick={() => {
-              console.log("con bo bet bay");
+              return;
             }}
           >
-            Hủy đăng ký
+            {t("courseItem.unsubscribe")}
           </DropdownItem>
         </Dropdown>
       </footer>

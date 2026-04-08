@@ -12,8 +12,10 @@ import { dethiService } from "@/services/api/dethi.service";
 import { useDeThiStore } from "@/stores/useDeThi.store";
 import { useAuthStore } from "@/stores/auth.store";
 import { useExamActions } from "@/hooks/useExamActions";
+import { useTranslation } from "react-i18next";
 
 export const ExamPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const { dethis } = useDeThiStudent(user ? user.id : null); //ở đây
   const { baiLams } = useExamActions();
@@ -31,31 +33,31 @@ export const ExamPage = () => {
   // --- Cấu hình Columns cho DynamicTable ---
   const columns: TableColumn<DeThi>[] = [
     {
-      title: "STT",
+      title: t("examPage.table.stt"),
       key: "id",
       render: (_, item) => deThiDisplay.indexOf(item) + 1,
       className: "w-16 text-center",
     },
     {
-      title: "Tên lớp",
+      title: t("examPage.table.className"),
       key: "mon_thi",
       render: (_, item) => item.mon_thi.tenMonHoc,
     },
-    { title: "Tên bài kiểm tra", key: "tenDe" },
+    { title: t("examPage.table.testName"), key: "tenDe" },
     {
-      title: "Thời gian bắt đầu",
+      title: t("examPage.table.startTime"),
       key: "thoiGianBatDau",
       render: (_, item) => formatFullDateTimeVN(item.thoiGianBatDau),
     },
     {
-      title: "Thời gian kết thúc",
+      title: t("examPage.table.endTime"),
       key: "thoiGianKetThuc",
       render: (_, item) => formatFullDateTimeVN(item.thoiGianKetThuc),
     },
     {
-      title: "Thời lượng",
+      title: t("examPage.table.duration"),
       key: "thoiGianLamBai",
-      render: (i) => i + " Phút",
+      render: (i) => `${i} ${t("examPage.table.minuteUnit")}`,
     },
   ];
 
@@ -91,7 +93,7 @@ export const ExamPage = () => {
         <div className="flex gap-2">
           <Input
             hasBoder={true}
-            placeholder="Tìm kiếm MSSV ..."
+            placeholder={t("examPage.searchPlaceholder")}
             icon={<Icon name="search" className="text-text-disabled" />}
           />
         </div>
@@ -122,9 +124,9 @@ export const ExamPage = () => {
               >
                 {status.status !== "OPENING"
                   ? status.status === "UPCOMING"
-                    ? "Sắp đến"
-                    : "Trễ hạn"
-                  : "Bắt đầu làm ngay"}
+                    ? t("examPage.actions.upcoming")
+                    : t("examPage.actions.late")
+                  : t("examPage.actions.startNow")}
               </Button>
             );
           }}

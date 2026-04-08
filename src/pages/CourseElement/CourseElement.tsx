@@ -94,7 +94,7 @@ export default function CourseElement() {
   // --- Table Configurations ---
   const classworkColumns: TableColumn<DeThiSvien>[] = [
     {
-      title: "Tên bài kiểm tra",
+      title: t("courseElement.classwork.columns.testName"),
       key: "tenDe",
       className: "w-[45%]",
       render: (_, item) => {
@@ -109,10 +109,10 @@ export default function CourseElement() {
 
         // 2. Xác định nhãn nút dựa trên trạng thái
         const buttonLabel = isUpcoming
-          ? "Chưa mở"
+          ? t("courseElement.classwork.status.notOpen")
           : isOpening
-            ? "Bắt đầu làm"
-            : "Quá hạn";
+            ? t("courseElement.classwork.status.start")
+            : t("courseElement.classwork.status.expired");
 
         return (
           <div className="flex items-start gap-4 py-2">
@@ -124,7 +124,10 @@ export default function CourseElement() {
                 {item.tenDe}
               </h3>
               <p className="text-caption mt-1 text-text-secondary">
-                Thời lượng: {item.thoiGianLamBai} phút
+                {t("courseElement.classwork.durationText", {
+                  minutes: item.thoiGianLamBai,
+                  unit: t("courseElement.common.minuteUnit"),
+                })}
               </p>
 
               {/* Chỉ hiện nút khi chưa làm bài */}
@@ -146,7 +149,7 @@ export default function CourseElement() {
       },
     },
     {
-      title: t("coursePage.table.percentage", "Phần trăm"),
+      title: t("courseElement.classwork.columns.percentage"),
       key: "bai_lam",
       className: "text-center",
       render: (_, item) => {
@@ -172,13 +175,13 @@ export default function CourseElement() {
       },
     },
     {
-      title: "Điểm số",
+      title: t("courseElement.classwork.columns.score"),
       key: "bai_lam",
       className: "text-center",
       render: (_, item) => item.bai_lam?.tongDiem ?? "---",
     },
     {
-      title: "Thời gian làm",
+      title: t("courseElement.classwork.columns.duration"),
       key: "bai_lam",
       className: "text-center",
       render: (_val, item) => {
@@ -338,9 +341,12 @@ export default function CourseElement() {
             value={selectedTab}
             onChange={setSelectedTab}
             tabs={[
-              { value: "news", label: "Bảng tin" },
-              { value: "classwork", label: "Bài tập trên lớp" },
-              { value: "everybody", label: "Mọi người" },
+              { value: "news", label: t("courseElement.tabs.news") },
+              {
+                value: "classwork",
+                label: t("courseElement.tabs.classwork"),
+              },
+              { value: "everybody", label: t("courseElement.tabs.everybody") },
             ]}
           />
           <div className="flex items-center gap-1">
@@ -370,14 +376,14 @@ export default function CourseElement() {
                 <aside className="w-1/5">
                   <div className="rounded-md border border-other-outlined-border bg-background-body-background p-4 shadow-sm">
                     <h2 className="text-body-2 mb-2 font-medium text-text-primary">
-                      Sắp đến hạn
+                      {t("courseElement.news.upcomingTitle")}
                     </h2>
                     <p className="text-caption mb-6 text-text-secondary">
-                      Tuyệt vời, không có bài tập nào sắp đến hạn!
+                      {t("courseElement.news.upcomingEmpty")}
                     </p>
                     <div className="flex justify-end">
                       <Button color={"infor"} size={"medium"}>
-                        Xem tất cả
+                        {t("courseElement.news.viewAll")}
                       </Button>
                     </div>
                   </div>
@@ -392,7 +398,7 @@ export default function CourseElement() {
                       <Icon name="edit" className="text-alert-info-content" />
                     </div>
                     <span className="text-body-2 text-text-secondary">
-                      Thông báo nội dung nào đó cho lớp học của bạn
+                      {t("courseElement.news.createAnnouncement")}
                     </span>
                   </div>
 
@@ -403,7 +409,7 @@ export default function CourseElement() {
                         <AnnouncementCard
                           data={item as ThongBao}
                           onDeleteNotifi={handleDeleteNotifi}
-                          onCopyNotifi={() => console.log("ừ")}
+                          onCopyNotifi={() => undefined}
                         />
                       ) : (
                         <ExamFeedItem data={item as DeThi} />
@@ -442,13 +448,13 @@ export default function CourseElement() {
                 <section>
                   <div className="mb-6 flex items-center justify-between border-b border-other-outlined-border pb-4">
                     <h2 className="text-h5 font-medium text-text-primary">
-                      Giáo viên
+                      {t("courseElement.everybody.teacher")}
                     </h2>
                   </div>
                   <div className="flex cursor-pointer items-center gap-4 rounded-md px-4 py-2 transition-colors hover:bg-action-hover">
                     <img
                       src={getDefaultAvatar(giangVien?.hoTen || "Teacher")}
-                      alt="Teacher"
+                      alt={t("courseElement.everybody.teacher")}
                       className="h-8 w-8 rounded-full"
                     />
                     <span className="text-body-2 text-text-primary">
@@ -460,10 +466,12 @@ export default function CourseElement() {
                 <section>
                   <div className="mb-6 flex items-center justify-between border-b border-other-outlined-border pb-4">
                     <h2 className="text-h5 font-medium text-text-primary">
-                      Bạn học
+                      {t("courseElement.everybody.classmates")}
                     </h2>
                     <span className="text-body-2 text-text-primary">
-                      {sinhViens.length} sinh viên
+                      {t("courseElement.classResult.studentCount", {
+                        count: sinhViens.length,
+                      })}
                     </span>
                   </div>
                   <div className="divide-y divide-other-divider">
@@ -518,7 +526,10 @@ const AnnouncementCard = ({
   onDeleteNotifi: (thongBao: ThongBao) => void;
   onCopyNotifi: (thongBao: ThongBao) => void;
 }) => {
-  const authorName = data.nguoi_gui?.hoTen || "Giảng viên";
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language.startsWith("vi") ? "vi-VN" : "en-US";
+  const authorName =
+    data.nguoi_gui?.hoTen || t("courseElement.announcement.defaultAuthor");
   const firstLetter = authorName.trim().split(" ").pop()?.charAt(0) ?? "";
   const { user } = useAuthStore();
 
@@ -535,7 +546,7 @@ const AnnouncementCard = ({
                 {authorName}
               </h3>
               <p className="text-caption text-text-secondary">
-                {new Date(data.thoiGianGui).toLocaleString("vi-VN", {
+                {new Date(data.thoiGianGui).toLocaleString(locale, {
                   day: "numeric",
                   month: "short",
                   timeZone: "Asia/Ho_Chi_Minh",
@@ -557,12 +568,12 @@ const AnnouncementCard = ({
           >
             {user?.id === data.nguoiGuiId && (
               <DropdownItem onClick={() => onDeleteNotifi(data)}>
-                Xóa
+                {t("courseElement.announcement.delete")}
               </DropdownItem>
             )}
 
             <DropdownItem onClick={() => onCopyNotifi(data)}>
-              Sao chép đường liên kết
+              {t("courseElement.announcement.copyLink")}
             </DropdownItem>
           </Dropdown>
         </div>
@@ -576,6 +587,9 @@ const AnnouncementCard = ({
 };
 
 const ExamFeedItem = ({ data }: { data: DeThi }) => {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language.startsWith("vi") ? "vi-VN" : "en-US";
+
   return (
     <div className="flex cursor-pointer items-center justify-between rounded-md border border-other-outlined-border bg-background-body-background p-4 transition-all hover:border-info-background hover:shadow-md">
       <div className="flex items-center gap-4">
@@ -584,12 +598,12 @@ const ExamFeedItem = ({ data }: { data: DeThi }) => {
         </div>
         <div>
           <p className="text-body-2 text-text-primary">
-            Hệ thống đã đăng một đề thi mới:{" "}
+            {t("courseElement.feed.newExamPosted")}
             <span className="font-bold">{data.tenDe}</span>
           </p>
           <p className="text-caption text-text-secondary">
-            {new Date(data.created_at || "").toLocaleDateString("vi-VN")} •{" "}
-            {data.thoiGianLamBai} phút
+            {new Date(data.created_at || "").toLocaleDateString(locale)} •{" "}
+            {data.thoiGianLamBai} {t("courseElement.common.minuteUnit")}
           </p>
         </div>
       </div>

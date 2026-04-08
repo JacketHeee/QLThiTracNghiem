@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Overlay } from "../../molecules/Overlay/Overlay";
 import { Button, Icon } from "../../atoms";
 import { TextField } from "../../molecules/TextField/TextField";
+import { useTranslation } from "react-i18next";
 
 interface JoinClassFormProps {
   onSubmit: (inviteCode: string) => void;
@@ -9,6 +10,7 @@ interface JoinClassFormProps {
 }
 
 export function JoinClassForm({ onSubmit, onCancel }: JoinClassFormProps) {
+  const { t } = useTranslation();
   const [inviteCode, setInviteCode] = useState("");
   const [error, setError] = useState("");
 
@@ -18,9 +20,9 @@ export function JoinClassForm({ onSubmit, onCancel }: JoinClassFormProps) {
   };
 
   const validate = () => {
-    if (!inviteCode) return "Vui lòng nhập mã mời";
+    if (!inviteCode) return t("joinClassForm.validation.inviteRequired");
     if (!/^[a-zA-Z0-9]{8}$/.test(inviteCode))
-      return "Mã phải gồm 8 ký tự chữ hoặc số, không chứa khoảng trắng/ký hiệu";
+      return t("joinClassForm.validation.inviteFormat");
     return "";
   };
 
@@ -45,7 +47,7 @@ export function JoinClassForm({ onSubmit, onCancel }: JoinClassFormProps) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-other-divider px-6 py-3">
           <h6 className="text-body-1 font-bold text-text-primary">
-            Tham gia nhóm học phần
+            {t("joinClassForm.title")}
           </h6>
           <Button
             type="button"
@@ -61,8 +63,8 @@ export function JoinClassForm({ onSubmit, onCancel }: JoinClassFormProps) {
         {/* Body */}
         <div className="px-6 py-6">
           <TextField
-            label="Mã mời"
-            placeholder="Nhập mã mời"
+            label={t("joinClassForm.inviteCodeLabel")}
+            placeholder={t("joinClassForm.inviteCodePlaceholder")}
             value={inviteCode}
             onChange={(e) => handleChange(e.target.value)}
             error={error}
@@ -70,13 +72,11 @@ export function JoinClassForm({ onSubmit, onCancel }: JoinClassFormProps) {
           />
 
           <p className="mt-3 text-sm text-text-secondary">
-            Đề nghị giảng viên của bạn cung cấp mã lớp rồi nhập mã đó vào đây.
+            {t("joinClassForm.helperText")}
           </p>
 
           <p className="mt-4 whitespace-pre-line text-xs italic text-text-secondary">
-            {`Cách đăng nhập bằng mã lớp học
-- Sử dụng tài khoản được cấp phép
-- Sử dụng mã lớp học gồm 8 chữ cái hoặc số, không có dấu cách hoặc ký hiệu`}
+            {t("joinClassForm.guide")}
           </p>
         </div>
 
@@ -89,11 +89,11 @@ export function JoinClassForm({ onSubmit, onCancel }: JoinClassFormProps) {
               color="standard"
               onClick={onCancel}
             >
-              Đóng
+              {t("joinClassForm.actions.close")}
             </Button>
 
             <Button type="submit" variant="contained" color="primary">
-              Tham gia nhóm
+              {t("joinClassForm.actions.join")}
             </Button>
           </div>
         </div>

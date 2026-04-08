@@ -178,6 +178,49 @@
       "addToSystem": "Add to system"
     }
   },
+  "coursePage": {
+    "searchPlaceholder": "Search",
+    "joinNewClass": "Join new class",
+    "showHiddenClasses": "Show hidden classes"
+  },
+  "joinClassForm": {
+    "title": "Join course group",
+    "inviteCodeLabel": "Invite code",
+    "inviteCodePlaceholder": "Enter invite code",
+    "helperText": "Please ask your lecturer for the class code and enter it here.",
+    "guide": "How to join with a class code\n- Use an authorized account\n- Use an 8-character class code (letters or numbers), without spaces or symbols",
+    "validation": {
+      "inviteRequired": "Please enter invite code",
+      "inviteFormat": "Code must contain 8 alphanumeric characters without spaces or symbols"
+    },
+    "actions": {
+      "close": "Close",
+      "join": "Join group"
+    }
+  },
+  "courseItem": {
+    "teacherAlt": "Teacher",
+    "academicInfo": "Academic year {{year}} - Semester {{semester}}",
+    "hide": "Hide",
+    "unsubscribe": "Unenroll"
+  },
+  "examPage": {
+    "searchPlaceholder": "Search student ID ...",
+    "table": {
+      "stt": "No.",
+      "className": "Class name",
+      "testName": "Test name",
+      "startTime": "Start time",
+      "endTime": "End time",
+      "duration": "Duration",
+      "minuteUnit": "minutes"
+    },
+    "actions": {
+      "upcoming": "Upcoming",
+      "late": "Late",
+      "startNow": "Start now"
+    }
+  },
   "subjectPage": {
     "table": {
       "code": "Code",
@@ -858,8 +901,74 @@
     }
   },
   "courseElement": {
+    "tabs": {
+      "news": "News",
+      "classwork": "Classwork",
+      "everybody": "People"
+    },
+    "common": {
+      "minuteUnit": "minutes"
+    },
+    "classwork": {
+      "columns": {
+        "testName": "Test name",
+        "percentage": "Percentage",
+        "score": "Score",
+        "duration": "Duration"
+      },
+      "status": {
+        "notOpen": "Not open",
+        "start": "Start",
+        "expired": "Expired"
+      },
+      "durationText": "Duration: {{minutes}} {{unit}}"
+    },
+    "news": {
+      "upcomingTitle": "Due soon",
+      "upcomingEmpty": "Great, there are no assignments due soon!",
+      "viewAll": "View all",
+      "createAnnouncement": "Announce something to your class"
+    },
+    "everybody": {
+      "teacher": "Teacher",
+      "classmates": "Classmates"
+    },
+    "announcement": {
+      "defaultAuthor": "Teacher",
+      "delete": "Delete",
+      "copyLink": "Copy link"
+    },
+    "feed": {
+      "newExamPosted": "The system posted a new exam:"
+    },
     "classResult": {
-      "studentCount": "{{count}} Students"
+      "studentCount": "{{count}} students"
+    }
+  },
+  "examResultOverview": {
+    "loading": "Loading result...",
+    "notAvailable": "N/A",
+    "previewMode": "You are previewing results in Admin mode",
+    "scoreHidden": "Scores are hidden by exam configuration.",
+    "labels": {
+      "score": "Score:",
+      "duration": "Duration:",
+      "startedAt": "Started at:",
+      "finishedAt": "Finished at:",
+      "violations": "Violations:"
+    },
+    "tabs": {
+      "all": "All ({{count}})",
+      "success": "Correct",
+      "error": "Incorrect"
+    },
+    "emptyFiltered": "No matching data.",
+    "detailLocked": "Detailed answers are locked for this exam.",
+    "actions": {
+      "print": "Print this page",
+      "exit": "Exit",
+      "showDetail": "Show detailed answers",
+      "hideDetail": "Hide detailed answers"
     }
   },
   "examInstruction": {
