@@ -12,6 +12,7 @@ import { useDeThiStore } from "@/stores/useDeThi.store";
 import { useExamStore } from "@/stores/useExamStore";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth.store";
+import { useTranslation } from "react-i18next";
 
 interface ExamResultContentProps {
   onCancel?: () => void;
@@ -20,8 +21,10 @@ interface ExamResultContentProps {
 export default function ExamResultContent({
   onCancel,
 }: ExamResultContentProps) {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const locale = i18n.language.startsWith("vi") ? "vi-VN" : "en-US";
 
   // 1. Chỉ lấy examResult - Đây là "Source of Truth" duy nhất
   const { examResult, mode, answers } = useExamStore();
@@ -50,13 +53,13 @@ export default function ExamResultContent({
       ),
       violationCount: baiLam.logBaiLam?.soLanChuyenTab || 0,
       dateStarted: baiLam.thoiGianBatDau
-        ? new Date(baiLam.thoiGianBatDau).toLocaleString()
-        : "N/A",
+        ? new Date(baiLam.thoiGianBatDau).toLocaleString(locale)
+        : t("examResultOverview.notAvailable"),
       dateFinished: baiLam.thoiGianNopBai
-        ? new Date(baiLam.thoiGianNopBai).toLocaleString()
-        : "N/A",
+        ? new Date(baiLam.thoiGianNopBai).toLocaleString(locale)
+        : t("examResultOverview.notAvailable"),
     };
-  }, [examResult]);
+  }, [examResult, locale, t]);
 
   // 3. Clean Logic: Lọc dựa trên mảng cauHois đã được Server/Store chấm điểm
   const filteredQuestions = useMemo(() => {
@@ -74,7 +77,9 @@ export default function ExamResultContent({
   }, [selectedTab, examResult]);
 
   if (!examResult || !stats)
-    return <div className="p-10 text-center">Đang tải kết quả...</div>;
+    return (
+      <div className="p-10 text-center">{t("examResultOverview.loading")}</div>
+    );
 
   const handleBackHome = () => {
     if (isPreview) {
@@ -90,7 +95,7 @@ export default function ExamResultContent({
       {/* Thông báo chế độ Preview */}
       {isPreview && (
         <div className="bg-primary-main/10 border-primary-main/20 rounded-lg border p-3 text-center font-medium text-primary-main">
-          Bạn đang xem trước kết quả ở chế độ Admin
+          {t("examResultOverview.previewMode")}
         </div>
       )}
       {/* 1. Card Kết quả chính (Overview) */}
@@ -104,28 +109,37 @@ export default function ExamResultContent({
               <Icon name="user" size={16} className="mr-1" /> {user?.hoTen}
             </span>
             <Button size="small" color="primary" onClick={() => window.print()}>
-              <Printer size={14} /> In trang này
+              <Printer size={14} /> {t("examResultOverview.actions.print")}
             </Button>
           </div>
           <div className="space-y-4">
             {config?.showScore || isPreview ? (
               <InfoRow
-                label="Điểm số:"
+                label={t("examResultOverview.labels.score")}
                 value={`${stats.score} / ${stats.totalPoints}`}
                 highlight
               />
             ) : (
               <div className="text-body-2 italic text-text-disabled">
-                Điểm số được ẩn theo cấu hình đề thi.
+                {t("examResultOverview.scoreHidden")}
               </div>
             )}
             {/* Thêm dòng này ở đây */}
-            <InfoRow label="Thời gian làm:" value={stats.durationText} />
-            <InfoRow label="Bắt đầu lúc:" value={stats.dateStarted} />
-            <InfoRow label="Kết thúc lúc:" value={stats.dateFinished} />
+            <InfoRow
+              label={t("examResultOverview.labels.duration")}
+              value={stats.durationText}
+            />
+            <InfoRow
+              label={t("examResultOverview.labels.startedAt")}
+              value={stats.dateStarted}
+            />
+            <InfoRow
+              label={t("examResultOverview.labels.finishedAt")}
+              value={stats.dateFinished}
+            />
             <div className="text-body-2 flex items-center">
               <span className="w-32 font-bold text-text-secondary">
-                Số lần vi phạm:
+                {t("examResultOverview.labels.violations")}
               </span>
               <span
                 className={`rounded px-2 py-0.5 ${stats.violationCount > 0 ? "bg-error-background text-alert-error-content" : "bg-action-hover text-text-disabled"}`}
@@ -191,10 +205,15 @@ export default function ExamResultContent({
                 tabs={[
                   {
                     value: "all",
-                    label: `Tất cả (${testData?.cau_hois?.length || 0})`,
+                    label: t("examResultOverview.tabs.all", {
+                      count: testData?.cau_hois?.length || 0,
+                    }),
                   },
-                  { value: "success", label: "Câu đúng" },
-                  { value: "error", label: "Câu sai" },
+                  {
+                    value: "success",
+                    label: t("examResultOverview.tabs.success"),
+                  },
+                  { value: "error", label: t("examResultOverview.tabs.error") },
                 ]}
               />
             </div>
@@ -217,7 +236,7 @@ export default function ExamResultContent({
                 ))
               ) : (
                 <div className="py-20 text-center text-text-disabled">
-                  Không có dữ liệu phù hợp.
+                  {t("examResultOverview.emptyFiltered")}
                 </div>
               )}
             </div>
@@ -225,13 +244,13 @@ export default function ExamResultContent({
         )
       ) : (
         <div className="rounded-lg border border-dashed bg-gray-50 p-6 text-center text-text-secondary">
-          Xem chi tiết đáp án đã bị khóa cho bài thi này.
+          {t("examResultOverview.detailLocked")}
         </div>
       )}
       {/* 2. Nút hành động */}
       <div className="flex justify-end gap-4 pt-2">
         <Button variant="outline" onClick={onCancel ?? handleBackHome}>
-          {isPreview ? "Thoát" : "Thoát"}
+          {t("examResultOverview.actions.exit")}
         </Button>
         {(config?.showDetailResults || [1, 2].includes(user?.id || 3)) && (
           <Button
@@ -239,7 +258,9 @@ export default function ExamResultContent({
             variant="contained"
             onClick={() => setShowDetail(!showDetail)}
           >
-            {showDetail ? "Ẩn chi tiết đáp án" : "Xem chi tiết đáp án"}
+            {showDetail
+              ? t("examResultOverview.actions.hideDetail")
+              : t("examResultOverview.actions.showDetail")}
           </Button>
         )}
       </div>

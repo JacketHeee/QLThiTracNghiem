@@ -46,7 +46,7 @@ export const CoursePage = () => {
         const firstError = Object.values(errors)?.[0];
 
         if (Array.isArray(firstError)) {
-          alert(firstError[0]);
+          alert(t(firstError[0]));
         }
       } else {
         alert(t("message.error.create"));
@@ -55,7 +55,6 @@ export const CoursePage = () => {
   };
 
   const { nhomHocPhans } = useNhomHocPhanStudent(user?.id || null);
-  console.log(nhomHocPhans);
   const [isOpenHideClass, setIsOpenHideClass] = useState(false);
   return (
     <MainContentLayout hasFooter={false}>
@@ -64,7 +63,7 @@ export const CoursePage = () => {
         <div className="flex gap-2">
           <Input
             hasBoder={true}
-            placeholder="Tìm kiếm"
+            placeholder={t("coursePage.searchPlaceholder")}
             icon={<Icon name="search" className="text-text-disabled" />}
           />
         </div>
@@ -77,13 +76,13 @@ export const CoursePage = () => {
 
           <Button variant={"contained"} color={"primary"} onClick={handleJoin}>
             <Icon name="plus" size={20} />
-            Tham gia lớp học mới
+            {t("coursePage.joinNewClass")}
           </Button>
         </div>
       </div>
       <div className="flex flex-wrap gap-x-4 gap-y-6 rounded-md px-2 py-2">
         {nhomHocPhans?.map((item) => (
-          <Link to={`${item.id}`}>
+          <Link key={item.id} to={`${item.id}`}>
             <CourseItem data={item} />
           </Link>
         ))}
@@ -95,7 +94,7 @@ export const CoursePage = () => {
           className="hover:bg-action-selected"
           onClick={() => setIsOpenHideClass(!isOpenHideClass)}
         >
-          Hiển thị các lớp học đã ẩn {"()"}
+          {t("coursePage.showHiddenClasses")}
         </Button>
       </div>
       {isOpenHideClass && (

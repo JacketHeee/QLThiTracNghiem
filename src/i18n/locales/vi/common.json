@@ -178,6 +178,49 @@
       "addToSystem": "Thêm vào hệ thống"
     }
   },
+  "coursePage": {
+    "searchPlaceholder": "Tìm kiếm",
+    "joinNewClass": "Tham gia lớp học mới",
+    "showHiddenClasses": "Hiển thị các lớp học đã ẩn"
+  },
+  "joinClassForm": {
+    "title": "Tham gia nhóm học phần",
+    "inviteCodeLabel": "Mã mời",
+    "inviteCodePlaceholder": "Nhập mã mời",
+    "helperText": "Đề nghị giảng viên của bạn cung cấp mã lớp rồi nhập mã đó vào đây.",
+    "guide": "Cách đăng nhập bằng mã lớp học\n- Sử dụng tài khoản được cấp phép\n- Sử dụng mã lớp học gồm 8 chữ cái hoặc số, không có dấu cách hoặc ký hiệu",
+    "validation": {
+      "inviteRequired": "Vui lòng nhập mã mời",
+      "inviteFormat": "Mã phải gồm 8 ký tự chữ hoặc số, không chứa khoảng trắng/ký hiệu"
+    },
+    "actions": {
+      "close": "Đóng",
+      "join": "Tham gia nhóm"
+    }
+  },
+  "courseItem": {
+    "teacherAlt": "Giảng viên",
+    "academicInfo": "Năm học {{year}} - Học kỳ {{semester}}",
+    "hide": "Ẩn",
+    "unsubscribe": "Hủy đăng ký"
+  },
+  "examPage": {
+    "searchPlaceholder": "Tìm kiếm MSSV ...",
+    "table": {
+      "stt": "STT",
+      "className": "Tên lớp",
+      "testName": "Tên bài kiểm tra",
+      "startTime": "Thời gian bắt đầu",
+      "endTime": "Thời gian kết thúc",
+      "duration": "Thời lượng",
+      "minuteUnit": "Phút"
+    },
+    "actions": {
+      "upcoming": "Sắp đến",
+      "late": "Trễ hạn",
+      "startNow": "Bắt đầu làm ngay"
+    }
+  },
   "subjectPage": {
     "table": {
       "code": "Mã môn",
@@ -858,8 +901,74 @@
     }
   },
   "courseElement": {
+    "tabs": {
+      "news": "Bảng tin",
+      "classwork": "Bài tập trên lớp",
+      "everybody": "Mọi người"
+    },
+    "common": {
+      "minuteUnit": "phút"
+    },
+    "classwork": {
+      "columns": {
+        "testName": "Tên bài kiểm tra",
+        "percentage": "Phần trăm",
+        "score": "Điểm số",
+        "duration": "Thời gian làm"
+      },
+      "status": {
+        "notOpen": "Chưa mở",
+        "start": "Bắt đầu làm",
+        "expired": "Quá hạn"
+      },
+      "durationText": "Thời lượng: {{minutes}} {{unit}}"
+    },
+    "news": {
+      "upcomingTitle": "Sắp đến hạn",
+      "upcomingEmpty": "Tuyệt vời, không có bài tập nào sắp đến hạn!",
+      "viewAll": "Xem tất cả",
+      "createAnnouncement": "Thông báo nội dung nào đó cho lớp học của bạn"
+    },
+    "everybody": {
+      "teacher": "Giáo viên",
+      "classmates": "Bạn học"
+    },
+    "announcement": {
+      "defaultAuthor": "Giảng viên",
+      "delete": "Xóa",
+      "copyLink": "Sao chép đường liên kết"
+    },
+    "feed": {
+      "newExamPosted": "Hệ thống đã đăng một đề thi mới:"
+    },
     "classResult": {
-      "studentCount": "{{count}} Sinh viên"
+      "studentCount": "{{count}} sinh viên"
+    }
+  },
+  "examResultOverview": {
+    "loading": "Đang tải kết quả...",
+    "notAvailable": "N/A",
+    "previewMode": "Bạn đang xem trước kết quả ở chế độ Admin",
+    "scoreHidden": "Điểm số được ẩn theo cấu hình đề thi.",
+    "labels": {
+      "score": "Điểm số:",
+      "duration": "Thời gian làm:",
+      "startedAt": "Bắt đầu lúc:",
+      "finishedAt": "Kết thúc lúc:",
+      "violations": "Số lần vi phạm:"
+    },
+    "tabs": {
+      "all": "Tất cả ({{count}})",
+      "success": "Câu đúng",
+      "error": "Câu sai"
+    },
+    "emptyFiltered": "Không có dữ liệu phù hợp.",
+    "detailLocked": "Xem chi tiết đáp án đã bị khóa cho bài thi này.",
+    "actions": {
+      "print": "In trang này",
+      "exit": "Thoát",
+      "showDetail": "Xem chi tiết đáp án",
+      "hideDetail": "Ẩn chi tiết đáp án"
     }
   },
   "examInstruction": {
