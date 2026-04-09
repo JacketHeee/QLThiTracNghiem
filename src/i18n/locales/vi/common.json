@@ -175,6 +175,7 @@
       "chooseFile": "Chọn tệp",
       "noFileSelected": "Không có tệp được chọn",
       "formatInstruction": "Vui lòng soạn người dùng theo đúng định dạng.",
+      "downloadSampleFile": "Tải về file mẫu.",
       "addToSystem": "Thêm vào hệ thống"
     }
   },

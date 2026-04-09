@@ -175,6 +175,7 @@
       "chooseFile": "Choose file",
       "noFileSelected": "No file selected",
       "formatInstruction": "Please format users correctly.",
+      "downloadSampleFile": "Download sample file.",
       "addToSystem": "Add to system"
     }
   },
