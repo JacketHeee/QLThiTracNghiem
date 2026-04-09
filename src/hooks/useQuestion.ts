@@ -74,7 +74,6 @@ export const useCreateCauHoi = () => {
     mutationFn: questionService.create, // API thêm mới
 
     onSuccess: () => {
-      // Sau khi thêm thành công → gọi lại danh sách roles
       queryClient.invalidateQueries({ queryKey: ["cauhois"] });
     },
   });

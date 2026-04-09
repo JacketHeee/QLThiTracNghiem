@@ -258,6 +258,17 @@
         "nameRequired": "Subject name is required",
         "codeRequired": "Subject code is required"
       }
+    },
+    "editChapter": {
+      "title": "Chapter List",
+      "empty": "No chapters yet. Add one below.",
+      "edit": "Edit",
+      "delete": "Delete",
+      "editing": "Editing chapter",
+      "addNew": "Add new chapter",
+      "cancelEdit": "Cancel edit",
+      "saveNew": "Save chapter",
+      "update": "Update chapter"
     }
   },
   "tableActions": {

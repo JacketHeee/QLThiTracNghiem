@@ -7,13 +7,20 @@ import DynamicTable, {
 } from "@/components/atomic/organisms/DynamicTable/DynamicTable";
 import { SubjectForm } from "@/components/atomic/organisms/SubjectForm/SubjectForm";
 import MainContentLayout from "@/components/atomic/templates/MainContentLayout/MainContentLayout";
-import type { RoleDetailItem, Subject } from "@/types";
+import type {
+  DsChuongRequest,
+  ErrorResponse,
+  RoleDetailItem,
+  Subject,
+} from "@/types";
 import { useSubject } from "@/hooks/useSubject";
 import { useAuthStore } from "@/stores/auth.store";
 import { useToastStore } from "@/stores/useToast.store";
 import { useLoadingStore } from "@/stores/useLoading.store";
 import { useConfirmStore } from "@/stores/useConfirm.store";
 import Pagination from "@/components/atomic/molecules/Pagination/Pagination";
+import { useUpdateChuong } from "@/hooks/useChuong";
+import type { AxiosError } from "axios";
 
 export const SubjectPage = () => {
   const { t } = useTranslation("common");
@@ -62,7 +69,41 @@ export const SubjectPage = () => {
   ];
 
   // const [subjects, setSubjects] = useState<Subject[]>(initialSubjects);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const defaultModalState = {
+    open: false,
+    mode: "none",
+  } as const;
+
+  const [modalState, setModalState] = useState<{
+    open: boolean;
+    mode: "create" | "view" | "update" | "none";
+  }>(defaultModalState);
+
+  const closeModal = () => {
+    setModalState(defaultModalState);
+  };
+
+  const openInsertModal = () => {
+    setModalState({
+      open: true,
+      mode: "create",
+    });
+  };
+
+  const openUpdateModal = () => {
+    setModalState({
+      open: true,
+      mode: "update",
+    });
+  };
+
+  const openDetailModal = () => {
+    setModalState({
+      open: true,
+      mode: "view",
+    });
+  };
+
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCriteria, setFilterCriteria] = useState("tenMonHoc");
@@ -89,15 +130,19 @@ export const SubjectPage = () => {
 
   const handleOpenAdd = () => {
     setEditingSubject(null); // Reset về null để form hiểu là thêm mới
-    setIsModalOpen(true);
+    openInsertModal();
   };
 
   const { openConfirm } = useConfirmStore();
 
   const handleAction = (action: string, item: Subject) => {
-    if (action === "edit" || action === "detail") {
+    if (action === "detail") {
       setEditingSubject(item);
-      setIsModalOpen(true);
+      openDetailModal();
+    }
+    if (action === "edit") {
+      setEditingSubject(item);
+      openUpdateModal();
     } else if (action === "remove") {
       openConfirm({
         title: t("subjectPage.confirmDeleteTitle"),
@@ -141,7 +186,7 @@ export const SubjectPage = () => {
           onSettled: () => stopLoading(),
         });
       }
-      setIsModalOpen(false);
+      closeModal();
       setEditingSubject(null);
     } catch (error) {
       console.log(error);
@@ -161,6 +206,35 @@ export const SubjectPage = () => {
       tableElement.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [currentPage]);
+
+  const { updateChuong } = useUpdateChuong();
+  const handleSaveUpdateChuong = async (
+    data: DsChuongRequest,
+    monHocId?: number
+  ) => {
+    startLoading();
+    try {
+      await updateChuong({ monHocId, data });
+      closeModal();
+      showToast(t("message.success.update"), "success");
+    } catch (error: unknown) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.status === 422) {
+        //lỗi validate backend
+        const errors = err.response.data.errors;
+
+        const firstError = Object.values(errors)?.[0];
+
+        if (Array.isArray(firstError)) {
+          showToast(firstError[0], "error");
+        }
+      } else {
+        showToast(t("message.error.update"), "error");
+      }
+    } finally {
+      stopLoading();
+    }
+  };
 
   return (
     <MainContentLayout>
@@ -234,15 +308,17 @@ export const SubjectPage = () => {
             onPageChange={(page) => setCurrentPage(page)}
           />
         )}
-        {isModalOpen && (
+        {modalState.open && (
           <SubjectForm
             key={editingSubject?.id}
             initialData={editingSubject}
             onSave={handleSave}
+            onSaveUpdateChuong={handleSaveUpdateChuong}
             onCancel={() => {
-              setIsModalOpen(false);
+              closeModal();
               setEditingSubject(null);
             }}
+            mode={modalState.mode}
           />
         )}
       </div>

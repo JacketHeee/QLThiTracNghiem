@@ -258,6 +258,17 @@
         "nameRequired": "Tên môn học không được để trống",
         "codeRequired": "Mã môn học không được để trống"
       }
+    },
+    "editChapter": {
+      "title": "Danh sách chương",
+      "empty": "Chưa có chương nào. Hãy thêm ở bên dưới.",
+      "edit": "Sửa",
+      "delete": "Xóa",
+      "editing": "Đang chỉnh sửa chương",
+      "addNew": "Thêm chương mới",
+      "cancelEdit": "Hủy sửa",
+      "saveNew": "Lưu chương vào danh sách",
+      "update": "Cập nhật chương"
     }
   },
   "tableActions": {

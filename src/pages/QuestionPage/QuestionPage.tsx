@@ -43,6 +43,7 @@ export const QuestionPage = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "none">("none");
   const [filterDifficulty] = useState<DoKho>();
   const [filterSubjectId, setFilterSubjectId] = useState<number>(-1);
+  const [filterChapterId, setFilterChapterId] = useState<number>(-1);
   const [filterDifficultyId, setFilterDifficultyId] = useState<number>(-1);
   const { user } = useAuthStore();
   const { createCauHoi, isCreating } = useCreateCauHoi();
@@ -129,7 +130,16 @@ export const QuestionPage = () => {
   const { questionspublic } = useQuestionsPublic(); // tất cả câu hỏi public
   const { personalQuestions } = useQuestionsOfUser(user?.id); // tất cả câu hỏi của user (3 status public, private, archive)
 
-  // const [displayQuestions, setDisplayQuestions] = useState<Question[]>(questionspublic);
+  const selectedChuongs = useMemo(() => {
+    return subjects.find((item) => item.id === filterSubjectId)?.chuongs;
+  }, [filterSubjectId, subjects]);
+
+  const optionChuongs = selectedChuongs
+    ? selectedChuongs?.map((item) => ({
+        label: item.tenChuong,
+        value: item.id,
+      }))
+    : [];
 
   //tách theo tab riêng
   const displayQuestions = useMemo(() => {
@@ -149,10 +159,13 @@ export const QuestionPage = () => {
       const matchSubject =
         filterSubjectId !== -1 ? q.monHocId === filterSubjectId : true;
 
+      const matchChapter =
+        filterChapterId !== -1 ? q.chuongId === filterChapterId : true;
+
       const matchDifficulty =
         filterDifficultyId !== -1 ? q.doKhoId === filterDifficultyId : true;
 
-      return matchSearch && matchSubject && matchDifficulty;
+      return matchSearch && matchSubject && matchChapter && matchDifficulty;
     });
 
     // 2. Sắp xếp dữ liệu sau khi lọc
@@ -169,6 +182,7 @@ export const QuestionPage = () => {
     displayQuestions,
     searchQuery,
     filterSubjectId,
+    filterChapterId,
     filterDifficultyId,
     sortOrder,
   ]);
@@ -495,37 +509,18 @@ export const QuestionPage = () => {
           <SelectField
             label={t("questionPage.filters.chapter.label")}
             placeholder={t("questionPage.filters.chapter.placeholder")}
+            value={filterChapterId}
             options={[
               {
-                label: t(
-                  "questionPage.filters.chapter.levels.recognize",
-                  "Nhận biết"
-                ),
-                value: "Nhận biết",
-              },
-              {
-                label: t(
-                  "questionPage.filters.chapter.levels.understand",
-                  "Thông hiểu"
-                ),
-                value: "Thông hiểu",
-              },
-              {
-                label: t(
-                  "questionPage.filters.chapter.levels.apply",
-                  "Vận dụng"
-                ),
-                value: "Vận dụng",
-              },
-              {
-                label: t(
-                  "questionPage.filters.chapter.levels.advancedApply",
-                  "Vận dụng cao"
-                ),
-                value: "Vận dụng cao",
-              },
+                label: t("questionPage.filters.subject.all", "Tất cả chương"),
+                value: -1,
+              }, // Option mặc định
+              ...optionChuongs.map((item) => ({
+                label: item.label,
+                value: item.value,
+              })),
             ]}
-            onSelect={() => {}}
+            onSelect={(val) => setFilterChapterId(val as number)}
           />
           <SelectField
             label={t("questionPage.filters.difficulty.label")}
