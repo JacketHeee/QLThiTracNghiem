@@ -15,7 +15,7 @@ import type {
   QuestionStatus,
   RoleDetailItem,
 } from "@/types";
-import { useMonHocOGvien } from "@/hooks/useSubject";
+import { useMonHocOGvien, useSubject } from "@/hooks/useSubject";
 import {
   useCopyCauHoiToPrivate,
   useCreateCauHoi,
@@ -109,7 +109,20 @@ export const QuestionPage = () => {
   };
 
   const { doKhos } = useDoKho();
-  const { monHocGvien: subjects } = useMonHocOGvien(user?.id);
+  const { monHocGvien } = useMonHocOGvien(user?.id);
+  const { subjects: allSubject } = useSubject();
+
+  const subjects = useMemo(() => {
+    if (role) {
+      if (role.tenNhomQuyen === "teacher") {
+        return monHocGvien;
+      }
+      if (role.tenNhomQuyen === "admin") {
+        return allSubject;
+      }
+    }
+    return [];
+  }, [monHocGvien, allSubject, role]);
 
   // const { questions } = useQuestions();
   // const { questionsprivate } = useQuestionsPrivate(user?.id);
