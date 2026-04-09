@@ -12,6 +12,11 @@ import { useTranslation } from "react-i18next";
 import type { AxiosError } from "axios";
 import type { ErrorResponse } from "@/types";
 
+const SAMPLE_STUDENT_FILE_URL = new URL(
+  "../../../../assets/files/danhsachSVmau.xlsx",
+  import.meta.url
+).href;
+
 interface CourseGroupStudentFormProps {
   isOpen: boolean;
   onClose: () => void;
@@ -30,9 +35,8 @@ export default function CourseGroupStudentForm({
   const [selectedTab, setSelectedTab] = useState("manual");
   const [studentCode, setStudentCode] = useState("");
   const { t } = useTranslation();
-  const [fileName, setFileName] = useState(
-    t("courseGroupStudent.form.noFileSelected")
-  );
+  const noFileSelectedText = t("courseGroupStudent.form.noFileSelected");
+  const [fileName, setFileName] = useState(noFileSelectedText);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const addMutation = useAddSinhVienToNhom();
   const resetMutation = useResetInviteCode();
@@ -52,7 +56,7 @@ export default function CourseGroupStudentForm({
 
   const handleFileChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     const file = event.target.files?.[0];
-    setFileName(file ? file.name : "Không có tệp được chọn");
+    setFileName(file ? file.name : noFileSelectedText);
   };
 
   const handleGenerateCode = async () => {
@@ -74,7 +78,7 @@ export default function CourseGroupStudentForm({
     if (!file) return;
     try {
       await importMutation.mutateAsync({ groupId, file });
-      setFileName("Không có tệp được chọn");
+      setFileName(noFileSelectedText);
       if (fileInputRef.current) fileInputRef.current.value = "";
       onClose(); // Close the form on success
     } catch (error: unknown) {
@@ -235,8 +239,15 @@ export default function CourseGroupStudentForm({
                 </div>
               </div>
 
-              <div className="text-body-2 text-alert-error-content">
-                {t("courseGroupStudent.form.formatInstruction")}
+              <div className="text-body-2 flex flex-wrap items-center gap-1 text-text-secondary">
+                <span>{t("courseGroupStudent.form.formatInstruction")}</span>
+                <a
+                  href={SAMPLE_STUDENT_FILE_URL}
+                  download="danhsachSVmau.xlsx"
+                  className="font-semibold text-alert-error-content transition-opacity hover:opacity-80"
+                >
+                  {t("courseGroupStudent.form.downloadSampleFile")}
+                </a>
               </div>
 
               <div className="flex justify-end">
