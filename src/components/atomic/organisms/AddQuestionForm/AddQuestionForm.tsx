@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Overlay } from "../../molecules/Overlay/Overlay";
 import Tabs from "../../molecules/Tabs/Tabs";
 import SelectField from "../../atoms/Select/SelectField";
@@ -85,9 +85,23 @@ export default function AddQuestionForm({
 
   const { subjectsWithChuong } = useSubject();
   const { monHocGvien } = useMonHocOGvien(user?.id);
+  const { role } = useAuthStore();
+  const { subjects: allSubject } = useSubject();
+
+  const subjects = useMemo(() => {
+    if (role) {
+      if (role.tenNhomQuyen === "teacher") {
+        return monHocGvien;
+      }
+      if (role.tenNhomQuyen === "admin") {
+        return allSubject;
+      }
+    }
+    return [];
+  }, [monHocGvien, allSubject, role]);
 
   // 1. Lấy ra danh sách ID duy nhất của giáo viên
-  const gvienMonHocIds = new Set(monHocGvien.map((item) => item.id));
+  const gvienMonHocIds = new Set(subjects.map((item) => item.id));
 
   // 2. Lọc danh sách môn học dựa trên Set đó
   const myMonHocs = subjectsWithChuong.filter((subject) =>

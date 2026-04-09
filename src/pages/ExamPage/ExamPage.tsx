@@ -81,6 +81,7 @@ export const ExamPage = () => {
   };
 
   const deThiDisplay = (dethis || []).filter((dt) => {
+    //hiển thị bài chưa làm
     const baiLam = baiLams?.find((i) => i.deThiId === dt.id);
     return !baiLam;
   });
