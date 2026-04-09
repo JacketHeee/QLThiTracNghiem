@@ -89,6 +89,7 @@ export interface Subject {
   isDeleted: number;
 
   nhom_hoc_phans: NhomHocPhan[];
+  chuongs: Chuong[];
 }
 
 export interface DoKho {
@@ -547,4 +548,18 @@ export interface StudentResult extends TaiKhoan {
 export interface ExamReviewResponse {
   deThi: DeThi;
   baiLams: { baiLam: BaiLam; cauHois: Question[] }[];
+}
+
+export interface Chuong {
+  id: number;
+  tenChuong: string;
+  monHocId: number;
+}
+
+export interface ChuongItemRequest {
+  tenChuong: string;
+}
+
+export interface DsChuongRequest {
+  chuongs: ChuongItemRequest[];
 }

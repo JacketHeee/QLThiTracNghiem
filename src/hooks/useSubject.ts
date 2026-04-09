@@ -48,9 +48,9 @@ export const useSubject = () => {
     subjectsWithGroup: queryWithGroup.data || [],
     subjectsWithChuong: queryWithChuong.data || [],
     isLoading: query.isLoading,
-    createSubject: createMutation.mutate,
-    updateSubject: updateMutation.mutate,
-    deleteSubject: deleteMutation.mutate,
+    createSubject: createMutation.mutateAsync,
+    updateSubject: updateMutation.mutateAsync,
+    deleteSubject: deleteMutation.mutateAsync,
     isProcessing:
       createMutation.isPending ||
       updateMutation.isPending ||

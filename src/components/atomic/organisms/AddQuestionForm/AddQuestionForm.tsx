@@ -127,6 +127,7 @@ export default function AddQuestionForm({
   const selectedChuongs = myMonHocs.find(
     (item) => item.id === selectedQuestion.monHocId
   )?.chuongs;
+
   const defaultOptionChuong = selectedChuongs
     ? selectedChuongs?.map((item) => ({
         label: item.tenChuong,
@@ -252,7 +253,7 @@ export default function AddQuestionForm({
     setFormDataProp("monHocId", val);
     setFormDataProp("chuongId", null);
   };
-
+  //
   return (
     <Overlay onClose={onClose}>
       <div className="flex w-[1000px] flex-col gap-3 rounded-lg bg-background-paper pb-2 shadow-xl">
