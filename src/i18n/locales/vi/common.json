@@ -162,6 +162,10 @@
       "male": "Nam",
       "female": "Nữ"
     },
+    "toast": {
+      "exportEmpty": "Danh sách sinh viên đang trống, không thể xuất file.",
+      "exportFailed": "Xuất danh sách sinh viên thất bại."
+    },
     "form": {
       "manualAdd": "Thêm thủ công",
       "joinByInvite": "Tham gia bằng mã mời",

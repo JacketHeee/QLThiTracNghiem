@@ -17,6 +17,7 @@ import {
 } from "@/hooks/useNhomHocPhan";
 import type { StudentRecord, TaiKhoan } from "@/types";
 import { getDefaultAvatar } from "@/utils";
+import { useToastStore } from "@/stores/useToast.store";
 
 const mapTaiKhoanToStudentRecord = (
   taiKhoan: TaiKhoan,
@@ -85,12 +86,19 @@ export function CourseGroupStudentPage() {
   const removeMutation = useRemoveSinhVienFromNhom();
   const exportMutation = useExportSinhVienList();
   const { t } = useTranslation();
+  const showToast = useToastStore((s) => s.showToast);
 
   const handleExportStudentList = async () => {
+    if (sinhViens.length === 0) {
+      showToast(t("courseGroupStudent.toast.exportEmpty"), "error");
+      return;
+    }
+
     try {
       await exportMutation.mutateAsync({ groupId: Number(groupId) });
     } catch (error) {
       console.error("Failed to export student list:", error);
+      showToast(t("courseGroupStudent.toast.exportFailed"), "error");
     }
   };
 
