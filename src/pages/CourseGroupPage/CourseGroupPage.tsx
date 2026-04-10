@@ -461,7 +461,7 @@ export function CourseGroupPage() {
                                     >
                                       <Link
                                         to={`/course-group/${group.monHocId}/groups/${group.id}/students`}
-                                        className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-secondary transition-colors hover:bg-action-hover"
+                                        className="block w-full rounded-md px-3 py-2 text-left text-sm font-medium text-text-secondary transition-colors hover:bg-action-hover"
                                         onClick={() => setOpenMenu(null)}
                                       >
                                         {t("courseGroup.studentList")}

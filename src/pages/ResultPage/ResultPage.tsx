@@ -422,9 +422,10 @@ export default function ResultPage() {
     const hocKy = nhomHocPhan?.hocKy ?? "---";
     const namHoc = nhomHocPhan?.namHoc ?? "---";
     const maGiangVien =
+      nhomHocPhan?.giang_vien?.username ||
+      testData?.nguoiTao?.username ||
       nhomHocPhan?.giang_vien?.ma ||
       testData?.nguoiTao?.ma ||
-      testData?.nguoiTao?.username ||
       "---";
     const tenGiangVien =
       nhomHocPhan?.giang_vien?.hoTen || testData?.nguoiTao?.hoTen || "---";

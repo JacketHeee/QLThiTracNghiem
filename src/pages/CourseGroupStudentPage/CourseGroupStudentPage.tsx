@@ -171,15 +171,6 @@ export function CourseGroupStudentPage() {
               <Icon name="document" size={18} />
               {t("courseGroupStudent.exportList")}
             </Button>
-            {/* <Button variant="contained" color="primary" size="medium">
-              <Icon name="document" size={18} />
-              Xuất bảng điểm
-              <Icon
-                name="arrowDown"
-                size={16}
-                className="text-primary-contrast"
-              />
-            </Button> */}
             <Button
               variant="contained"
               color="primary"
@@ -188,9 +179,6 @@ export function CourseGroupStudentPage() {
             >
               <Icon name="plus" size={18} />
               {t("courseGroupStudent.addStudent")}
-            </Button>
-            <Button variant="outline" size="medium" isButtonIcon>
-              <Icon name="settings" />
             </Button>
           </div>
         </div>
