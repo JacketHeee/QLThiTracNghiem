@@ -162,6 +162,10 @@
       "male": "Male",
       "female": "Female"
     },
+    "toast": {
+      "exportEmpty": "The student list is empty, cannot export file.",
+      "exportFailed": "Failed to export student list."
+    },
     "form": {
       "manualAdd": "Manual add",
       "joinByInvite": "Join by invite code",

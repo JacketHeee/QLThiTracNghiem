@@ -114,8 +114,8 @@ export function CourseGroupForm({
 
   return (
     <Overlay onClose={onCancel}>
-      <div className="flex w-[720px] max-w-[95vw] flex-col overflow-hidden rounded-lg bg-background-paper">
-        <div className="flex items-center justify-between bg-primary-main px-6 py-3 text-primary-contrast">
+      <div className="flex w-[720px] max-w-[95vw] flex-col overflow-visible rounded-lg bg-background-paper">
+        <div className="flex items-center justify-between rounded-t-lg bg-primary-main px-6 py-3 text-primary-contrast">
           <h2 className="text-body-1 font-semibold text-primary-contrast">
             {isEdit
               ? t("courseGroup.form.updateTitle")
@@ -171,7 +171,7 @@ export function CourseGroupForm({
             />
           </div>
 
-          <div className="flex flex-col gap-1">
+          <div className="relative z-20 flex flex-col gap-1">
             <SelectField
               label={t("courseGroup.form.subject")}
               placeholder={t("courseGroup.form.subjectPlaceholder")}
@@ -235,7 +235,7 @@ export function CourseGroupForm({
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 bg-background-paper px-6 py-4">
+        <div className="flex items-center justify-end gap-3 rounded-b-lg bg-background-paper px-6 py-4">
           <Button variant="outline" color="standard" onClick={onCancel}>
             {t("courseGroup.form.close")}
           </Button>

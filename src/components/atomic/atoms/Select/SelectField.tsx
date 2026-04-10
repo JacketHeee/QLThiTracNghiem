@@ -46,6 +46,7 @@ export default function SelectField({
     <div
       className={cn(
         "group relative flex min-w-[150px] flex-1 flex-col rounded-md border border-other-outlined-border",
+        isOpen && "z-50",
         disabled &&
           "bg-action-disabledBackground pointer-events-none opacity-70", // Xử lý mode View
         classname
